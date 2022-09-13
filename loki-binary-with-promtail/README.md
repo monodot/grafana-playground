@@ -54,6 +54,15 @@ Start Promtail with our sample config (which collects logs from /var/log, and th
 promtail -config.file=promtail-config.yaml
 ```
 
+OR, to send to a [Grafana Cloud][cloud] instance of Loki:
+
+```
+export LOKI_USERNAME=yourUserID
+export LOKI_PASSWORD=your_grafana_cloud_api_key
+
+promtail -config.file=promtail-config-cloud.yaml -config.expand-env=true
+```
+
 #### Promtail config
 
 The Promtail config file tells Promtail to collect and relabel logs:
@@ -120,3 +129,5 @@ $ curl -G http://localhost:3100/loki/api/v1/query --data-urlencode 'query={filen
 
 
 [^1]: https://grafana.com/docs/loki/latest/clients/promtail/scraping/
+
+[cloud]: https://grafana.com/products/cloud/
