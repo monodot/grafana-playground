@@ -1,0 +1,49 @@
+# Configuration file for the opentelemetry-collector
+
+# Receivers are endpoints which this process exposes, so it can receive telemetry from apps.
+receivers:
+  # We create a receiver of type 'oltp'. OLTP can receive traces, metrics and logs.
+  otlp:
+    protocols:
+      grpc:
+        # 0.0.0.0:4317 is the default grpc oltp endpoint. 
+        # We don't need to declare it here, it just makes it easier to see what's going on.
+        endpoint: 0.0.0.0:4317
+
+# Processors can do things to the data before sending, like batching it or filtering it.
+processors:
+  # Configure a batch processor.
+  # "The batch processor accepts spans, metrics, or logs and places them into batches."
+  batch:
+    send_batch_size: 8192  # Number of objects which will be sent in each batch
+    timeout: 200ms  # Time after which a batch will be sent anyway, regardless of size
+    send_batch_max_size: 0  # Upper limit of the batch size, 0=no upper limit
+
+# Exporters are places where we'd like to send the observability data.
+exporters:
+  # We can create several exporters of type 'oltp', we just need to give them unique names
+  otlp/tempo:
+    # e.g. tempo-prod-blah-blah.grafana.net:443
+    endpoint: ${TEMPO_ENDPOINT}
+    headers:
+      # Base64 encoding of your user ID + ":" + your API key
+      authorization: Basic ${TEMPO_AUTH}
+  prometheusremotewrite:
+    # e.g.: https://prometheus-blah-blah.grafana.net/api/prom/push
+    endpoint: ${PROMETHEUS_ENDPOINT}
+    headers:
+      # Base64 encoding of your user ID + ":" + your API key
+      authorization: Basic ${PROMETHEUS_AUTH}
+
+service:
+  pipelines:
+    # Receive traces at our OLTP receiver, batch and send to Tempo
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/tempo]
+    # Receive metrics at our OLTP receiver, batch and send to Prometheus
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheusremotewrite]

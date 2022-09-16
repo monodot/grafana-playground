@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  petclinic:
+    build:
+      context: ./petclinic
+    image: petclinic:latest
+    environment:
+      - JAVA_TOOL_OPTIONS=-javaagent:/app/opentelemetry-javaagent.jar -Dotel.javaagent.debug=true
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=petclinic,service.namespace=acme-petcare,service.version=1.0.1,service.instance.id=74a8d1b4
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+    ports:
+      - "8080:8080"
+  
+  otel-collector:
+    image: docker.io/otel/opentelemetry-collector:0.59.0
+    command: "--config /etc/otel-config.yaml"
+    environment:
+      - TEMPO_ENDPOINT=${TEMPO_ENDPOINT}
+      - TEMPO_AUTH=${TEMPO_AUTH}
+      - PROMETHEUS_ENDPOINT=${PROMETHEUS_ENDPOINT}
+      - PROMETHEUS_AUTH=${PROMETHEUS_AUTH}
+    volumes:
+      - ./collector/otel-config.yaml:/etc/otel-config.yaml:z
