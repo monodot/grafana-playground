@@ -31,10 +31,13 @@ Set some env vars for Tempo and Prometheus:
 
 ```
 export TEMPO_ENDPOINT=the.endpoint.you.copied.earlier.grafana.net:443
-export TEMPO_AUTH=$(echo -n "123456:$(cat /path/to/your/apikey)" | base64 -w0 -)
+export TEMPO_AUTH=$(echo -n "111111:$(cat /path/to/your/apikey)" | base64 -w0 -)
 
 export PROMETHEUS_ENDPOINT=https://prometheus-region-country-blah.grafana.net/api/prom/push
-export PROMETHEUS_AUTH=$(echo -n "123456:$(cat /path/to/your/apikey)" | base64 -w0 -)
+export PROMETHEUS_AUTH=$(echo -n "222222:$(cat /path/to/your/apikey)" | base64 -w0 -)
+
+export LOKI_ENDPOINT=https://logs-env-blah.grafana.net/loki/api/v1/push
+export LOKI_AUTH=$(echo -n "333333:$(cat /path/to/your/apikey)" | base64 -w0 -)
 ```
 
 Then:

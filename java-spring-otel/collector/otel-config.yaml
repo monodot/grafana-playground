@@ -28,12 +28,25 @@ exporters:
     headers:
       # Base64 encoding of your user ID + ":" + your API key
       authorization: Basic ${TEMPO_AUTH}
+
   prometheusremotewrite:
     # e.g.: https://prometheus-blah-blah.grafana.net/api/prom/push
     endpoint: ${PROMETHEUS_ENDPOINT}
     headers:
       # Base64 encoding of your user ID + ":" + your API key
       authorization: Basic ${PROMETHEUS_AUTH}
+
+  # Support for loki is only in the "opentelemetry-contrib" Docker image
+  loki:
+    # endpoint: "https://<User>:<Your Grafana.com API Key>@logs-prod-eu-west-0.grafana.net/loki/api/v1/push"
+    endpoint: "https://logs-prod-008.grafana.net/loki/api/v1/push"
+    # tenant_id: "example1"
+    headers:
+      authorization: Basic ${LOKI_AUTH}
+    labels:
+      attributes:
+        container_name: ""
+        container_id: ""
 
 service:
   pipelines:
@@ -47,3 +60,8 @@ service:
       receivers: [otlp]
       processors: [batch]
       exporters: [prometheusremotewrite]
+    # Receive logs at our OTLP receiver, batch and send to Loki
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [loki]

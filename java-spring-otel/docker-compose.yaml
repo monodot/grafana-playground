@@ -14,12 +14,14 @@ services:
       - "8080:8080"
   
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector:0.59.0
+    image: docker.io/otel/opentelemetry-collector-contrib:0.60.0
     command: "--config /etc/otel-config.yaml"
     environment:
       - TEMPO_ENDPOINT=${TEMPO_ENDPOINT}
       - TEMPO_AUTH=${TEMPO_AUTH}
       - PROMETHEUS_ENDPOINT=${PROMETHEUS_ENDPOINT}
       - PROMETHEUS_AUTH=${PROMETHEUS_AUTH}
+      - LOKI_ENDPOINT=${LOKI_ENDPOINT}
+      - LOKI_AUTH=${LOKI_AUTH}
     volumes:
       - ./collector/otel-config.yaml:/etc/otel-config.yaml:z
