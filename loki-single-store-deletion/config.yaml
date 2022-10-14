@@ -1,0 +1,54 @@
+# Based on: https://raw.githubusercontent.com/grafana/loki/v2.6.1/cmd/loki/loki-local-config.yaml
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9096
+
+# Configure defaults for all of the Loki components
+# e.g. compactor, ingester, etc
+common:
+  path_prefix: /opt/loki
+  storage:
+    filesystem:
+      chunks_directory: /opt/loki/chunks
+      rules_directory: /opt/loki/rules
+  replication_factor: 1
+  ring:
+    instance_addr: 127.0.0.1
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: 2020-10-24
+      store: boltdb-shipper
+      object_store: filesystem
+      schema: v11
+      index:
+        prefix: index_
+        period: 24h
+
+ruler:
+  alertmanager_url: http://localhost:9093
+
+# The Compactor component performs compaction and retention of Loki's data files
+compactor:
+  # Directory where files can be downloaded for compaction.
+  working_directory: /opt/loki/compactor
+  # Shared store for keeping boltdb files. Supported types: gcs, s3, azure, filesystem
+  shared_store: filesystem
+  # Interval at which to re-run the compaction operation (or retention if enabled).
+  compaction_interval: 10m  # default=10m
+
+  retention_enabled: true
+  # Delay after which chunks will be fully deleted during retention.
+  retention_delete_delay: 10m  # a short grace period just for demo purposes
+  # The total amount of worker to use to delete chunks.
+  retention_delete_worker_count: 150  # default=150
+
+# Configures global and per-tenant limits in Loki.
+limits_config:
+  # The global retention period
+  retention_period: 24h  # minimum=24h
+

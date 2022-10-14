@@ -6,4 +6,4 @@ Demos of doing things with Grafana and the LGTM stack (Loki, Grafana, Tempo, Mim
 | --- | --- |
 | [Loki basic demo with Docker Compose](loki-docker-compose/README.md) | Runs Loki, Promtail and Grafana in containers with Docker Compose. |
 | [Loki binary deployment with Promtail](loki-binary-with-promtail/README.md) | Runs Loki and Promtail from the binary releases, collecting Linux logs from /var/log and the system journal. |
-
+| [Loki deletion with single store](loki-single-store-deletion/README.md) | Investigating how deletion works in Loki. |
