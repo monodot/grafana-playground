@@ -1,0 +1,10 @@
+apiVersion: v1
+data:
+  grafana.ini: |+
+    [enterprise]
+    license_path = /etc/grafana/license/license.jwt
+    [server]
+    root_url = ${GRAFANA_URL}
+kind: ConfigMap
+metadata:
+  name: ge-config
