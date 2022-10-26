@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ge-logs-tokengen
+spec:
+  template:
+    spec:
+      containers:
+        - name: ge-logs-tokengen
+          image: grafana/enterprise-logs:v1.5.2
+          imagePullPolicy: IfNotPresent
+          args:
+            - --config.file=/etc/ge-logs/config.yaml
+            - --target=tokengen
+          volumeMounts:
+            - mountPath: /etc/ge-logs
+              name: ge-logs-config
+            - mountPath: /etc/ge-logs/license
+              name: ge-logs-license
+      volumes:
+        - name: ge-logs-config
+          configMap:
+            name: ge-logs-config
+        - name: ge-logs-license
+          secret:
+            secretName: ge-logs-license
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: gcr

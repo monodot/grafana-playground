@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    name: ge-logs
+  name: ge-logs
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: ge-logs
+  serviceName: ge-logs
+  template:
+    metadata:
+      labels:
+        name: ge-logs
+    spec:
+      containers:
+        - args:
+            - -config.file=/etc/ge-logs/config.yaml
+          image: grafana/enterprise-logs:v1.5.2
+          imagePullPolicy: IfNotPresent
+          name: enterprise-logs
+          ports:
+            - containerPort: 80
+              name: http
+            - containerPort: 9095
+              name: grpc
+            - containerPort: 7946
+              name: gossip
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 80
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          volumeMounts:
+            - mountPath: /data
+              name: data
+            - mountPath: /etc/ge-logs
+              name: ge-logs-config
+            - mountPath: /etc/ge-logs/license
+              name: ge-logs-license
+      imagePullSecrets:
+        - name: gcr
+      securityContext:
+        runAsUser: 0
+      serviceAccount: ${KUBE_SA_NAME}
+      terminationGracePeriodSeconds: 300
+      volumes:
+        - name: ge-logs-config
+          configMap:
+            name: ge-logs-config
+        - name: ge-logs-license
+          secret:
+            secretName: ge-logs-license
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Gi
