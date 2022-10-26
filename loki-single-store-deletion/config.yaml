@@ -22,11 +22,15 @@ common:
 schema_config:
   configs:
     - from: 2020-10-24
+      # Which store to use for the index.
       store: boltdb-shipper
+      # Which store to use for the chunks.
       object_store: filesystem
       schema: v11
+      # Configures how the index is updated and stored.
       index:
         prefix: index_
+        # Table period (?)
         period: 24h
 
 ruler:
