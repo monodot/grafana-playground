@@ -34,6 +34,8 @@ echo "Done!"
 
 echo "---"
 echo "GEL is now available."
+echo "External IP:"
+echo "$(kubectl get svc ge-logs -o jsonpath='{.status.loadBalancer.ingress[0].ip}')"
 echo "You can access the API by port-forwarding to the GEL pod, e.g.:"
 echo "kubectl -n $namespace port-forward ge-logs-0 3100:3100"
 echo "Set the API token in your environment:"
