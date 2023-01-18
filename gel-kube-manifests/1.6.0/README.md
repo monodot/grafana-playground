@@ -1,21 +1,19 @@
-# Grafana Enterprise Logs 1.6.0 on Kubernetes deployed with manifests
+# Grafana Enterprise Logs 1.6.0 + Minio on Kubernetes
+
+This quick demo deploys Grafana Enterprise Logs 1.6.0 with Minio storage backend on Kubernetes.
 
 You will need a Kubernetes cluster for this.
 
 ## Deploy
 
-1. Create a namespace for Grafana Enterprise Logs:
+1. Edit the file `configmap.yaml` to set your GEL cluster name (as given in your license key), e.g. `cluster_name: tomdonohuegel`
 
-```bash
-kubectl create namespace grafana-enterprise-logs
-```
-
-2. Download your license file, ensure it's named `license.jwt` and place it in the current directory.
+2. Download your license file.
 
 3. Deploy Grafana Enterprise Logs:
 
 ```bash
-./deploy.sh [namespace]
+./deploy.sh [namespace] [path-to-license-file]
 ```
 
 ## Delete
