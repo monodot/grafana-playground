@@ -5,7 +5,7 @@ metadata:
     name: ge-logs
   name: ge-logs
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       name: ge-logs
@@ -22,7 +22,7 @@ spec:
           imagePullPolicy: IfNotPresent
           name: enterprise-logs
           ports:
-            - containerPort: 80
+            - containerPort: 3100
               name: http
             - containerPort: 9095
               name: grpc

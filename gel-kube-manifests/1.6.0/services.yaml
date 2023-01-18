@@ -28,7 +28,7 @@ spec:
   ports:
     - name: ge-logs-http
       port: 8100
-      targetPort: http
+      targetPort: 3100
   selector:
     name: ge-logs
   sessionAffinity: None
