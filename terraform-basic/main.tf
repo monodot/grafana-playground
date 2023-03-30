@@ -16,11 +16,13 @@ resource "grafana_cloud_stack" "stack_1" {
     provider = grafana.cloud
     name = "Test Stack 1"
     slug = "td77teststack1"
+    region_slug = "prod-us-east-0"
 }
 
 resource "grafana_cloud_stack" "stack_2" {
     provider = grafana.cloud
     name = "Test Stack 2"
     slug = "td77teststack2"
+    region_slug = "prod-us-east-0"
 }
 
