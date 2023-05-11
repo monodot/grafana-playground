@@ -1,4 +1,4 @@
-# loki-labels-demo
+# logs-promtail-examples
 
 This demo [Compose][compose] project shows how to use Promtail to read application log files, and send them to Grafana Cloud Logs or Loki. It also shows how to use the features of Promtail to add extra labels, and parse log lines.
 
