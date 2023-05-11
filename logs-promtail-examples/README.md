@@ -1,10 +1,20 @@
 # loki-labels-demo
 
-This demo [Compose][compose] project shows how to use Promtail to read application log files, add labels and send to Grafana Cloud Logs or Loki. Uses:
+This demo [Compose][compose] project shows how to use Promtail to read application log files, and send them to Grafana Cloud Logs or Loki. It also shows how to use the features of Promtail to add extra labels, and parse log lines.
 
-- [Promtail][promtail] - the official client for sending logs to Loki and Grafana Cloud Logs
+This demo consists of:
 
 - [Flog][flog] - a fake log generator
+
+- [Promtail][promtail] - the official client for sending logs to Loki and Grafana Cloud Logs. In this demo, Promtail is configured to read the fake log files from Flog.
+
+It shows these features of Promtail:
+
+- Reading log files from a directory
+
+- Extracting labels from JSON fields in the log lines
+
+- Sanitising IP addresses and usernames in the log lines
 
 ## Getting started
 

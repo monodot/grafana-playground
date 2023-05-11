@@ -35,16 +35,18 @@ scrape_configs:
       hostname: demohost
       region: emea
 
+  pipeline_stages:
+
   # An example pipeline, showing how to parse a JSON-formatted log entry
   # and extract some additional labels to add to it at source.
   #
   # TIP: prefer to define labels that describe the topology or provenance
   # of the log stream (where the log came from), rather than the logs' contents
   # (what's in the log).
-  pipeline_stages:
   - match: 
       # Only run this pipeline if the job label is set to floglogs
       selector: '{job="floglogs"}'
+      pipeline_name: 'extract-http-method-and-protocol'
       stages:
       - json:
           expressions:
@@ -53,3 +55,20 @@ scrape_configs:
       - labels:
           http_method:
           http_protocol:
+
+  # Another pipeline which also runs on the "floglogs" stream, and sanitises
+  # sensitive IP addresses and usernames before sending to Loki/Grafana Cloud
+  #
+  # It looks for IP addresses and usernames by regex, replacing them with
+  # hash values. This allows correlation across logs, without exposing the
+  # original IP address and username.
+  - match:
+      selector: '{job="floglogs"}'
+      pipeline_name: 'sanitise-user-and-ip'
+      stages:
+      - replace:
+          expression: '(\d{1,3}[.]\d{1,3}[.]\d{1,3}[.]\d{1,3})'
+          replace: 'hash-{{ .Value | Hash "salt" }}'
+      - replace:
+          expression: '"user-identifier":"(\w+)"'
+          replace: '{{ .Value | Hash "salt" }}'
