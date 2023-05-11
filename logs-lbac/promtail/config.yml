@@ -1,0 +1,45 @@
+# Originally based on:
+# https://raw.githubusercontent.com/grafana/loki/main/clients/cmd/promtail/promtail-local-config.yaml
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  # uncomment this line if you want to send logs to a local Loki OSS instance instead
+  # - url: http://localhost:3100/loki/api/v1/push
+
+  # Grafana Cloud endpoint details
+  - url: ${LOGS_ENDPOINT}/loki/api/v1/push
+    basic_auth:
+      username: ${LOGS_USERNAME}
+      password: ${GRAFANA_CLOUD_API_KEY}
+
+scrape_configs:
+- job_name: demologs
+
+  static_configs:
+  - targets:
+      - localhost
+    labels:
+      __path__: /var/log/demoapp-prod/*log
+
+      # Logs will have the "filename" label added to them.
+      # Also assign these additional labels:
+      app: demoapp
+      environment: production    # Note we add this label to identify production logs
+      hostname: prod-host
+
+  - targets:
+      - localhost
+    labels:
+      __path__: /var/log/demoapp-dev/*log
+
+      # Logs will have the "filename" label added to them.
+      # Also assign these additional labels:
+      app: demoapp
+      environment: development
+      hostname: dev-host

@@ -1,0 +1,35 @@
+services:
+
+  # A demo application which writes random logs to a file
+  demoapp-prod:
+    build: demoapp
+    volumes:
+      - ./logs/prod:/var/log/demoapp
+
+  # Spin up a second instance which writes to a different directory
+  demoapp-dev:
+    build: demoapp
+    volumes:
+      - ./logs/dev:/var/log/demoapp
+
+  # Promtail is configured to assign different labels to the two sets of logs.
+  # It can see both sets of logs (dev and prod)
+  promtail:
+    image: docker.io/grafana/promtail:latest
+    volumes:
+      - ./promtail:/etc/promtail
+      - ./logs/prod:/var/log/demoapp-prod
+      - ./logs/dev:/var/log/demoapp-dev
+    command: -config.file=/etc/promtail/config.yml -config.expand-env=true
+    environment:
+      - LOGS_USERNAME=${LOGS_USERNAME}
+      - LOGS_ENDPOINT=${LOGS_ENDPOINT}
+      - GRAFANA_CLOUD_API_KEY=${GRAFANA_CLOUD_API_KEY}
+    ports:
+      - 9081:9080
+
+  # If you want to run Grafana locally and add the Cloud Access Token
+  # grafana:
+  #   image: docker.io/grafana/grafana:latest
+  #   ports:
+  #     - "3000:3000"

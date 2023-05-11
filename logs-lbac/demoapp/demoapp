@@ -1,0 +1,20 @@
+#!/bin/bash
+
+LOG_FILE=/var/log/demoapp/demoapp.log
+
+echo "Writing logs to $LOG_FILE..."
+
+trap "echo 'Exiting...'; exit;" SIGINT SIGTERM
+
+while true; do
+  # Generate a random log entry
+  TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
+  LEVEL=$(shuf -n 1 -e "DEBUG" "INFO" "WARN" "ERROR" "FATAL")
+  MESSAGE=$(shuf -n 1 -e "User login successful" "Database connection lost" "Invalid input received" "Server timeout" "Unknown error occurred" "Sandwiches are ready" "Security patch installed" "Security alert received" "System reboot required")
+  
+  # Write the log entry to the file
+  echo "$TIMESTAMP [$LEVEL] $MESSAGE" >> $LOG_FILE
+  
+  # Wait for a random amount of time before generating the next log entry
+  sleep $(shuf -i 0-3 -n 1)
+done
