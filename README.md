@@ -10,3 +10,4 @@ Demos of doing things with Grafana and the LGTM stack (Loki, Grafana, Tempo, Mim
 | [Loki binary deployment with Promtail](loki-binary-with-promtail/README.md) | Runs Loki and Promtail from the binary releases, collecting Linux logs from /var/log and the system journal. |
 | [Loki deletion with single store](loki-single-store-deletion/README.md) | Investigating how deletion works in Loki. |
 | [Logs Promtail examples](logs-promtail-examples/README.md) | Shows how to use Promtail to read application log files, do some simple processing with pipelines, and send them to Grafana Cloud Logs or Loki. |
+| [Logs label-based access control](logs-lbac/README.md) | Shows how to restrict access to logs in Grafana Cloud Logs, using Cloud Access Policies. |
