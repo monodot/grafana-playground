@@ -1,0 +1,21 @@
+services:
+  promtail:
+    image: docker.io/grafana/promtail:latest
+    volumes:
+      - ./promtail:/etc/promtail
+      - ./flog:/var/log/flog
+    command: -config.file=/etc/promtail/config.yml -config.expand-env=true
+    environment:
+      - LOGS_USERNAME=${LOGS_USERNAME}
+      - LOGS_ENDPOINT=${LOGS_ENDPOINT}
+      - GRAFANA_CLOUD_API_KEY=${GRAFANA_CLOUD_API_KEY}
+    ports:
+      - 9081:9080
+
+  # Simulate an application that's writing JSON logs
+  # Promtail will "tail" the logs and send them to Loki
+  flog:
+    image: docker.io/mingrammer/flog:latest
+    volumes:
+      - ./flog:/var/log/flog
+    command: flog --type log --output /var/log/flog/flog.log --overwrite --loop --delay 0.1s --format json -p 1048576

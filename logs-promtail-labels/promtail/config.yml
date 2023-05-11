@@ -1,0 +1,55 @@
+# Originally based on:
+# https://raw.githubusercontent.com/grafana/loki/main/clients/cmd/promtail/promtail-local-config.yaml
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  # uncomment this line if you want to send logs to a local Loki OSS instance instead
+  # - url: http://localhost:3100/loki/api/v1/push
+
+  # Grafana Cloud endpoint details
+  - url: ${LOGS_ENDPOINT}/loki/api/v1/push
+    basic_auth:
+      username: ${LOGS_USERNAME}
+      password: ${GRAFANA_CLOUD_API_KEY}
+
+scrape_configs:
+- job_name: applogs
+
+  static_configs:
+  - targets:
+      - localhost
+    labels:
+      # Path to look for logs to send to Grafana Cloud Logs
+      __path__: /var/log/flog/*log
+      __path_exclude__: /var/log/flog/*bak
+
+      # Logs will have the "filename" label added to them.
+      # Assign these additional labels:
+      job: floglogs
+      hostname: demohost
+      region: emea
+
+  # An example pipeline, showing how to parse a JSON-formatted log entry
+  # and extract some additional labels to add to it at source.
+  #
+  # TIP: prefer to define labels that describe the topology or provenance
+  # of the log stream (where the log came from), rather than the logs' contents
+  # (what's in the log).
+  pipeline_stages:
+  - match: 
+      # Only run this pipeline if the job label is set to floglogs
+      selector: '{job="floglogs"}'
+      stages:
+      - json:
+          expressions:
+            http_method: method
+            http_protocol: protocol
+      - labels:
+          http_method:
+          http_protocol:
