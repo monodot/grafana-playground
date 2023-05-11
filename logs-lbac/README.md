@@ -12,19 +12,19 @@ This demo shows how to restrict access to logs in Grafana Cloud Logs, using Clou
 
 ### Create a Cloud Access Policy and a token
 
-Run the provided Terraform to create a Cloud Access Policy in your Grafana Cloud organisation:
+1. Run the provided Terraform to create a Cloud Access Policy in your Grafana Cloud organisation:
 
-```shell
-cd terraform
+    ```shell
+    cd terraform
 
-terraform init
+    terraform init
 
-terraform apply
-# You will be asked for values for:
-# grafana_cloud_api_key, grafana_cloud_org_slug, grafana_cloud_region
+    terraform apply
+    # You will be asked for values for:
+    # grafana_cloud_api_key, grafana_cloud_org_slug, grafana_cloud_region
 
-terraform output grafana_cloud_access_policy_token
-```
+    terraform output grafana_cloud_access_policy_token
+    ```
 
 2.  Make a note of the output value in the final step. You'll need it later, to add a new datasource.
 
