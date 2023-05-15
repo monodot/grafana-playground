@@ -5,12 +5,14 @@ services:
     build: demoapp
     volumes:
       - ./logs/prod:/var/log/demoapp
+    command: /var/log/demoapp/demoapp.log production
 
   # Spin up a second instance which writes to a different directory
   demoapp-dev:
     build: demoapp
     volumes:
       - ./logs/dev:/var/log/demoapp
+    command: /var/log/demoapp/demoapp.log development
 
   # Promtail is configured to assign different labels to the two sets of logs.
   # It can see both sets of logs (dev and prod)
