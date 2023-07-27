@@ -9,6 +9,8 @@ This uses:
 To run this, first set the variable `loki_endpoint` to your Grafana Cloud Logs endpoint (with username, API key and hostname). Then:
 
 ```
+cd terraform
+
 terraform init
 
 terraform apply
