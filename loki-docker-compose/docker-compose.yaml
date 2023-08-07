@@ -5,18 +5,21 @@ networks:
 
 services:
   loki:
-    image: docker.io/grafana/loki:2.6.0
+    image: docker.io/grafana/loki:main
     ports:
       - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/config.yaml
+    volumes:
+      - ./loki/config.yaml:/etc/loki/config.yaml:z
     networks:
       - loki
 
   promtail:
-    image: docker.io/grafana/promtail:2.6.0
+    image: docker.io/grafana/promtail:main
     volumes:
-      - /var/log:/var/log
-    command: -config.file=/etc/promtail/config.yml
+      - ./flog-logs:/var/log/flog:z
+      - ./promtail/config.yaml:/etc/promtail-config.yaml:z
+    command: -config.file=/etc/promtail-config.yaml
     networks:
       - loki
 
@@ -24,5 +27,17 @@ services:
     image: docker.io/grafana/grafana:latest
     ports:
       - "3000:3000"
+    environment:
+      - GF_FEATURE_TOGGLES_ENABLE="lokiFormatQuery logsExploreTableVisualisation"
+    networks:
+      - loki
+
+  # This is a modified version of the original getting started example
+  # which writes to a file instead of stdout
+  flog:
+    image: mingrammer/flog
+    command: --format json --delay 1s --loop --type log --output /var/log/flog/access.log
+    volumes:
+      - ./flog-logs:/var/log/flog:z
     networks:
       - loki
