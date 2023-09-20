@@ -24,11 +24,11 @@ services:
       - loki
 
   grafana:
-    image: docker.io/grafana/grafana:latest
+    image: docker.io/grafana/grafana:main
     ports:
       - "3000:3000"
     environment:
-      - GF_FEATURE_TOGGLES_ENABLE="lokiFormatQuery logsExploreTableVisualisation"
+      - GF_FEATURE_TOGGLES_ENABLE=lokiFormatQuery logsExploreTableVisualisation
     networks:
       - loki
 

@@ -31,7 +31,7 @@ scrape_configs:
 
       # Logs will have the "filename" label added to them.
       # Assign these additional labels:
-      job: floglogs
+      app: flog
       hostname: demohost
       region: emea
 
@@ -45,7 +45,7 @@ scrape_configs:
   # (what's in the log).
   - match: 
       # Only run this pipeline if the job label is set to floglogs
-      selector: '{job="floglogs"}'
+      selector: '{app="flog"}'
       pipeline_name: 'extract-http-method-and-protocol'
       stages:
       - json:
@@ -56,14 +56,14 @@ scrape_configs:
           http_method:
           http_protocol:
 
-  # Another pipeline which also runs on the "floglogs" stream, and sanitises
+  # Another pipeline which also runs on the "app=flog" stream, and sanitises
   # sensitive IP addresses and usernames before sending to Loki/Grafana Cloud
   #
   # It looks for IP addresses and usernames by regex, replacing them with
   # hash values. This allows correlation across logs, without exposing the
   # original IP address and username.
   - match:
-      selector: '{job="floglogs"}'
+      selector: '{app="flog"}'
       pipeline_name: 'sanitise-user-and-ip'
       stages:
       - replace:

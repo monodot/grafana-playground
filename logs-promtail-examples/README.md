@@ -34,6 +34,12 @@ It shows these features of Promtail:
     podman-compose up
     ```
 
+3.  Observe the logs in Grafana Cloud Logs or Loki.
+
+    You can also visit http://localhost:9081/targets to see the targets that Promtail is scraping.
+
+    Or, visit http://localhost:9081/metrics to see the metrics exposed by Promtail.
+
 [compose]: https://compose-spec.io/
 [promtail]: https://grafana.com/docs/loki/latest/clients/promtail/configuration/
 [flog]: https://github.com/mingrammer/flog
