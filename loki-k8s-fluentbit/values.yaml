@@ -1,0 +1,40 @@
+config:
+  outputs: |
+    [OUTPUT]
+        Name                   loki
+        Match                  *
+        Host                   ${LOKI_HOSTNAME}
+        Port                   ${LOKI_PORT}
+        tls                    on
+        tls.verify             on
+        http_user              ${LOKI_USERNAME}
+        http_passwd            ${LOKI_PASSWORD}
+
+        # This setting only adds labels which have been explicitly set on the Pod
+        # It doesn't add a set of useful default labels, you need to define them yourself.
+        auto_kubernetes_labels on
+
+        # FluentBit's Kubernetes filter adds some labels; we need to 
+        # manually add them here as Loki labels.
+        # Available labels are: 
+        # - pod_name
+        # - namespace_name
+        # - container_name
+        # - pod_id
+        # - host
+        # - docker_id
+        # - container_image
+        labels                 job=fluentbit,pod=$kubernetes['pod_name'],namespace=$kubernetes['namespace_name'],container=$kubernetes['container_name'],host=$kubernetes['host']
+
+        # We've added the Kubernetes fields as Loki labels, so remove them from the log line itself.
+        remove_keys            kubernetes
+
+        # This configuration gives a log line that looks like this:
+        # {
+        #   "time": "2023-10-16T10:23:54.439690967Z",
+        #   "stream": "stderr",
+        #   "_p": "F",
+        #   "log": "[2023/10/16 10:23:54] [ info] [input:tail:tail.0] inotify_fs_add(): inode=392785 watch_fd=14 name=/var/log/containers/fluent-bit-hpksp_fluent-bit_fluent-bit-f031dcc3c73198d6e9b0a5f43d0e95365f69f838c0021a7db3884c1b00a0b9a6.log"
+        # }
+        # with labels:
+        # container, host, job, namespace, pod, etc.
