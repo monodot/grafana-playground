@@ -29,3 +29,19 @@ terraform init
 terraform apply
 ```
 
+## Test
+
+Now ship some test logs:
+
+1.  Make a copy of the file `.env.example` and replace with the URL and token for your Loki instance.
+
+2.  Next, run the [Compose][compose] configuration, which will start the demo app (one simulating "development", and one simulating "production") and Promtail, and begin sending logs to your Grafana Cloud stack:
+
+    ```shell
+    docker compose up
+
+    # or: podman-compose up
+    ```
+
+[compose]: https://compose-spec.io/
+

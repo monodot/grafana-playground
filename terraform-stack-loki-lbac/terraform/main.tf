@@ -60,3 +60,7 @@ provider "grafana" {
   auth  = grafana_cloud_stack_service_account_token.cloud_sa.key
 }
 
+data "grafana_cloud_organization" "current" {
+  provider = grafana.cloud
+  slug     = "tomdonohue" // Obviously replace this with your own organisation :) 
+}
