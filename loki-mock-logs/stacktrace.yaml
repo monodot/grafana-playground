@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stacktrace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stacktrace
+  template:
+    metadata:
+      labels:
+        app: stacktrace
+    spec:
+      containers:
+      - name: alpine
+        image: alpine:latest
+        command: ["/bin/sh", "-c"]
+        args:
+        - /scripts/stacktrace.sh
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "512Mi"
+          requests:
+            cpu: "0.1"
+            memory: "128Mi"
+        volumeMounts:
+        - name: script-volume
+          mountPath: /scripts
+          readOnly: true
+      volumes:
+      - name: script-volume
+        configMap:
+          name: scripts
+          defaultMode: 0777
