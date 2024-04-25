@@ -4,8 +4,11 @@ This quick demo deploys Grafana Enterprise Logs 1.6.0 with Minio storage backend
 
 You will need a Kubernetes cluster for this.
 
+## Important notes
+
 - GEL needs a minimum of 2 replicas to run.
-- This cluster will be **exposed at a public IP address** (depending on your cloud provider's exact LoadBalancer implementation).
+
+- This cluster may be **exposed at a public IP address** (depending on your cloud provider's exact LoadBalancer implementation).
 
 ## Deploy
 
