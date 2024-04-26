@@ -1,0 +1,39 @@
+{
+    "provider": {
+        "grafana": [
+            {
+                "alias": "cloud",
+                "cloud_access_policy_token": "${var.grafana_cloud_access_policy_token}"
+            }
+        ]
+    },
+    "resource": {
+        "grafana_cloud_stack": {
+            "stack_1": [
+                {
+                    "name": "Test Stack 1",
+                    "provider": "grafana.cloud",
+                    "region_slug": "prod-us-west-0",
+                    "slug": "<STACK_SLUG>"
+                }
+            ]
+        }
+    },
+    "terraform": [
+        {
+            "required_providers": [
+                {
+                    "grafana": {
+                        "source": "grafana/grafana"
+                    }
+                }
+            ]
+        }
+    ],
+    "variable": {
+        "grafana_cloud_access_policy_token": {
+            "description": "Grafana Cloud access policy token with stack create permissions",
+            "type": "string"
+        }
+    }
+}
