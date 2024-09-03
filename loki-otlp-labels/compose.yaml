@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  alloy:
+    image: grafana/alloy:latest
+    volumes:
+      - $PWD/alloy/config.alloy:/etc/alloy/config.alloy:z
+      - alloy-data:/var/lib/alloy/data:z
+      - shared-logs:/var/log/shared
+    ports:
+      - "12346:12345"
+    environment:
+      - GEL_TENANT_ID=${GEL_TENANT_ID}
+      - GEL_TOKEN=${GEL_TOKEN}
+      - GEL_ENDPOINT=${GEL_ENDPOINT}
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - --stability.level=experimental
+      - /etc/alloy/config.alloy
+
+  logger:
+    image: alpine:latest
+    volumes:
+      - shared-logs:/var/log/shared
+    command: >
+      /bin/sh -c "while true; do 
+        echo \"Log entry at $$(date)\" >> /var/log/shared/app.log; 
+        sleep 10; 
+      done"
+
+volumes:
+  alloy-data:
+  shared-logs:

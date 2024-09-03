@@ -1,0 +1,90 @@
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+livedebugging {
+  enabled = true
+}
+
+loki.source.file "default" {
+  targets = [
+    {__path__ = "/var/log/shared/app.log"},
+  ]
+  forward_to = [loki.process.local.receiver]
+}
+
+loki.process "local" {
+  forward_to = [otelcol.receiver.loki.default.receiver]
+
+  stage.static_labels {
+      values = {
+        "foo" = "fooval",
+      }
+  }
+}
+
+otelcol.receiver.loki "default" {
+  output {
+    logs = [otelcol.processor.attributes.default.input]
+  }
+}
+
+otelcol.receiver.otlp "default" {
+  http {}
+  grpc {}
+
+  output {
+    logs = [otelcol.processor.attributes.default.input]
+  }
+}
+
+otelcol.processor.attributes "default" {
+  action {
+    key = "custom.label"
+    value = "label_1"
+    action = "insert"
+  }
+
+
+  output {
+    logs = [otelcol.processor.transform.default.input]
+  }
+}
+
+otelcol.processor.transform "default" {
+  error_mode = "ignore"
+
+  log_statements {
+    context = "resource"
+    statements = [
+      `set(attributes["custom.resource.attribute"], "henlo_borb")`,
+    ]
+  }
+
+  output {
+    logs    = [otelcol.processor.batch.default.input]
+  }
+}
+
+otelcol.processor.batch "default" {
+  output {
+    logs = [otelcol.exporter.otlphttp.default.input]
+  }
+}
+
+otelcol.exporter.debug "default" { 
+  verbosity = "detailed"
+}
+
+otelcol.exporter.otlphttp "default" {
+  client {
+    endpoint = env("GEL_ENDPOINT")
+    auth = otelcol.auth.basic.default.handler
+  }
+}
+
+otelcol.auth.basic "default" {
+  username = env("GEL_TENANT_ID")
+  password = env("GEL_TOKEN")
+}
