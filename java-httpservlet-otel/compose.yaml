@@ -1,0 +1,50 @@
+version: '3'
+
+volumes:
+  alloy-data:
+
+services:
+  app:
+    build: app
+    ports:
+      - "8080:8080"
+    environment:
+#      - OTEL_TRACES_EXPORTER=logging
+#      - OTEL_METRICS_EXPORTER=logging
+#      - OTEL_LOGS_EXPORTER=logging
+      - OTEL_SERVICE_NAME=hello-servlet
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4318
+      - JAVA_OPTS=-javaagent:/usr/local/tomcat/opentelemetry-javaagent.jar
+
+  test:
+    image: docker.io/curlimages/curl:latest
+    depends_on:
+      - app
+    command: >
+      sh -c "
+      sleep 5 &&
+      while true; do
+        echo 'Testing /api/hello endpoint...'
+        curl -f -s -o /dev/null -w 'Status: %{http_code}\n' http://app:8080/api/hello || echo 'Request failed'
+        sleep 1
+      done
+      "
+
+  alloy:
+    image: docker.io/grafana/alloy:latest
+    volumes:
+      - $PWD/alloy/config.alloy:/etc/alloy/config.alloy:z
+      - alloy-data:/var/lib/alloy/data:z
+    ports:
+      - "12346:12345"
+    environment:
+      - OTLP_ENDPOINT=${OTLP_ENDPOINT}
+      - GRAFANA_CLOUD_USERNAME=${GRAFANA_CLOUD_USERNAME}
+      - GRAFANA_CLOUD_TOKEN=${GRAFANA_CLOUD_TOKEN}
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - --stability.level=experimental
+      - /etc/alloy/config.alloy
