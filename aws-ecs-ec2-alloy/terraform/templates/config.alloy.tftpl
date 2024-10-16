@@ -1,0 +1,64 @@
+discovery.docker "linux" {
+  host = "unix:///var/run/docker.sock"
+}
+
+loki.source.docker "default" {
+  forward_to = [loki.process.httplog.receiver]
+
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.docker.linux.targets
+  labels     = {"cluster" = "${cluster_name}", "hostname" = "__HOSTNAME__"}
+  relabel_rules  = loki.relabel.docker.rules
+}
+
+loki.process "httplog" {
+  forward_to = [loki.write.cloud.receiver]
+
+  stage.json {
+    expressions = { 
+      method = "",
+      request = "",
+    }
+  }
+
+  stage.labels {
+    values = {
+      method = "",
+      request = "",
+    }
+  }
+}
+
+loki.relabel "docker" {
+  forward_to = [loki.write.cloud.receiver]
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_amazonaws_ecs_task_definition_family"]
+    target_label = "service_name"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_id"]
+    target_label  = "docker_container_id"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    target_label  = "docker_container_name"
+  }
+  rule {
+    action = "labelmap"
+    regex = "__meta_docker_container_label_(.+)"
+    replacement = "$1"
+  }
+}
+
+loki.write "cloud" {
+  endpoint {
+    url = env("GRAFANA_CLOUD_LOGS_URL")
+
+    basic_auth {
+      username = env("GRAFANA_CLOUD_LOGS_ID")
+      password = env("GRAFANA_CLOUD_API_KEY")
+    }
+  }
+}
+

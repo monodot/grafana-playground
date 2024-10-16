@@ -1,0 +1,3 @@
+loki_username       = "xxxxx"
+loki_password       = "xxxxx"
+loki_endpoint       = "https://logs-prod-999.grafana.net/loki/api/v1/push"
