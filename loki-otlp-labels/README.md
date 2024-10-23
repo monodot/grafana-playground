@@ -1,20 +1,24 @@
-# Setting custom OpenTelemetry Resource Attributes to promote as labels in Loki
+# Loki: Promote custom OpenTelemetry resource attributes to labels
 
-This Alloy config and demo app show how to set a Resource Attribute that will be promoted to a label in Loki.
+How to use Alloy to set a custom OpenTelemetry _Resource Attribute_, and then get Loki/GEL to automatically promote the attribute to a label, instead of structured metadata.
 
-Before running this, you'll need to configure your Loki/GEL distributor with an extra CLI arg, like this:
+## To run
+
+1.  You'll first need to configure your Loki/GEL distributor with an extra CLI arg, to give it the name of the resource attribute that you wish to promote to a label, like this:
 
     -distributor.otlp.default_resource_attributes_as_index_labels=custom.resource.attribute
 
-Then, edit `.env.sample` to fill in your GEL tenant ID and token.
+1.  Then, edit `.env.sample` to fill in your GEL tenant ID and token.
 
-Finally:
+1.  Finally:
 
+    ```shell
     podman-compose up
+    ```
 
 ## How it works
 
-In the Alloy configuration file, if you configure `otelcol.processor.batch` to send to `otelcol.exporter.debug` instead of `otelcol.exporter.otlphttp`, you'll see log resources in the console like this:
+In the Alloy configuration file, if you enable debug logging by configuring `otelcol.processor.batch` to send to `otelcol.exporter.debug` instead of `otelcol.exporter.otlphttp`, you'll see log resources in the console like this:
 
     ResourceLog #0
     Resource SchemaURL: 
@@ -42,6 +46,6 @@ In the Alloy configuration file, if you configure `otelcol.processor.batch` to s
 
 Notice that:
 
-- There is only **one** resource attribute, `custom.resource.attribute`.
+- There is only **one** resource attribute, called `custom.resource.attribute`.
 - The remaining attributes are simply just "attributes" - these will be stored as _structured metadata_ in Loki.
 
