@@ -15,7 +15,7 @@ services:
       - OTEL_SERVICE_NAME=hello-servlet
       - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4318
-      - JAVA_OPTS=-javaagent:/usr/local/tomcat/opentelemetry-javaagent.jar
+      - JAVA_OPTS=-javaagent:/usr/local/tomcat/opentelemetry-javaagent.jar -Dotel.javaagent.debug=true
 
   test:
     image: docker.io/curlimages/curl:latest
