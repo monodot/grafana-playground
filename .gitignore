@@ -1,1 +1,4 @@
 *.jwt
+.terraform
+*.tfstate
+*.tfstate.backup
