@@ -3,23 +3,41 @@ import os
 import re
 import sys
 from datetime import datetime
+import subprocess
+
+def is_file_in_git(filepath):
+    """Check if a file is tracked in Git."""
+    try:
+        # Use git ls-files to check if file is tracked
+        result = subprocess.run(
+            ['git', 'ls-files', '--error-unmatch', filepath],
+            capture_output=True,
+            text=True,
+            check=False  # Don't raise exception on non-zero exit
+        )
+        return result.returncode == 0
+    except FileNotFoundError:
+        print("Error: Git is not installed or not in PATH", file=sys.stderr)
+        sys.exit(1)
+    except subprocess.SubprocessError as e:
+        print(f"Error checking Git status: {e}", file=sys.stderr)
+        sys.exit(1)
 
 def get_latest_modification(directory):
-    """Get the most recent modification date of any file in the directory."""
-    latest_time = 0
-    for root, _, files in os.walk(directory):
-        for file in files:
-            file_path = os.path.join(root, file)
-            try:
-                mtime = os.path.getmtime(file_path)
-                latest_time = max(latest_time, mtime)
-            except OSError:
-                continue
-    
-    if latest_time == 0:
+    """Get the most recent modification date of any file in the directory that's in Git."""
+    try:
+        # Get the last commit date for the directory
+        result = subprocess.run(
+            ['git', 'log', '-1', '--format=%cs', directory],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        if result.stdout.strip():
+            return result.stdout.strip()
         return None
-    
-    return datetime.fromtimestamp(latest_time).strftime('%Y-%m-%d')
+    except subprocess.SubprocessError:
+        return None
 
 def extract_readme_info(filepath):
     """Extract H1 heading and first paragraph from README.md file."""
@@ -64,10 +82,11 @@ def generate_table():
     
     for subdir in sorted(subdirs):  # Sort directories for consistent output
         readme_path = os.path.join(subdir, 'README.md')
-        if os.path.exists(readme_path):
+        # Only process if file exists and is tracked in Git
+        if os.path.exists(readme_path) and is_file_in_git(readme_path):
             heading, paragraph = extract_readme_info(readme_path)
             if heading and paragraph:
-                # Get the latest modification date for the directory
+                # Get the latest modification date from Git history
                 last_updated = get_latest_modification(subdir) or "N/A"
                 
                 # Combine title and description with markdown formatting
