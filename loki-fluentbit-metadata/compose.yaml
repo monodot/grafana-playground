@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  fluent-bit:
+    image: docker.io/fluent/fluent-bit:latest
+    volumes:
+      - ./fluentbit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - ./fluentbit/parsers.conf:/fluent-bit/etc/parsers.conf:ro
+      - ./flog-logs:/var/log/flog:z
+    environment:
+      - LOGS_ENDPOINT=${LOGS_ENDPOINT}
+      - LOGS_USERNAME=${LOGS_USERNAME}
+      - GRAFANA_CLOUD_API_KEY=${GRAFANA_CLOUD_API_KEY}
+    restart: unless-stopped
+    depends_on:
+      - flog
+
+  flog:
+    image: docker.io/mingrammer/flog:latest
+    command: --format json --delay 1s --loop --type log --overwrite --output /var/log/flog/access.json
+    volumes:
+      - ./flog-logs:/var/log/flog:z
+    restart: unless-stopped
+
+  # # Debug container with shell access
+  # debug:
+  #   image: docker.io/library/alpine:latest
+  #   volumes:
+  #     - ./flog-logs:/var/log/flog:z
+  #   command: tail -f /dev/null
+
