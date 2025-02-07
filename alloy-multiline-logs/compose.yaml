@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  alloy:
+    image: grafana/alloy:latest
+    volumes:
+      - $PWD/alloy/config.alloy:/etc/alloy/config.alloy:z
+      - alloy-data:/var/lib/alloy/data:z
+      - shared-logs:/var/log/shared
+    ports:
+      - "12346:12345"
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - --stability.level=experimental
+      - /etc/alloy/config.alloy
+
+  logger:
+    image: alpine:latest
+    volumes:
+      - shared-logs:/var/log/shared
+    command: |
+      /bin/sh -c "while true; do 
+        echo \"$(date -Iseconds) New log entry with
+          multiline fun,
+          carrots,
+          pineapple,
+            and
+          bananas\" | tee -a /var/log/shared/app.log;
+        sleep 5;
+      done"
+
+  loki:
+    image: docker.io/grafana/loki:latest
+    ports:
+      - "3100:3100"
+
+volumes:
+  alloy-data:
+  shared-logs:

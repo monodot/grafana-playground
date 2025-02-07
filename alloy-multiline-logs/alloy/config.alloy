@@ -1,0 +1,36 @@
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+livedebugging {
+  enabled = true
+}
+
+loki.source.file "default" {
+  targets = [
+    {__path__ = "/var/log/shared/app.log"},
+  ]
+  forward_to = [loki.process.local.receiver]
+}
+
+loki.process "local" {
+  forward_to = [loki.write.grafana_loki.receiver]
+
+  stage.static_labels {
+      values = {
+        "demo" = "alloy-multiline-logs",
+        "repo" = "monodot/grafana-playground",
+      }
+  }
+
+  stage.multiline {
+    firstline = "^\\d{4}-\\d{2}-\\d{2}T\\d{1,2}:\\d{2}:\\d{2}"
+  }
+}
+
+loki.write "grafana_loki" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
