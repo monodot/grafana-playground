@@ -80,7 +80,7 @@ To look for traces, choose the Tempo (traces) data source from the drop-down box
 
 Here's what it looks like to view a trace:
 
-<img src="./grafana-explore-traces.png"/>
+<img src="./grafana-explore-traces.png" alt="Explore Traces"/>
 
 You can also search for metrics using Prometheus as a data source.
 
@@ -89,7 +89,7 @@ Happy exploring!
 
 ## You're done, now celebrate
 
-<img src="https://media.giphy.com/media/TqbFdc9RWBLk1FC7tM/giphy.gif"/>
+<img src="https://media.giphy.com/media/TqbFdc9RWBLk1FC7tM/giphy.gif" alt="Party time"/>
 
 [1]: https://github.com/spring-projects/spring-petclinic
 [2]: https://grafana.com/products/cloud/
