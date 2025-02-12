@@ -1,8 +1,8 @@
 # java-spring-otel
 
-Demo of collecting traces, logs and metrics from a Java application and sending them to [Grafana Cloud][2]. 
+Demo of collecting traces, logs and metrics from a Java application and sending them to Grafana Cloud.
 
-This leverages the legendary, ubiquitous [Spring Petclinic][1] demo app!
+This leverages the legendary, ubiquitous Spring Petclinic demo app!
 
 **Instructions given for a Linux environment. Substitute equivalent Windows commands if you need to.**
 
