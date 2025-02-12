@@ -2,7 +2,7 @@ version: '3'
 
 services:
   alloy:
-    image: grafana/alloy:latest
+    image: docker.io/grafana/alloy:latest
     volumes:
       - $PWD/alloy/config.alloy:/etc/alloy/config.alloy:z
       - alloy-data:/var/lib/alloy/data:z
@@ -16,8 +16,11 @@ services:
       - --stability.level=experimental
       - /etc/alloy/config.alloy
 
+  # Other formats:
+  # $(date -Iseconds) = 2025-02-12T18:54:09+00:00
+  # $(date '+%Y-%m-%d %H:%M:%S.000 %z') = 2025-02-12 18:14:33.000 +0000
   logger:
-    image: alpine:latest
+    image: docker.io/library/alpine:latest
     volumes:
       - shared-logs:/var/log/shared
     command: |
