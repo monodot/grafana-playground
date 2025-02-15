@@ -1,0 +1,69 @@
+version: '3'
+
+services:
+  alloy:
+    image: docker.io/grafana/alloy:latest
+    environment:
+      - LOKI_WRITE_BATCH_SIZE=10KiB
+      - LOKI_WRITE_MAX_BACKOFF_RETRIES=5
+    volumes:
+      - $PWD/alloy/config.alloy:/etc/alloy/config.alloy:z
+      - alloy-data:/var/lib/alloy/data:z
+      - shared-logs:/var/log/shared
+    ports:
+      - "12346:12345"
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - --stability.level=experimental
+      - /etc/alloy/config.alloy
+
+  # Set a very low ingestion rate limit (100k/sec) to demonstrate the effect of rate limiting
+  # Also set a burst rate, which we'll temporarily exceed
+  loki:
+    image: docker.io/grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command:
+      - -config.file=/etc/loki/local-config.yaml
+      - -distributor.ingestion-rate-limit-mb=0.1  # 100kb/sec
+      - -distributor.ingestion-burst-size-mb=0.2  # 200kb/sec
+
+  logger:
+    image: docker.io/library/python:3
+    environment:
+      - PYTHONUNBUFFERED=1
+      - REGULAR_RATE=70
+      - BURST_RATE=250
+      - BURST_DURATION=10
+      - BURST_INTERVAL=50
+    volumes:
+      - shared-logs:/var/log/shared
+      - ./logger:/logger:Z
+    command: python /logger/logger.py /var/log/shared/app.log
+    stop_grace_period: 2s
+
+  grafana:
+    image: docker.io/grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_INSTALL_PLUGINS=yesoreyeram-infinity-datasource
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:z
+
+  prometheus:
+    image: docker.io/prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+    volumes:
+      - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml:z
+
+volumes:
+  shared-logs:
+  alloy-data:
