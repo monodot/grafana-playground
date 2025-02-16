@@ -1,6 +1,6 @@
 # loki-rate-limit-alloy
 
-Shows how rate limiting works in Loki and Alloy. Sets an arbitrary rate limit of ~1k of logs per second. Then sends more than this in bursts, and observes how Loki and Alloy handle the rate limiting.
+Shows how rate limiting works in Loki and Alloy. Sets an arbitrary rate limit in Loki. Then sends more than this in bursts, and observes how Loki and Alloy handle the rate limiting.
 
 ## Prerequisites
 
