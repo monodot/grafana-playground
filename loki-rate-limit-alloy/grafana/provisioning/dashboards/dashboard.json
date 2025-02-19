@@ -212,7 +212,7 @@
           "editorMode": "code",
           "exemplar": false,
           "expr": "sum(rate(loki_write_dropped_entries_total{}[$__rate_interval]))",
-          "instant": true,
+          "instant": false,
           "interval": "",
           "legendFormat": "__auto",
           "range": true,
@@ -537,6 +537,6 @@
   "timezone": "browser",
   "title": "Loki rate limit demo",
   "uid": "loki-rate-limit-demo",
-  "version": 5,
+  "version": 1,
   "weekStart": ""
 }
