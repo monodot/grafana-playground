@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  alloy:
+    image: docker.io/grafana/alloy:latest
+    volumes:
+      - $PWD/alloy/config.alloy:/etc/alloy/config.alloy:z
+      - alloy-data:/var/lib/alloy/data:z
+      - shared-logs:/var/log/shared
+    environment:
+      - GRAFANA_CLOUD_LOGS_ID=${GRAFANA_CLOUD_LOGS_ID}
+      - GRAFANA_CLOUD_LOGS_URL=${GRAFANA_CLOUD_LOGS_URL}
+      - GRAFANA_CLOUD_API_KEY=${GRAFANA_CLOUD_API_KEY}
+    ports:
+      - "12346:12345"
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - --stability.level=experimental
+      - /etc/alloy/config.alloy
+
+  jobapi:
+    build: ./jobapi
+    environment:
+      - LOG_FILE=/var/log/shared/app.log
+    volumes:
+      - shared-logs:/var/log/shared
+    ports:
+      - "3001:3000"
+
+volumes:
+  shared-logs:
+  alloy-data:

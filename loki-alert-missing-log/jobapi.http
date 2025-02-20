@@ -1,0 +1,19 @@
+### POST create a job
+POST http://localhost:3001/api/jobs
+Content-Type: application/json
+
+{
+  "name": "data-processing",
+  "duration": 5000,
+  "shouldSucceed": true
+}
+
+### POST create a failed job
+POST http://localhost:3001/api/jobs
+Content-Type: application/json
+
+{
+  "name": "data-processing",
+  "duration": 5000,
+  "shouldSucceed": false
+}

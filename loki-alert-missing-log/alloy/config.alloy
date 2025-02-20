@@ -1,0 +1,39 @@
+logging {
+	level  = "info"
+	format = "logfmt"
+	write_to = [loki.write.cloud.receiver]
+}
+
+livedebugging {
+	enabled = true
+}
+
+loki.source.file "default" {
+	targets = [
+		{__path__ = "/var/log/shared/app.log"},
+	]
+
+	forward_to = [loki.process.local.receiver]
+}
+
+loki.process "local" {
+	stage.static_labels {
+		values = {
+			"repo" = "monodot/grafana-playground",
+			"service_name" = "loki-alert-missing-log",
+		}
+	}
+
+    forward_to = [loki.write.cloud.receiver]
+}
+
+loki.write "cloud" {
+  endpoint {
+    url = env("GRAFANA_CLOUD_LOGS_URL")
+
+    basic_auth {
+      username = env("GRAFANA_CLOUD_LOGS_ID")
+      password = env("GRAFANA_CLOUD_API_KEY")
+    }
+  }
+}
