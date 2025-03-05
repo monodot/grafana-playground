@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  alloy:
+    image: docker.io/grafana/alloy:latest
+    volumes:
+      - $PWD/alloy/config.alloy:/etc/alloy/config.alloy:z
+      - alloy-data:/var/lib/alloy/data:z
+      - shared-logs:/var/log/shared
+    ports:
+      - "12346:12345"
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - --stability.level=experimental
+      - /etc/alloy/config.alloy
+
+  # Other formats:
+  # $(date -Iseconds) = 2025-02-12T18:54:09+00:00
+  # $(date '+%Y-%m-%d %H:%M:%S.000 %z') = 2025-02-12 18:14:33.000 +0000
+  logger:
+    image: docker.io/library/alpine:latest
+    volumes:
+      - shared-logs:/var/log/shared
+    command: |
+      /bin/sh -c "while true; do 
+        echo \"$(date -Iseconds) I am a log entry\" | tee -a /var/log/shared/app.log;
+        sleep 5;
+      done"
+
+volumes:
+  alloy-data:
+  shared-logs:

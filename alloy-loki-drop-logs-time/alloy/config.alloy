@@ -1,0 +1,47 @@
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+livedebugging {
+  enabled = true
+}
+
+loki.source.file "default" {
+  targets = [
+    {__path__ = "/var/log/shared/app.log"},
+  ]
+  forward_to = [loki.process.local.receiver]
+}
+
+loki.process "local" {
+  forward_to = [loki.echo.myecho.receiver]
+
+  stage.static_labels {
+      values = {
+        "repo" = "monodot/grafana-playground",
+        "service_name" = "alloy-loki-drop-logs-time",
+      }
+  }
+
+  // Extracting a timestamp from the log line
+  // The timestamp looks like this in our demo app's log lines: 2025-03-05T11:28:51+00:00
+  stage.regex {
+    expression = "^(?s)(?P<mytime>\\S+?) (?P<message>.*)$"
+  }
+  stage.timestamp {
+    source = "mytime"
+    format = "rfc3339"
+  }
+
+  // Drop all logs with a timestamp between the hours of 18:00 and 08:59
+  stage.drop {
+    source = "mytime"
+    expression = "\\d{4}-\\d{2}-\\d{2}T(0[0-8]|1[8-9]|2[0-3]):\\d{2}:\\d{2}" // Drop between 18:00 and 09:00
+    // expression = "\\d{4}-\\d{2}-\\d{2}T(11|2[0-3]):\\d{2}:\\d{2}" // Alternative: Drop between 11:00-12:00, and 20:00-00:00
+    drop_counter_reason = "log_outside_desired_time_range"
+  }
+
+}
+
+loki.echo "myecho" {}
