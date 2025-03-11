@@ -1,0 +1,56 @@
+alloy:
+  configMap:
+    content: |-
+      logging {
+        level = "debug"
+        format = "logfmt"
+      }
+
+      discovery.relabel "logs_integrations_integrations_gcp" {
+        targets = []
+
+        rule {
+          source_labels = ["__gcp_logname"]
+          target_label  = "logname"
+        }
+
+        rule {
+          source_labels = ["__gcp_resource_type"]
+          target_label  = "resource_type"
+        }
+      }
+
+      loki.source.gcplog "logs_integrations_integrations_gcp" {
+        pull {
+          project_id   = "my-gcp-project-1234567890"
+          subscription = "sandwiches-subscription"
+          labels       = {
+            job = "integrations/gcp",
+          }
+        }
+        forward_to    = [loki.echo.test.receiver]
+      }
+
+      loki.echo "test" {}
+
+  resources:
+    limits:
+      memory: "128Mi"
+      cpu: "100m"
+    requests:
+      memory: "64Mi"
+      cpu: "20m"
+  mounts:
+    extra:
+      - name: google-adc
+        mountPath: /gcloud
+  extraEnv:
+    - name: GOOGLE_APPLICATION_CREDENTIALS
+      value: /gcloud/service-account-key.json
+
+controller:
+  volumes:
+    extra:
+      - name: google-adc
+        secret:
+          secretName: gcp-logs
