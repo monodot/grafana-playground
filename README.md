@@ -7,6 +7,7 @@ Demos of doing things with Grafana and the LGTM stack (Loki, Grafana, Tempo, Mim
 <!-- BEGIN_LIST -->
 | Path | Description | Last Updated |
 |------|-------------|--------------|
+| [alloy-helm-gcplogs](alloy-helm-gcplogs/README.md) | **alloy-helm-gcplogs**<br>Shows how to deploy Alloy with the Helm chart, configured with authentication to Google Cloud Platform to pull logs from a PubSub topic. | 2025-03-11 |
 | [alloy-loki-drop-logs-time](alloy-loki-drop-logs-time/README.md) | **alloy-loki-drop-logs-time**<br>Shows how to drop logs in Alloy based on the hour of the day. | 2025-03-05 |
 | [alloy-multiline-logs](alloy-multiline-logs/README.md) | **alloy-multiline-logs**<br>Shows how to use Grafana Alloy to collect logs from an application, where the logs are in a multi-line format and need to be merged before sending to Loki. | 2025-02-12 |
 | [aws-ecs-ec2-alloy](aws-ecs-ec2-alloy/README.md) | **AWS: Send logs from an ECS task on EC2 to Grafana Cloud Logs with Grafana Alloy**<br>This example shows how to collect logs from tasks running on ECS EC2 instances, using Grafana Alloy running as a Daemon on the VM. | 2024-10-16 |
