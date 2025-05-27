@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  grafana-alloy:
+    image: docker.io/grafana/alloy:latest
+    ports:
+      - "4317:4317/tcp" # OTLP gRPC
+      - "4318:4318/tcp" # OTLP HTTP
+    environment:
+      - GRAFANA_CLOUD_OTLP_ENDPOINT=${GRAFANA_CLOUD_OTLP_ENDPOINT}
+      - GRAFANA_CLOUD_INSTANCE_ID=${GRAFANA_CLOUD_INSTANCE_ID}
+      - GRAFANA_CLOUD_API_KEY=${GRAFANA_CLOUD_API_KEY}
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy # Bind mount the local config file
+    logging:
+      driver: "json-file" # Docker Compose typically logs to stdout/stderr, which can be collected by logging drivers
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:4317/"] # Example healthcheck, adjust as needed for Alloy
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 5
+
+  mythical-beasts-server:
+    image: grafana/intro-to-mltp:mythical-beasts-server-latest
+    ports:
+      - "4000:4000/tcp"
+    environment:
+      - ENDPOINT_TYPE=BORING
+      - TRACING_COLLECTOR_HOST=grafana-alloy
+      - TRACING_COLLECTOR_PORT=4317
+      - MYTHICAL_DATABASE_HOST=mythical-beasts-database
+      - OTEL_EXPORTER_OTLP_TRACES_INSECURE=true
+    depends_on:
+      - grafana-alloy
+      - mythical-beasts-database
+    logging:
+      driver: "json-file"
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:4000/health"] # Example healthcheck
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 5
+
+  mythical-beasts-database:
+    image: docker.io/library/postgres:14.5
+    ports:
+      - "5432:5432/tcp"
+    environment:
+      - POSTGRES_PASSWORD=mythical
+    logging:
+      driver: "json-file"
+    # healthcheck:
+    #   test: ["CMD-SHELL", "pg_isready -U postgres"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+
+  mythical-beasts-requester:
+    image: grafana/intro-to-mltp:mythical-beasts-requester-latest
+    restart: always  # Because we need to wait for Rabbit to start
+    ports:
+      - "4001:4001/tcp"
+    environment:
+      - ENDPOINT_TYPE=BORING
+      - TRACING_COLLECTOR_HOST=grafana-alloy
+      - TRACING_COLLECTOR_PORT=4317
+      - MYTHICAL_SERVER_HOST_PORT=mythical-beasts-server:4000
+    depends_on:
+      - grafana-alloy
+      - mythical-beasts-server
+    logging:
+      driver: "json-file"
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:4001/health"] # Example healthcheck
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 5
+
+  mythical-queue:
+    image: docker.io/library/rabbitmq:management
+    ports:
+      - "5672:5672/tcp"
+    environment:
+      - NAMESPACE=production
+    logging:
+      driver: "json-file"
+    # healthcheck:
+    #   test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 5
+
+# No named volumes needed if only using bind mounts for config files
+# volumes:
+#   alloy-config: # This named volume is no longer used for the config file
