@@ -1,0 +1,6 @@
+### POST request to send a message
+POST http://localhost:8080/send
+Content-Type: application/x-www-form-urlencoded
+
+message = Barry White
+
