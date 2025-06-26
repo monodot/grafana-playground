@@ -1,0 +1,58 @@
+logging {
+	level  = "debug"
+	format = "logfmt"
+}
+
+otelcol.receiver.awscloudwatch "default" {
+	region = "us-east-1"
+
+	logs {
+		poll_interval          = "30s"
+		max_events_per_request = 5000
+
+		groups {
+			named {
+				group_name = "/aws/lambda/loki-structured-metadata-demo-tdonohue" # Replace this with your actual CloudWatch log group name
+			}
+		}
+	}
+
+	output {
+		logs = [otelcol.processor.transform.default.input]
+	}
+}
+
+otelcol.processor.transform "default" {
+  log_statements {
+    context = "resource"
+    statements = [
+      `set(attributes["service.name"], ExtractPatterns(resource.attributes["cloudwatch.log.group.name"], "^/aws/lambda/(?P<function>.*)$")["function"])`,
+    ]
+  }
+
+  output {
+    logs = [otelcol.processor.batch.default.input]
+  }
+}
+
+otelcol.exporter.debug "default" {
+	verbosity = "detailed"
+}
+
+otelcol.processor.batch "default" {
+	output {
+		logs = [otelcol.exporter.otlphttp.default.input]
+	}
+}
+
+otelcol.auth.basic "grafana_cloud" {
+	username = env("GRAFANA_CLOUD_OTLP_USERNAME")
+	password = env("GRAFANA_CLOUD_API_KEY")
+}
+
+otelcol.exporter.otlphttp "default" {
+	client {
+		endpoint = env("GRAFANA_CLOUD_OTLP_URL")
+		auth     = otelcol.auth.basic.grafana_cloud.handler
+	}
+}
