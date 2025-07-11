@@ -1,0 +1,23 @@
+logging {
+	level  = "debug"
+	format = "logfmt"
+}
+
+// MARK: - Loki configuration
+
+loki.source.api "loki_push_api" {
+	http {
+		listen_address = "0.0.0.0"
+		listen_port    = 3100
+	}
+	forward_to = [
+		loki.write.cloud.receiver,
+	]
+}
+
+loki.write "cloud" {
+	endpoint {
+		url = sys.env("LOKI_ENDPOINT")
+	}
+}
+
