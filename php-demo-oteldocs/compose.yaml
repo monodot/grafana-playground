@@ -1,12 +1,29 @@
 services:
   app:
-    build: .
+    build:
+      context: app
     ports:
       - "8080:8080"
     volumes:
-      - ./index.php:/app/index.php
+      - ./app/index.php:/app/index.php
     environment:
       - OTEL_PHP_AUTOLOAD_ENABLED=true
-      - OTEL_TRACES_EXPORTER=console
+      - OTEL_TRACES_EXPORTER=otlp
       - OTEL_METRICS_EXPORTER=none
       - OTEL_LOGS_EXPORTER=console
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4318
+      - OTEL_SERVICE_NAME=rolldice-php
+
+  alloy:
+    image: docker.io/grafana/alloy:latest
+    ports:
+      - "4317:4317/tcp" # OTLP gRPC
+      - "4318:4318/tcp" # OTLP HTTP
+    environment:
+      - GRAFANA_CLOUD_OTLP_ENDPOINT=${GRAFANA_CLOUD_OTLP_ENDPOINT}
+      - GRAFANA_CLOUD_INSTANCE_ID=${GRAFANA_CLOUD_INSTANCE_ID}
+      - GRAFANA_CLOUD_API_KEY=${GRAFANA_CLOUD_API_KEY}
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy
+    logging:
+      driver: "json-file"

@@ -3,9 +3,12 @@
         "slim/slim": "^4",
         "slim/psr7": "^1",
         "open-telemetry/sdk": "^1.0",
+        "open-telemetry/exporter-otlp": "^1.0",
         "open-telemetry/opentelemetry-auto-slim": "^1.0",
         "monolog/monolog": "^3.5",
-        "open-telemetry/opentelemetry-logger-monolog": "^1.0"
+        "open-telemetry/opentelemetry-logger-monolog": "^1.0",
+        "guzzlehttp/guzzle": "^7.0",
+        "php-http/guzzle7-adapter": "^1.0"
     },
     "config": {
         "allow-plugins": {
