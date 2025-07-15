@@ -1,0 +1,12 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./index.php:/app/index.php
+    environment:
+      - OTEL_PHP_AUTOLOAD_ENABLED=true
+      - OTEL_TRACES_EXPORTER=console
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=console
