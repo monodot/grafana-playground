@@ -1,20 +1,43 @@
 # AWS ECS Fargate demos
 
-These demos show various ways of shipping telemetry from AWS ECS Fargate to the Grafana LGTM stack, or Grafana Cloud, using:
+This repository contains demonstrations of different ways to ship telemetry from AWS ECS Fargate to Grafana Cloud or the Grafana LGTM stack.
 
-- AWS
-- ECS with Fargate
-- Firelens (which is a container that runs alongside your application container and sends logs to a destination of your choice)
+## Demo Overview
 
-This demo does some imporant things:
+The repository contains two main demos:
 
-- Sets the `service_name` label to the Loki logs, which is essential for easy navigation in Grafana Drilldown Logs.
+1. **FireLens to Loki** - A simple demo that uses AWS FireLens (Fluent Bit) to ship logs directly from an ECS Fargate task to Grafana Loki.
 
-To run this, first set the variable `loki_endpoint` to your Grafana Cloud Logs endpoint (with username, API key and hostname). Then:
+2. **Alloy Sidecar** - A more advanced demo that uses Grafana Alloy as a sidecar container to collect and process logs before sending them to Loki.
+
+Both demos use:
+- AWS ECS with Fargate launch type
+- FireLens (a container that runs alongside your application container to route logs)
+- Custom labels to enhance log discoverability
+
+Additionally, the repository includes an EventBridge to Firehose integration that captures ECS events and forwards them to Grafana Cloud.
+
+## Key Features
+
+- Sets the `service_name` and `service_namespace` labels on Loki logs, which is essential for easy navigation in Grafana Drilldown Logs
+- Demonstrates different deployment patterns for observability in containerized environments
+- Shows how to use Grafana Alloy as a sidecar for more advanced telemetry processing
+- Includes EventBridge integration to capture AWS service events
+
+## Getting Started
+
+To run these demos, first set the required variables:
+
+1. Set `loki_endpoint` to your Grafana Cloud Logs endpoint (with username, API key and hostname)
+2. For the Firehose integration, set the required Grafana Cloud variables:
+   - `grafana_cloud_firehose_target_endpoint`
+   - `grafana_cloud_logs_instance_id`
+   - `grafana_cloud_access_policy_token`
+
+Then run:
 
 ```
 terraform init
-
 terraform apply
 ```
 
