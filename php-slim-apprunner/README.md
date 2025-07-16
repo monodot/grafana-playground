@@ -6,9 +6,10 @@ This repository contains a demonstration of how to deploy a PHP application with
 
 This demo showcases:
 
-1. **PHP Slim Framework Application** - A simple PHP application built with the [Slim Framework](https://www.slimframework.com/) that includes:
+1. **PHP Slim Framework Application** - A simple PHP application ([index.php](app/public/index.php)) built with the [Slim Framework](https://www.slimframework.com/) that includes:
    - A `/rolldice` endpoint that simulates rolling a dice
-   - A `/fetch` endpoint that demonstrates database connectivity
+   - A `/fetch` endpoint that demonstrates a network request
+   - A `/users` endpoint that demonstrates database connectivity with MySQL
    - Automatic instrumentation with OpenTelemetry
 
 2. **OpenTelemetry Integration** - The application is instrumented to send:
@@ -16,7 +17,7 @@ This demo showcases:
    - Logs - Application logs sent via OTLP
    - (Metrics are disabled in this demo)
 
-3. **Local Development with Grafana Alloy** - Uses Grafana Alloy as a local collector to:
+3. **Local Development with Grafana Alloy** ([config.alloy](alloy/config.alloy)) - Uses Grafana Alloy as a local collector to:
    - Process telemetry data before forwarding to Grafana Cloud
    - Demonstrate a local development workflow with full observability
 
@@ -47,6 +48,7 @@ Then:
 
 ```shell
 podman-compose up --build
+docker-compose up --build  # If you prefer Docker
 
 curl localhost:8080/rolldice
 curl localhost:8080/fetch
@@ -54,19 +56,21 @@ curl localhost:8080/fetch
 podman-compose down
 ```
 
-## Add more packages
+## Install more packages
 
-You might need to add the relevant automatic instrumentation packages. As per [the upstream docs](https://opentelemetry.io/docs/zero-code/php/):
+If you add more functionality, you might need to add the relevant OpenTelemetry automatic instrumentation packages. As per [the upstream docs](https://opentelemetry.io/docs/zero-code/php/):
 
 > Automatic instrumentation is available for a number of commonly used PHP libraries. For the full list, see instrumentation libraries on packagist.
 
-Check the package you need at https://packagist.org/packages/open-telemetry/ and then add a package:
+Check the package you need at https://packagist.org/packages/open-telemetry/ and then add it:
 
 ```
 podman run --rm -it -v $(pwd):/app composer require <package_name>
 ```
 
 ## Deploy to AWS with Terraform
+
+Finally, you can deploy this application to AWS App Runner using Terraform. Make sure you have the AWS CLI configured and authenticated with your AWS account.
 
 ```shell
 aws sso login --sso-session <sso_session_name>  # or however you authenticate with AWS
@@ -88,32 +92,17 @@ podman push $IMAGE_URI:latest
 terraform -chdir=terraform apply
 ```
 
-## Example queries
-
-Once your application is deployed, you can use these example queries in Grafana:
-
-### Trace queries
-
-```
-{service.name="rolldice"} | service.name="rolldice"
-```
-
-### Log queries
-
-```
-{service.name="rolldice"} | json | line_format "{{.body}}"
-```
-
 ## Architecture
 
-The application architecture consists of:
+In **Local Development**, the architecture consists of:
 
-1. **Local Development**:
-   - PHP application container
-   - MySQL database container
-   - Grafana Alloy container for telemetry collection
+- PHP application container
+- MySQL database container
+- Grafana Alloy container for telemetry collection
+- Docker Compose for local orchestration
 
-2. **AWS Deployment**:
-   - ECR Repository for the application image
-   - App Runner service running the containerized application
-   - Direct OTLP export to Grafana Cloud
+In **AWS Deployment**, the architecture consists of:
+
+- ECR Repository for the application image
+- App Runner service running the containerized application
+- Direct OTLP export to Grafana Cloud
