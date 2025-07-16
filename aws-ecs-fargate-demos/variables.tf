@@ -10,7 +10,7 @@ variable "loki_endpoint" {
 
 variable "fluent_bit_image" {
   type    = string
-  default = "grafana/fluent-bit-plugin-loki:2.8.1-amd64"
+  default = "grafana/fluent-bit-plugin-loki:3.5"
 }
 
 variable "service_namespace" {
