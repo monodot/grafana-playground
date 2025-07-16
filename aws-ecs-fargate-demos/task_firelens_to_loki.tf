@@ -19,6 +19,7 @@ resource "aws_ecs_task_definition" "firelens_to_loki" {
       name              = "log_router"
       memoryReservation = 50
       essential         = true
+      user              = "0" # This MAY avoid Terraform from recreating the task definition each apply - see: https://github.com/hashicorp/terraform-provider-aws/issues/11526
       mountPoints       = []
       logConfiguration = {
         logDriver = "awslogs"
