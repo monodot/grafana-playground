@@ -2,7 +2,17 @@
 
 This directory contains an example PHP [Slim Framework](https://www.slimframework.com/) application instrumented with OpenTelemetry and deployed on AWS App Runner. The application sends telemetry data to Grafana Cloud using the OpenTelemetry Protocol (OTLP).
 
-To run locally:
+## To run locally
+
+First create an `.env` file in the repo root directory with the following content:
+
+```
+GRAFANA_CLOUD_OTLP_ENDPOINT="https://otlp-gateway-..../otlp"
+GRAFANA_CLOUD_INSTANCE_ID="123456"
+GRAFANA_CLOUD_API_KEY="glc_eyJvI...=="
+```
+
+Then:
 
 ```shell
 podman-compose up --build
@@ -12,6 +22,8 @@ curl localhost:8080/fetch
 
 podman-compose down
 ```
+
+## Add more packages
 
 You might need to add the relevant automatic instrumentation packages. As per [the upstream docs](https://opentelemetry.io/docs/zero-code/php/):
 
@@ -23,11 +35,9 @@ Check the package you need at https://packagist.org/packages/open-telemetry/ and
 podman run --rm -it -v $(pwd):/app composer require <package_name>
 ```
 
-To deploy with Terraform:
+## Deploy to AWS with Terraform
 
 ```shell
-cd terraform
-
 aws sso login --sso-session <sso_session_name>  # or however you authenticate with AWS
 export AWS_PROFILE=<your_aws_profile>  # Set your AWS profile if needed
 
@@ -46,7 +56,3 @@ podman push $IMAGE_URI:latest
 # Apply the remaining resources after the image has been pushed
 terraform -chdir=terraform apply
 ```
-
-Then, to test the app:
-
-
