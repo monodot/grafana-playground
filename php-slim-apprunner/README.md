@@ -1,6 +1,37 @@
 # PHP Slim Framework demo on AWS App Runner
 
-This directory contains an example PHP [Slim Framework](https://www.slimframework.com/) application instrumented with OpenTelemetry and deployed on AWS App Runner. The application sends telemetry data to Grafana Cloud using the OpenTelemetry Protocol (OTLP).
+This repository contains a demonstration of how to deploy a PHP application with OpenTelemetry instrumentation to AWS App Runner and send telemetry data to Grafana Cloud.
+
+## Overview
+
+This demo showcases:
+
+1. **PHP Slim Framework Application** - A simple PHP application built with the [Slim Framework](https://www.slimframework.com/) that includes:
+   - A `/rolldice` endpoint that simulates rolling a dice
+   - A `/fetch` endpoint that demonstrates database connectivity
+   - Automatic instrumentation with OpenTelemetry
+
+2. **OpenTelemetry Integration** - The application is instrumented to send:
+   - Traces - Track request flows and performance
+   - Logs - Application logs sent via OTLP
+   - (Metrics are disabled in this demo)
+
+3. **Local Development with Grafana Alloy** - Uses Grafana Alloy as a local collector to:
+   - Process telemetry data before forwarding to Grafana Cloud
+   - Demonstrate a local development workflow with full observability
+
+4. **AWS App Runner Deployment** - Terraform configuration to deploy the application to AWS App Runner:
+   - Creates an ECR repository for the container image
+   - Sets up the App Runner service with proper configuration
+   - Configures direct OTLP export to Grafana Cloud
+
+## Key Features
+
+- **Zero-code instrumentation** for PHP using OpenTelemetry auto-instrumentation
+- **Database connectivity** with MySQL for demonstrating database traces
+- **Containerized deployment** using Docker/Podman
+- **Infrastructure as Code** with Terraform for AWS resources
+- **Serverless deployment** with AWS App Runner for simplified operations
 
 ## To run locally
 
@@ -56,3 +87,33 @@ podman push $IMAGE_URI:latest
 # Apply the remaining resources after the image has been pushed
 terraform -chdir=terraform apply
 ```
+
+## Example queries
+
+Once your application is deployed, you can use these example queries in Grafana:
+
+### Trace queries
+
+```
+{service.name="rolldice"} | service.name="rolldice"
+```
+
+### Log queries
+
+```
+{service.name="rolldice"} | json | line_format "{{.body}}"
+```
+
+## Architecture
+
+The application architecture consists of:
+
+1. **Local Development**:
+   - PHP application container
+   - MySQL database container
+   - Grafana Alloy container for telemetry collection
+
+2. **AWS Deployment**:
+   - ECR Repository for the application image
+   - App Runner service running the containerized application
+   - Direct OTLP export to Grafana Cloud
