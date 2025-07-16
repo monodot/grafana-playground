@@ -2,7 +2,28 @@
 
 This directory contains an example PHP application instrumented with OpenTelemetry and deployed on AWS App Runner. The application sends telemetry data to Grafana Cloud using the OpenTelemetry Protocol (OTLP).
 
-To deploy:
+To run locally:
+
+```shell
+podman-compose up --build
+
+curl localhost:8080/rolldice
+curl localhost:8080/fetch
+
+podman-compose down
+```
+
+You might need to add the relevant automatic instrumentation packages. As per [the upstream docs](https://opentelemetry.io/docs/zero-code/php/):
+
+> Automatic instrumentation is available for a number of commonly used PHP libraries. For the full list, see instrumentation libraries on packagist.
+
+Check the package you need at https://packagist.org/packages/open-telemetry/ and then add a package:
+
+```
+podman run --rm -it -v $(pwd):/app composer require <package_name>
+```
+
+To deploy with Terraform:
 
 ```shell
 cd terraform
@@ -25,3 +46,7 @@ podman push $IMAGE_URI:latest
 # Apply the remaining resources after the image has been pushed
 terraform -chdir=terraform apply
 ```
+
+Then, to test the app:
+
+

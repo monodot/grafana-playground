@@ -5,6 +5,7 @@
         "open-telemetry/sdk": "^1.0",
         "open-telemetry/exporter-otlp": "^1.0",
         "open-telemetry/opentelemetry-auto-slim": "^1.0",
+        "open-telemetry/opentelemetry-auto-guzzle": "^1.2",
         "monolog/monolog": "^3.5",
         "open-telemetry/opentelemetry-logger-monolog": "^1.0",
         "guzzlehttp/guzzle": "^7.0",

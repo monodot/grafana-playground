@@ -39,11 +39,12 @@ resource "aws_apprunner_service" "this" {
       image_configuration {
         port = "8080"
         runtime_environment_variables = {
-          OTEL_PHP_AUTOLOAD_ENABLED = "true" # mandatory
+          OTEL_PHP_AUTOLOAD_ENABLED   = "true"  # mandatory
           OTEL_LOG_LEVEL              = "debug" # default is "info", cranking it up to "debug" for more verbose logging
           OTEL_EXPORTER_OTLP_ENDPOINT = var.otlp_endpoint
           OTEL_EXPORTER_OTLP_HEADERS  = var.otlp_headers
           OTEL_EXPORTER_OTLP_PROTOCOL = "http/protobuf"
+          OTEL_LOGS_EXPORTER          = "otlp"
           OTEL_RESOURCE_ATTRIBUTES    = var.otlp_resource_attributes
         }
       }

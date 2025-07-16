@@ -10,9 +10,10 @@ services:
       - OTEL_PHP_AUTOLOAD_ENABLED=true
       - OTEL_TRACES_EXPORTER=otlp
       - OTEL_METRICS_EXPORTER=none
-      - OTEL_LOGS_EXPORTER=console
+      - OTEL_LOGS_EXPORTER=otlp
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4318
       - OTEL_SERVICE_NAME=rolldice-local
+      - OTEL_PROPAGATORS=baggage,tracecontext
 
   alloy:
     image: docker.io/grafana/alloy:latest

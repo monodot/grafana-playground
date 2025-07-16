@@ -14,4 +14,3 @@ COPY composer.json ./
 RUN composer install --no-dev --no-interaction --prefer-dist
 
 COPY . .
-RUN chown -R www-data:www-data /var/www/html
