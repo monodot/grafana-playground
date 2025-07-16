@@ -2,20 +2,20 @@
 
 This repository contains demonstrations of different ways to ship telemetry from AWS ECS Fargate to Grafana Cloud or the Grafana LGTM stack.
 
-## Demo Overview
+It contains three patterns:
 
-The repository contains two main demos:
+1. **App with FireLens to Loki** ([task_firelens_to_loki.tf](task_firelens_to_loki.tf)) - A simple demo that uses AWS FireLens (Fluent Bit) to ship logs directly from an ECS Fargate task to Grafana Loki.
 
-1. **FireLens to Loki** - A simple demo that uses AWS FireLens (Fluent Bit) to ship logs directly from an ECS Fargate task to Grafana Loki.
+2. **App with Alloy sidecar** ([task_alloy_sidecar.tf](task_alloy_sidecar.tf)) - A more advanced demo that uses Grafana Alloy as a sidecar container to collect and process logs before sending them to Loki.
+   
+   - Uses ecs_exporter to export ECS metadata (container memory, CPU) to Grafana Alloy.
 
-2. **Alloy Sidecar** - A more advanced demo that uses Grafana Alloy as a sidecar container to collect and process logs before sending them to Loki.
+3. **EventBridge to Firehose** ([eventbridge_to_firehose.tf](eventbridge_to_firehose.tf)) - A demo that captures ECS events using AWS EventBridge and forwards them to Grafana Cloud via Kinesis Firehose.
 
-Both demos use:
+The ECS demos use:
 - AWS ECS with Fargate launch type
 - FireLens (a container that runs alongside your application container to route logs)
 - Custom labels to enhance log discoverability
-
-Additionally, the repository includes an EventBridge to Firehose integration that captures ECS events and forwards them to Grafana Cloud.
 
 ## Key Features
 
@@ -39,6 +39,18 @@ Then run:
 ```
 terraform init
 terraform apply
+```
+
+## Example queries
+
+When the ecs_exporter is enabled, you can use a query like this to get CPU usage per task family, container and instance:
+
+```promql
+sum by (family, container_name, instance) (
+  rate(ecs_container_cpu_usage_seconds_total[5m])
+  * on(instance) group_left(family)
+  group(ecs_task_metadata_info) by (instance, family)
+)
 ```
 
 <!-- BEGIN_TF_DOCS -->

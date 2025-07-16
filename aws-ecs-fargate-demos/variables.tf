@@ -1,11 +1,23 @@
 variable "environment_id" {
+  description = "Unique identifier for the environment, e.g., 'demo', 'acme123', etc."
   type    = string
   default = "demo"
 }
 
-variable "loki_endpoint" {
+variable "loki_endpoint_with_auth" {
+  description = "Grafana Cloud Loki endpoint containing basic authentication details"
   type    = string
-  default = "https://123456:aaaaaaaaaa@logs-prod-008.grafana.net/loki/api/v1/push"
+  # default = "https://123456:aaaaaaaaaa@logs-prod-008.grafana.net/loki/api/v1/push"
+}
+
+variable "prometheus_remote_write_url" {
+  description = "Grafana Cloud Prometheus remote write URL, e.g. https://prometheus-prod-05-gb-south-0.grafana.net/api/prom/push"
+  type    = string
+}
+
+variable "prometheus_username" {
+  description = "Grafana Cloud Prometheus username"
+    type    = string
 }
 
 variable "fluent_bit_image" {
@@ -29,12 +41,12 @@ variable "grafana_cloud_firehose_target_endpoint" {
   type        = string
 }
 
-variable "grafana_cloud_logs_instance_id" {
+variable "loki_username" {
   description = "Grafana Cloud Logs instance ID for Firehose delivery"
   type        = string
 }
 
 variable "grafana_cloud_access_policy_token" {
-  description = "Grafana Cloud Logs access policy token for Firehose delivery"
+  description = "Grafana Cloud access policy token with permissions to write metrics and logs"
   type        = string
 }

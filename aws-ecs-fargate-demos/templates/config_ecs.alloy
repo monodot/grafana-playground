@@ -21,3 +21,31 @@ loki.write "cloud" {
 	}
 }
 
+prometheus.scrape "stats" {
+  targets    = [
+    { "__address__" = "localhost:9779" },
+  ]
+  metrics_path = "/metrics"
+  scheme       = "http"
+  forward_to   = [prometheus.relabel.stats.receiver]
+}
+
+prometheus.relabel "stats" {
+  rule {
+    action = "replace"
+    target_label = "instance"
+    replacement = sys.env("HOSTNAME")
+  }
+
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+
+prometheus.remote_write "default" {
+  endpoint {
+    url = sys.env("PROMETHEUS_REMOTE_WRITE_URL")
+      basic_auth {
+        username = sys.env("PROMETHEUS_USERNAME")
+        password = sys.env("PROMETHEUS_PASSWORD")
+      }
+  }
+}

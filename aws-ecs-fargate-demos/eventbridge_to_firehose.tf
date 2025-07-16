@@ -70,7 +70,7 @@ resource "aws_kinesis_firehose_delivery_stream" "ecs_events" {
   http_endpoint_configuration {
     url            = var.grafana_cloud_firehose_target_endpoint
     name           = "Grafana AWS Logs Destination"
-    access_key     = format("%s:%s", var.grafana_cloud_logs_instance_id, var.grafana_cloud_access_policy_token)
+    access_key     = format("%s:%s", var.loki_username, var.grafana_cloud_access_policy_token)
     buffering_size = 1 // Buffer incoming data to the specified size, in MBs, before delivering it to the destination
 
     // Buffer incoming data for the specified period of time, in seconds, before delivering it to the destination

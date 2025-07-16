@@ -19,7 +19,7 @@ resource "aws_ecs_task_definition" "alloy_sidecar" {
     {
       essential         = true
       image             = var.fluent_bit_image
-      name              = "log_router"
+      name              = "fluent-bit"
       memoryReservation = 50
       essential         = true
       user              = "0" # This MAY avoid Terraform from recreating the task definition each apply - see: https://github.com/hashicorp/terraform-provider-aws/issues/11526
@@ -28,8 +28,8 @@ resource "aws_ecs_task_definition" "alloy_sidecar" {
         logDriver = "awslogs"
         options = {
           "awslogs-group"         = aws_cloudwatch_log_group.alloy_sidecar.name
-          "awslogs-region"        = "us-east-1"
-          "awslogs-stream-prefix" = "log-router"
+          "awslogs-region"        = data.aws_region.current.id,
+          "awslogs-stream-prefix" = "fluent-bit"
         }
       }
       firelensConfiguration = {
@@ -82,7 +82,7 @@ resource "aws_ecs_task_definition" "alloy_sidecar" {
         logDriver = "awslogs",
         options = {
           "awslogs-group"         = aws_cloudwatch_log_group.alloy_sidecar.name,
-          "awslogs-region"        = "us-east-1",
+          "awslogs-region"        = data.aws_region.current.id,
           "awslogs-stream-prefix" = "config-writer"
         }
       },
@@ -120,7 +120,7 @@ resource "aws_ecs_task_definition" "alloy_sidecar" {
         logDriver = "awslogs"
         options = {
           "awslogs-group"         = aws_cloudwatch_log_group.alloy_sidecar.name
-          "awslogs-region"        = "us-east-1"
+          "awslogs-region"        = data.aws_region.current.id,
           "awslogs-stream-prefix" = "alloy"
         }
       }
@@ -140,8 +140,21 @@ resource "aws_ecs_task_definition" "alloy_sidecar" {
         # },
         {
           name  = "LOKI_ENDPOINT",
-          value = var.loki_endpoint
+          value = var.loki_endpoint_with_auth
         },
+        {
+          name  = "PROMETHEUS_REMOTE_WRITE_URL"
+          value = var.prometheus_remote_write_url
+        },
+        {
+          name  = "PROMETHEUS_USERNAME"
+          value = var.prometheus_username
+        },
+        {
+          name  = "PROMETHEUS_PASSWORD"
+          value = var.grafana_cloud_access_policy_token
+        }
+
         # {
         #   name  = "GRAFANA_CLOUD_LOGS_USERNAME"
         #   value = var.grafana_cloud_logs_username
@@ -154,6 +167,20 @@ resource "aws_ecs_task_definition" "alloy_sidecar" {
           containerPath = "/etc/alloy"
         }
       ]
+    },
+    {
+      name      = "ecs-exporter"
+      image     = "quay.io/prometheuscommunity/ecs-exporter:latest"
+      essential = false
+      logConfiguration = {
+        logDriver = "awslogs",
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.alloy_sidecar.name,
+          "awslogs-region"        = data.aws_region.current.id,
+          "awslogs-stream-prefix" = "ecs-exporter"
+        }
+      },
+
     }
   ])
 }
@@ -162,7 +189,7 @@ resource "aws_ecs_service" "alloy_sidecar" {
   name            = "${var.service_namespace}-alloy-sidecar"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.alloy_sidecar.arn
-  desired_count   = 1
+  desired_count   = 2 # Simulate multiple instances of this app
   launch_type     = "FARGATE"
 
   network_configuration {

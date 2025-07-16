@@ -55,7 +55,7 @@ resource "aws_ecs_task_definition" "firelens_to_loki" {
           Labels     = "{service_name=\"ecs-fargate-firelens-to-loki\",service_namespace=\"${var.service_namespace}\"}"
           LineFormat = "key_value"
           RemoveKeys = "container_id,ecs_task_arn"
-          Url        = var.loki_endpoint
+          Url        = var.loki_endpoint_with_auth
         }
       }
     }
