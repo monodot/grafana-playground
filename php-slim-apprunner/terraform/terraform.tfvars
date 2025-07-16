@@ -1,0 +1,2 @@
+otlp_endpoint = "https://otlp-gateway-prod-gb-south-0.grafana.net/otlp"
+otlp_headers  = "Authorization=Basic NDMyODE3OmdsY19leUp2SWpvaU56QTBOVE13SWl3aWJpSTZJbnB6WVhwellXZGhZbTl5TWlJc0ltc2lPaUl3TlROaU5VdzNZbVJVWXpGVWFIaHFOVGQ0TnpsRFQwOGlMQ0p0SWpwN0luSWlPaUp3Y205a0xXZGlMWE52ZFhSb0xUQWlmWDA9"

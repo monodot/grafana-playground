@@ -1,6 +1,6 @@
-# PHP Demo on AWS App Runner
+# PHP Slim Framework demo on AWS App Runner
 
-This directory contains an example PHP application instrumented with OpenTelemetry and deployed on AWS App Runner. The application sends telemetry data to Grafana Cloud using the OpenTelemetry Protocol (OTLP).
+This directory contains an example PHP [Slim Framework](https://www.slimframework.com/) application instrumented with OpenTelemetry and deployed on AWS App Runner. The application sends telemetry data to Grafana Cloud using the OpenTelemetry Protocol (OTLP).
 
 To run locally:
 
