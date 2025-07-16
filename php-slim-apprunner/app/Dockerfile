@@ -13,4 +13,5 @@ USER www-data
 COPY composer.json ./
 RUN composer install --no-dev --no-interaction --prefer-dist
 
-COPY . .
+COPY src src
+COPY public public

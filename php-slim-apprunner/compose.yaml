@@ -5,7 +5,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./app/index.php:/app/index.php
+      - ./app/public:/var/www/html/public:z
+      - ./app/src:/var/www/html/src:z
     environment:
       - OTEL_PHP_AUTOLOAD_ENABLED=true
       - OTEL_TRACES_EXPORTER=otlp
@@ -14,6 +15,18 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4318
       - OTEL_SERVICE_NAME=rolldice-local
       - OTEL_PROPAGATORS=baggage,tracecontext
+
+  db:
+    image: docker.io/library/mysql:8
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: my_database
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   alloy:
     image: docker.io/grafana/alloy:latest
@@ -28,3 +41,6 @@ services:
       - ./alloy/config.alloy:/etc/alloy/config.alloy
     logging:
       driver: "json-file"
+
+volumes:
+  db-data:
