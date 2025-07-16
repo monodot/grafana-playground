@@ -1,5 +1,6 @@
 <?php
 
+use App\Database;
 use Monolog\Logger;
 use OpenTelemetry\API\Globals;
 use OpenTelemetry\Contrib\Logs\Monolog\Handler;
@@ -55,6 +56,22 @@ $app->get('/fetch', function (Request $request, Response $response) use ($monolo
         return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
     }
     return $response;
+});
+
+// Endpoint to fetch users from the database
+$app->get('/users', function (Request $request, Response $response) use ($monolog) {
+    try {
+        $db = new Database();
+        $users = $db->getUsers();
+        
+        $response->getBody()->write(json_encode($users));
+        $monolog->info('users fetched', ['count' => count($users)]);
+        return $response->withHeader('Content-Type', 'application/json');
+    } catch (\Exception $e) {
+        $monolog->error('database error', ['error' => $e->getMessage()]);
+        $response->getBody()->write(json_encode(['error' => 'Failed to fetch users']));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+    }
 });
 
 $app->run();
