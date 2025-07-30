@@ -65,13 +65,14 @@ otelcol.receiver.otlp "default" {
 otelcol.processor.transform "default" {
   error_mode = "ignore"
 
-//  trace_statements {
-//    context = "resource"
-//    statements = [
-//      string.format(`set(resource.attributes["custom.department"], %q)`, coalesce(sys.env("CUSTOM_DEPARTMENT"), "undefined")),
-//      string.format(`set(resource.attributes["custom.owner"], %q)`, coalesce(sys.env("CUSTOM_OWNER"), "undefined")),
-//    ]
-//  }
+  trace_statements {
+    context = "resource"
+    statements = [
+      string.format(`set(resource.attributes["custom.department"], %q)`, coalesce(sys.env("CUSTOM_DEPARTMENT"), "undefined")),
+      string.format(`set(resource.attributes["custom.owner"], %q)`, coalesce(sys.env("CUSTOM_OWNER"), "undefined")),
+      // CUSTOM_TRACE_STATEMENTS
+    ]
+  }
 
   output {
     metrics = [otelcol.processor.batch.default.input]

@@ -10,7 +10,8 @@ It contains three patterns:
    
    - config-writer which copies Alloy configuration file from S3 into the Alloy container
    - Examples of:
-     - Setting custom resource attributes (e.g. `custom.department`, `custom.owner`)
+     - How to set custom resource attributes explicitly via environment variables (e.g. `custom.department`, `custom.owner`)
+     - How to fetch resource tags from AWS and tell Alloy to set them as custom resource attributes on metrics, logs and traces.
    - Uses ecs_exporter to export ECS metadata (container memory, CPU) to Grafana Alloy.
 
 3. **EventBridge to Firehose** ([eventbridge_to_firehose.tf](eventbridge_to_firehose.tf)) - A demo that captures ECS events using AWS EventBridge and forwards them to Grafana Cloud via Kinesis Firehose.

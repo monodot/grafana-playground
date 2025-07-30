@@ -141,7 +141,7 @@ resource "aws_iam_policy" "eventbridge_to_firehose" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid = "ActionsForFirehose"
+        Sid      = "ActionsForFirehose"
         Effect   = "Allow"
         Action   = ["firehose:PutRecord", "firehose:PutRecordBatch"]
         Resource = [aws_kinesis_firehose_delivery_stream.ecs_events.arn]

@@ -1,7 +1,7 @@
 variable "environment_id" {
   description = "Unique identifier for the environment, e.g., 'demo', 'acme123', etc."
-  type    = string
-  default = "demo"
+  type        = string
+  default     = "demo"
 }
 
 variable "service_namespace" {
@@ -9,20 +9,25 @@ variable "service_namespace" {
   default = "ecs-fargate-demos"
 }
 
+variable "service_name_alloy_sidecar" {
+  type    = string
+  default = "ecs-demo-alloy-sidecar"
+}
+
 variable "loki_endpoint_with_auth" {
   description = "Grafana Cloud Loki endpoint containing basic authentication details"
-  type    = string
+  type        = string
   # default = "https://123456:aaaaaaaaaa@logs-prod-008.grafana.net/loki/api/v1/push"
 }
 
 variable "prometheus_remote_write_url" {
   description = "Grafana Cloud Prometheus remote write URL, e.g. https://prometheus-prod-05-gb-south-0.grafana.net/api/prom/push"
-  type    = string
+  type        = string
 }
 
 variable "prometheus_username" {
   description = "Grafana Cloud Prometheus username"
-    type    = string
+  type        = string
 }
 
 variable "fluent_bit_image" {

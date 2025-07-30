@@ -57,7 +57,7 @@ resource "aws_cloudwatch_event_rule" "ecs_events_to_log" {
   description = "Capture all ECS events"
 
   event_pattern = jsonencode({
-    source      = ["aws.ecs"]
+    source = ["aws.ecs"]
     # detail-type = [
     #   "ECS Task State Change",
     #   "ECS Container Instance State Change",
@@ -68,7 +68,7 @@ resource "aws_cloudwatch_event_rule" "ecs_events_to_log" {
 
 resource "aws_cloudwatch_event_target" "ecs_events_to_log" {
   rule      = aws_cloudwatch_event_rule.ecs_events_to_log.name
-  arn      = aws_cloudwatch_log_group.ecs_events.arn
+  arn       = aws_cloudwatch_log_group.ecs_events.arn
   target_id = "SendToCloudWatchLogs"
 
   # role_arn = aws_iam_role.eventbridge_cloudwatch.arn
@@ -156,7 +156,7 @@ resource "aws_ecs_task_definition" "alloy_ecsevents" {
 
       environment = [
         {
-          name = "LOG_GROUP_NAME",
+          name  = "LOG_GROUP_NAME",
           value = aws_cloudwatch_log_group.ecs_events.name
         },
         {
