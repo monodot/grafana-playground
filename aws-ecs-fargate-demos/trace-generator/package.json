@@ -1,0 +1,21 @@
+{
+  "name": "trace-generator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.62.0",
+    "@opentelemetry/exporter-otlp-http": "^0.26.0",
+    "@opentelemetry/resource-detector-aws": "^2.3.0",
+    "@opentelemetry/sdk-trace-node": "^2.0.1",
+    "express": "^5.1.0",
+    "winston": "^3.17.0"
+  }
+}

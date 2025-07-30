@@ -1,0 +1,31 @@
+otelcol.receiver.awscloudwatch "default" {
+  region = "us-east-1"
+
+  logs {
+    poll_interval = "3m"
+    max_events_per_request = 5000
+
+    groups {
+      named {
+        group_name = sys.env("LOG_GROUP_NAME")
+        names = ["api-gateway"]
+      }
+    }
+  }
+
+  output {
+    logs = [otelcol.processor.batch.default.input]
+  }
+}
+
+otelcol.processor.batch "default" {
+  output {
+    logs = [otelcol.exporter.otlp.default.input]
+  }
+}
+
+otelcol.exporter.otlp "default" {
+  client {
+    endpoint = env("<OTLP_ENDPOINT>")
+  }
+}

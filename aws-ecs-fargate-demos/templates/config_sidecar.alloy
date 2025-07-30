@@ -1,0 +1,102 @@
+logging {
+	level  = "debug"
+	format = "logfmt"
+}
+
+// MARK: - Loki configuration
+
+loki.source.api "loki_push_api" {
+	http {
+		listen_address = "0.0.0.0"
+		listen_port    = 3100
+	}
+	forward_to = [
+		loki.write.cloud.receiver,
+	]
+}
+
+loki.write "cloud" {
+	endpoint {
+		url = sys.env("LOKI_ENDPOINT")
+	}
+}
+
+prometheus.scrape "stats" {
+	targets = [
+		{"__address__" = "localhost:9779"},
+	]
+	metrics_path = "/metrics"
+	scheme       = "http"
+	forward_to   = [prometheus.relabel.stats.receiver]
+}
+
+prometheus.relabel "stats" {
+	rule {
+		action       = "replace"
+		target_label = "instance"
+		replacement  = sys.env("HOSTNAME")
+	}
+
+	forward_to = [prometheus.remote_write.default.receiver]
+}
+
+prometheus.remote_write "default" {
+	endpoint {
+		url = sys.env("PROMETHEUS_REMOTE_WRITE_URL")
+
+		basic_auth {
+			username = sys.env("PROMETHEUS_USERNAME")
+			password = sys.env("PROMETHEUS_PASSWORD")
+		}
+	}
+}
+
+otelcol.receiver.otlp "default" {
+	grpc { }
+
+	http { }
+
+	output {
+		traces = [otelcol.processor.transform.default.input]
+		logs   = [otelcol.processor.transform.default.input]
+	}
+}
+
+otelcol.processor.transform "default" {
+  error_mode = "ignore"
+
+//  trace_statements {
+//    context = "resource"
+//    statements = [
+//      string.format(`set(resource.attributes["custom.department"], %q)`, coalesce(sys.env("CUSTOM_DEPARTMENT"), "undefined")),
+//      string.format(`set(resource.attributes["custom.owner"], %q)`, coalesce(sys.env("CUSTOM_OWNER"), "undefined")),
+//    ]
+//  }
+
+  output {
+    metrics = [otelcol.processor.batch.default.input]
+    logs    = [otelcol.processor.batch.default.input]
+    traces  = [otelcol.processor.batch.default.input]
+  }
+}
+
+otelcol.processor.batch "default" {
+	// https://grafana.com/docs/alloy/latest/reference/components/otelcol.processor.batch/
+	output {
+		metrics = [otelcol.exporter.otlphttp.grafana_cloud.input]
+		logs    = [otelcol.exporter.otlphttp.grafana_cloud.input]
+		traces  = [otelcol.exporter.otlphttp.grafana_cloud.input]
+	}
+}
+
+otelcol.auth.basic "grafana_cloud" {
+	username = sys.env("GRAFANA_CLOUD_INSTANCE_ID")
+	password = sys.env("GRAFANA_CLOUD_API_KEY")
+}
+
+otelcol.exporter.otlphttp "grafana_cloud" {
+	client {
+		endpoint = sys.env("GRAFANA_CLOUD_OTLP_ENDPOINT")
+		auth     = otelcol.auth.basic.grafana_cloud.handler
+	}
+}

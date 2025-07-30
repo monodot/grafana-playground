@@ -75,4 +75,10 @@ resource "aws_ecs_service" "firelens_to_loki" {
     security_groups  = [data.aws_security_group.default.id]
     assign_public_ip = true
   }
+
+  tags = {
+    Name        = "${var.service_namespace}-to-loki"
+    Environment = var.environment_id
+    Namespace   = var.service_namespace
+  }
 }

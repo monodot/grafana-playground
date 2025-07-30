@@ -83,10 +83,10 @@ resource "aws_kinesis_firehose_delivery_stream" "ecs_events" {
     request_configuration {
       content_encoding = "GZIP"
 
-      # common_attributes {
-      #   name  = "lbl_service_name"
-      #   value = "mythical-beasts-database"
-      # }
+      common_attributes {
+        name  = "lbl_service_name"
+        value = "ecs-fargate-events-firehose"
+      }
       # common_attributes {
       #   name  = "lbl_service_namespace"
       #   value = "tickets"
@@ -116,8 +116,8 @@ resource "aws_kinesis_firehose_delivery_stream" "ecs_events" {
   }
 }
 
-resource "aws_cloudwatch_event_rule" "ecs_events" {
-  name        = "${var.service_namespace}-ecs-events-${var.environment_id}"
+resource "aws_cloudwatch_event_rule" "ecs_events_to_fh" {
+  name        = "${var.service_namespace}-ecs-events-to-fh-${var.environment_id}"
   description = "ECS Events to Firehose Delivery Stream"
 
   event_pattern = jsonencode({
@@ -126,8 +126,8 @@ resource "aws_cloudwatch_event_rule" "ecs_events" {
   })
 }
 
-resource "aws_cloudwatch_event_target" "ecs_events_firehose" {
-  rule      = aws_cloudwatch_event_rule.ecs_events.name
+resource "aws_cloudwatch_event_target" "ecs_events_to_fh" {
+  rule      = aws_cloudwatch_event_rule.ecs_events_to_fh.name
   target_id = "ship-to-firehose"
   arn       = aws_kinesis_firehose_delivery_stream.ecs_events.arn
   role_arn  = aws_iam_role.eventbridge_to_firehose.arn

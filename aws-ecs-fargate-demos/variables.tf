@@ -4,6 +4,11 @@ variable "environment_id" {
   default = "demo"
 }
 
+variable "service_namespace" {
+  type    = string
+  default = "ecs-fargate-demos"
+}
+
 variable "loki_endpoint_with_auth" {
   description = "Grafana Cloud Loki endpoint containing basic authentication details"
   type    = string
@@ -25,11 +30,6 @@ variable "fluent_bit_image" {
   default = "grafana/fluent-bit-plugin-loki:3.5"
 }
 
-variable "service_namespace" {
-  type    = string
-  default = "ecs-fargate-demos"
-}
-
 variable "firehose_log_delivery_errors" {
   description = "Enable Firehose delivery errors to CloudWatch Logs"
   type        = bool
@@ -49,4 +49,12 @@ variable "loki_username" {
 variable "grafana_cloud_access_policy_token" {
   description = "Grafana Cloud access policy token with permissions to write metrics and logs"
   type        = string
+}
+
+variable "grafana_cloud_otlp_endpoint" {
+  type = string
+}
+
+variable "grafana_cloud_instance_id" {
+  type = string
 }

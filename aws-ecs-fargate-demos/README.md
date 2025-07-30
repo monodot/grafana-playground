@@ -8,6 +8,9 @@ It contains three patterns:
 
 2. **App with Alloy sidecar** ([task_alloy_sidecar.tf](task_alloy_sidecar.tf)) - A more advanced demo that uses Grafana Alloy as a sidecar container to collect and process logs before sending them to Loki.
    
+   - config-writer which copies Alloy configuration file from S3 into the Alloy container
+   - Examples of:
+     - Setting custom resource attributes (e.g. `custom.department`, `custom.owner`)
    - Uses ecs_exporter to export ECS metadata (container memory, CPU) to Grafana Alloy.
 
 3. **EventBridge to Firehose** ([eventbridge_to_firehose.tf](eventbridge_to_firehose.tf)) - A demo that captures ECS events using AWS EventBridge and forwards them to Grafana Cloud via Kinesis Firehose.
@@ -37,6 +40,11 @@ To run these demos, first set the required variables:
 Then run:
 
 ```
+aws sso login --sso-session acmeco   # or whatever your SSO session is called 
+# OR:
+export AWS_ACCESS_KEY_ID=xxxx
+export AWS_SECRET_ACCESS_KEY=xxx
+
 terraform init
 terraform apply
 ```
