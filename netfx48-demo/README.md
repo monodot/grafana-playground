@@ -11,14 +11,16 @@ Build and run the app using:
 ```powershell
 docker build -t cheeseapp .
 
-docker run -e OTEL_EXPORTER_OTLP_ENDPOINT="https://otlp-gateway-<REGION>.grafana.net/otlp" -e OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf -e OTEL_EXPORTER_OTLP_HEADERS="Authorization=Basic NDMyODE...wPQ==" -p 8080:80 cheeseapp
+docker run -e OTEL_LOG_LEVEL=debug -e OTEL_EXPORTER_OTLP_ENDPOINT="https://otlp-gateway-<REGION>.grafana.net/otlp" -e OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf -e OTEL_EXPORTER_OTLP_HEADERS="Authorization=Basic NDMyODE...wPQ==" -p 8080:80 cheeseapp
 ```
 
 ## Useful information
 
 ### OpenTelemetry debug logs
 
-You'll see some useful debug logs in `C:\Windows\Temp`. [See example logs](./logs-windows-sample.log)
+By setting the optional env var `OTEL_LOG_LEVEL=debug`, you'll see some useful debug logs in `C:\Windows\Temp`. [See example logs](./logs-windows-sample.log)
+
+
 
 
   
