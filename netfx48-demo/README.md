@@ -18,6 +18,7 @@ docker run -e OTEL_EXPORTER_OTLP_ENDPOINT="https://otlp-gateway-<REGION>.grafana
 
 ### OpenTelemetry debug logs
 
-You'll see some useful debug logs in `C:\Windows\Temp`. [See example logs](./logs-windows-temp.log)
+You'll see some useful debug logs in `C:\Windows\Temp`. [See example logs](./logs-windows-sample.log)
+
 
   
