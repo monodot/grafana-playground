@@ -16,19 +16,21 @@ docker build -t cheeseapp .
 docker run -e OTEL_LOG_LEVEL=debug -e OTEL_EXPORTER_OTLP_ENDPOINT="https://otlp-gateway-<REGION>.grafana.net/otlp" -e OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf -e OTEL_EXPORTER_OTLP_HEADERS="Authorization=Basic NDMyODE...wPQ==" -p 8080:80 cheeseapp
 ```
 
-## Useful information
+Now access the app at http://localhost:8080, make some requests, and you should see traces arrive in Grafana Cloud.
+
+## Troubleshooting
 
 ### OpenTelemetry debug logs
 
-Environment variable **OTEL_LOG_LEVEL=debug**
+_Environment variable: OTEL_LOG_LEVEL=debug_
 
 By setting the optional env var `OTEL_LOG_LEVEL`, you'll see some useful debug logs in `C:\Windows\Temp`. [See example logs](./logs-windows-sample.log)
 
-### OpenTelemetry Diagnostic Logs
+### OpenTelemetry diagnostic logs
 
-As per: https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry/README.md#self-diagnostics
+_Create an OTEL_DIAGNOSTICS.json file in your working directory_
 
-To enable Diagnostic logs, open a shell in the container and create the file `OTEL_DIAGNOSTICS.json`:
+To enable diagnostic logs ([see documentation](https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry/README.md#self-diagnostics)), open a shell in the container and create the file `OTEL_DIAGNOSTICS.json`:
 
 ```powershell
 $jsonContent = @"
