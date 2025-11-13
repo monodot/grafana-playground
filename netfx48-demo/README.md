@@ -4,6 +4,8 @@ Instrumenting a .NET Framework 4.8 app with OpenTelemetry.
 
 ## Running the example
 
+**You must be on a Windows host to run this example.**
+
 Build and run the app using:
 
 ```powershell
