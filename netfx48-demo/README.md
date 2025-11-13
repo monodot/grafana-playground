@@ -4,7 +4,13 @@ Instrumenting a .NET Framework 4.8 app with OpenTelemetry.
 
 ## Running the example
 
-TODO
+Build and run the app using:
+
+```powershell
+docker build -t cheeseapp .
+
+docker run -e OTEL_EXPORTER_OTLP_ENDPOINT="https://otlp-gateway-<REGION>.grafana.net/otlp" -e OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf -e OTEL_EXPORTER_OTLP_HEADERS="Authorization=Basic NDMyODE...wPQ==" -p 8080:80 cheeseapp
+```
 
 ## Useful information
 
