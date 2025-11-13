@@ -1,6 +1,6 @@
 # .NET Framework 4.8 demo
 
-Instrumenting a .NET Framework 4.8 app with OpenTelemetry.
+The included Dockerfile shows how to add OpenTelemetry instrumentation to a .NET Framework 4.8 app running inside a Windows container.
 
 ## Running the example
 
