@@ -6,6 +6,8 @@ The included Dockerfile shows how to add OpenTelemetry instrumentation to a .NET
 
 **You must be on a Windows host to run this example.**
 
+Note that the base images used in this Docker build have a combined size of around 20 GB.
+
 Build and run the app using:
 
 ```powershell
