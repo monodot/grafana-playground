@@ -28,6 +28,20 @@ By setting the optional env var `OTEL_LOG_LEVEL`, you'll see some useful debug l
 
 ### OpenTelemetry diagnostic logs
 
+_No instrumentation happening?_
+
+Check that the OpenTelemetry DLL is even being loaded by your process:
+
+```
+Get-Process w3wp | Select-Object -ExpandProperty Modules
+```
+
+You should see the library in the list:
+
+```
+1304 OpenTelemetry.AutoInstrumentation.Native.dll       C:\Program Files\OpenTelemetry .NET...
+```
+
 _Create an OTEL_DIAGNOSTICS.json file in your working directory_
 
 To enable diagnostic logs ([see documentation](https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry/README.md#self-diagnostics)), open a shell in the container and create the file `OTEL_DIAGNOSTICS.json`:
