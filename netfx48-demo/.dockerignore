@@ -1,0 +1,15 @@
+# Exclude the Dockerfile itself
+Dockerfile
+
+# Exclude build output
+bin/
+obj/
+
+# Exclude local user settings
+.vs/
+*.user
+*.suo
+
+# Exclude source control
+.git/
+.gitignore
