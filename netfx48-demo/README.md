@@ -57,3 +57,17 @@ at logs of lower severities will be shown.
 2025-11-13T18:47:15.0425619Z:Failed to inject activity context in format: '{0}', context: '{1}'.{TraceContextPropagator}
 {Invalid context}
 ```
+
+### No instrumentation happening at all?
+
+Check that the OpenTelemetry DLL is even being loaded by your process:
+
+```
+Get-Process w3wp | Select-Object -ExpandProperty Modules
+```
+
+You should see the library in the list:
+
+```
+1304 OpenTelemetry.AutoInstrumentation.Native.dll       C:\Program Files\OpenTelemetry .NET...
+```
