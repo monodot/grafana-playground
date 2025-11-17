@@ -2,7 +2,7 @@
 
 The included Dockerfile shows how to add OpenTelemetry instrumentation to a .NET Framework 4.8 app running inside a Windows container.
 
-## Running the example
+## Zero-code instrumentation example
 
 **You must be on a Windows host to run this example.**
 
@@ -11,6 +11,8 @@ Note that the base images used in this Docker build have a combined size of arou
 Build and run the app using:
 
 ```powershell
+cd cheese-app-zerocode
+
 docker build -t cheeseapp .
 
 docker run -e OTEL_LOG_LEVEL=debug -e OTEL_EXPORTER_OTLP_ENDPOINT="https://otlp-gateway-<REGION>.grafana.net/otlp" -e OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf -e OTEL_EXPORTER_OTLP_HEADERS="Authorization=Basic NDMyODE...wPQ==" -p 8080:80 cheeseapp
@@ -18,15 +20,33 @@ docker run -e OTEL_LOG_LEVEL=debug -e OTEL_EXPORTER_OTLP_ENDPOINT="https://otlp-
 
 Now access the app at http://localhost:8080, make some requests, and you should see traces arrive in Grafana Cloud.
 
+### Library-based instrumentation example
+
+The `cheese-app-zerocode` app shows how to add library-based instrumentation and your own, custom span attributes. This is especially useful if you're not necessarily using an OpenTelemetry supported library, but you want to add some request attributes for your business.
+
+```powershell
+cd cheese-app-lib
+
+docker build -t cheeseapp-lib .
+
+docker run -e OTEL_LOG_LEVEL=debug -e OTEL_EXPORTER_OTLP_ENDPOINT="https://otlp-gateway-<REGION>.grafana.net/otlp" -e OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf -e OTEL_EXPORTER_OTLP_HEADERS="Authorization=Basic NDMyODE...wPQ==" -p 8080:80 cheeseapp-lib
+```
+
+This project was instrumented by following the instructions at: https://opentelemetry.io/docs/languages/dotnet/netframework/, installing the packages `OpenTelemetry.Instrumentation.AspNet`, `OpenTelemetry.Exporter.Console`, `OpenTelemetry.Exporter.OpenTelemetryProtocol`.
+
 ## Troubleshooting
 
 ### OpenTelemetry debug logs
+
+Note that in this repo, this will only work with the zero-code example.
 
 _Environment variable: OTEL_LOG_LEVEL=debug_
 
 By setting the optional env var `OTEL_LOG_LEVEL`, you'll see some useful debug logs in `C:\Windows\Temp`. [See example logs](./logs-windows-sample.log)
 
 ### OpenTelemetry diagnostic logs
+
+Note that in this repo, this will only work with the zero-code example.
 
 _Create an OTEL_DIAGNOSTICS.json file in your working directory_
 
