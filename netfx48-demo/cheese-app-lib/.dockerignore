@@ -1,0 +1,18 @@
+# Exclude the Dockerfile itself
+Dockerfile
+
+# Exclude build output
+bin/
+obj/
+
+# Exclude local user settings
+.vs/
+*.user
+*.suo
+
+# Exclude source control
+.git/
+.gitignore
+
+# Exclude any local specific nuget config which might interfere with the build
+nuget.config
