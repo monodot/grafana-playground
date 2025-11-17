@@ -1,13 +1,13 @@
 FROM mcr.microsoft.com/dotnet/framework/sdk:4.8 AS build
 WORKDIR /src
 
-COPY cheese-app-zerocode/cheese-app.sln .
-COPY cheese-app-zerocode/cheese-app.csproj . 
-COPY cheese-app-zerocode/packages.config .
+COPY cheese-app.sln .
+COPY cheese-app.csproj . 
+COPY packages.config .
 
 RUN nuget restore cheese-app.sln
 
-COPY cheese-app-zerocode/ .
+COPY . .
 
 RUN msbuild cheese-app.csproj /t:WebPublish /p:WebPublishMethod=FileSystem /p:publishUrl=C:\deploy
 
@@ -25,5 +25,7 @@ RUN Import-Module .\OpenTelemetry.DotNet.Auto.psm1 ; \
     Register-OpenTelemetryForIIS
 
 ENV OTEL_SERVICE_NAME=cheese-app-zerocode
+
+# Optionally capture these HTTP headers and add them as span attributes
 ENV OTEL_DOTNET_AUTO_TRACES_ASPNET_INSTRUMENTATION_CAPTURE_REQUEST_HEADERS=foo,SOAPAction
 
