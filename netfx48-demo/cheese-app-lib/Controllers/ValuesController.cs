@@ -34,6 +34,17 @@ namespace cheese_app.Controllers
         // POST api/values
         public void Post([FromBody] string value)
         {
+            var span = Tracer.CurrentSpan;
+
+            IEnumerable<string> headerValues;
+            if (Request.Headers.TryGetValues("X-Store-ID", out headerValues))
+            {
+                var headerValue = headerValues.FirstOrDefault();
+                if (!string.IsNullOrEmpty(headerValue))
+                {
+                    span.SetAttribute("cheese.store.id", headerValue);
+                }
+            }
         }
 
         // PUT api/values/5
