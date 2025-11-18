@@ -2,7 +2,7 @@
 
 The included Dockerfile shows how to add OpenTelemetry instrumentation to a .NET Framework 4.8 app running inside a Windows container.
 
-## Zero-code instrumentation example
+## Zero-code instrumentation example with HTTP headers as span attributes
 
 **You must be on a Windows host to run this example.**
 
@@ -20,7 +20,7 @@ docker run -e OTEL_LOG_LEVEL=debug -e OTEL_EXPORTER_OTLP_ENDPOINT="https://otlp-
 
 Now access the app at http://localhost:8080, make some requests, and you should see traces arrive in Grafana Cloud.
 
-### Library-based instrumentation example
+### Library-based instrumentation with manual span attributes
 
 The `cheese-app-zerocode` app shows how to add library-based instrumentation and your own, custom span attributes. This is especially useful if you're not necessarily using an OpenTelemetry supported library, but you want to add some request attributes for your business.
 
@@ -31,6 +31,24 @@ docker build -t cheeseapp-lib .
 
 docker run -e OTEL_LOG_LEVEL=debug -e OTEL_EXPORTER_OTLP_ENDPOINT="https://otlp-gateway-<REGION>.grafana.net/otlp" -e OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf -e OTEL_EXPORTER_OTLP_HEADERS="Authorization=Basic NDMyODE...wPQ==" -p 8080:80 cheeseapp-lib
 ```
+
+Then to test the service - use a Git Bash terminal for this:
+
+```sh
+curl localhost:8080/api/values -H 'X-Store-ID: London' -XPOST -d foo=bar
+
+curl localhost:8080/api/values -H 'X-Store-ID: Skipton' -XPOST -d foo=bar
+
+curl localhost:8080/api/values -H 'X-Store-ID: Kuala Lumpur' -XPOST -d foo=bar
+```
+
+Or, in a loop (again, in Git Bash):
+
+```sh
+for i in {1..50}; do stores=("London" "Skipton" "Kuala Lumpur"); store=${stores[$((RANDOM % 3))]}; curl localhost:8080/api/values -H "X-Store-ID: $store" -XPOST -d foo=bar; sleep 0.1; done
+```
+
+In Grafana Traces Drilldown, you should see the attribute `cheese.store.id` attached to each span.
 
 This project was instrumented by following the instructions at: https://opentelemetry.io/docs/languages/dotnet/netframework/, installing the packages `OpenTelemetry.Instrumentation.AspNet`, `OpenTelemetry.Exporter.Console`, `OpenTelemetry.Exporter.OpenTelemetryProtocol`.
 
