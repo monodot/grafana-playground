@@ -1,6 +1,7 @@
 ﻿using OpenTelemetry.Trace;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -10,6 +11,12 @@ namespace cheese_app.Controllers
 {
     public class ValuesController : ApiController
     {
+
+        private static readonly Meter MyMeter = new Meter("cheese_app.metrics", "1.0.0");
+        private static readonly Counter<long> CheeseCreateCounter = MyMeter.CreateCounter<long>(
+            name: "cheese.creations.total",
+            description: "The number of cheese creations by store");
+
         // GET api/values
         public IEnumerable<string> Get()
         {
@@ -43,6 +50,9 @@ namespace cheese_app.Controllers
                 if (!string.IsNullOrEmpty(headerValue))
                 {
                     span.SetAttribute("cheese.store.id", headerValue);
+
+                    // Increment the counter with the store ID as an attribute
+                    CheeseCreateCounter.Add(1, new KeyValuePair<string, object>("store.id", headerValue));
                 }
             }
         }
