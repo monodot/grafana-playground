@@ -1,0 +1,147 @@
+[2025-11-13T17:44:01.4476390Z] [Debug] 'AspNetMvcInitializer' started
+[2025-11-13T17:44:01.5101735Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation, Message='AspNetMvcInitializer' started
+[2025-11-13T17:44:01.5101735Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation-Loader, Message=Requester [<null>]requested [OpenTelemetry.Instrumentation.AspNet]
+[2025-11-13T17:44:01.5101735Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation-Loader, Message=Assembly.LoadFrom("C:\Program Files\OpenTelemetry .NET AutoInstrumentation\netfx\OpenTelemetry.Instrumentation.AspNet.dll") succeeded=True
+[2025-11-13T17:44:01.5101735Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation-Loader, Message=Requester [<null>] requested [OpenTelemetry.Instrumentation.AspNet]
+[2025-11-13T17:44:01.5101735Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation-Loader, Message=Assembly.LoadFrom("C:\Program Files\OpenTelemetry .NET AutoInstrumentation\netfx\OpenTelemetry.Instrumentation.AspNet.dll") succeeded=True
+[2025-11-13T17:44:01.6820573Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=TracerProviderSdk event: 'Building TracerProvider.'
+[2025-11-13T17:44:01.7288836Z] [Debug] 'GenericInitializer' started
+[2025-11-13T17:44:01.7288836Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation, Message='GenericInitializer' started
+[2025-11-13T17:44:01.7444668Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation-Loader, Message=Requester [<null>] requested [OpenTelemetry.Instrumentation.Http]
+[2025-11-13T17:44:01.7444668Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation-Loader, Message=Assembly.LoadFrom("C:\Program Files\OpenTelemetry .NET AutoInstrumentation\netfx\OpenTelemetry.Instrumentation.Http.dll") succeeded=True
+[2025-11-13T17:44:01.7444668Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation-Loader, Message=Requester [<null>] requested [OpenTelemetry.Instrumentation.Http]
+[2025-11-13T17:44:01.7444668Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation-Loader, Message=Assembly.LoadFrom("C:\Program Files\OpenTelemetry .NET AutoInstrumentation\netfx\OpenTelemetry.Instrumentation.Http.dll") succeeded=True
+[2025-11-13T17:44:01.9163593Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation-Loader, Message=Requester [<null>] requested [Microsoft.Extensions.Http]
+[2025-11-13T17:44:01.9163593Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation-Loader, Message=Requester [<null>] requested [Microsoft.Extensions.Http]
+[2025-11-13T17:44:02.0413774Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=TracerProviderSdk event: 'Sampler added = "OpenTelemetry.Trace.ParentBasedSampler".'
+[2025-11-13T17:44:02.0413774Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=TracerProviderSdk event: 'Processors added  = "OpenTelemetry.BatchActivityExportProcessor".'
+[2025-11-13T17:44:02.2132480Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=TracerProviderSdk event: 'TracerProvider built successfully.'
+[2025-11-13T17:44:02.2132480Z] [Information] OpenTelemetry tracer initialized.
+[2025-11-13T17:44:02.2132480Z] [Information] EventSource=OpenTelemetry-AutoInstrumentation, Message=OpenTelemetry tracer initialized.
+[2025-11-13T17:44:02.2445086Z] [Debug] 'AspNetMvcInitializer' started
+[2025-11-13T17:44:02.2445086Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation, Message='AspNetMvcInitializer' started
+[2025-11-13T17:44:02.2445086Z] [Debug] 'GenericInitializer' started
+[2025-11-13T17:44:02.2445086Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation, Message='GenericInitializer' started
+[2025-11-13T17:44:02.3069167Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Building MeterProvider.'
+[2025-11-13T17:44:02.3225465Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation-Loader, Message=Requester [<null>] requested [Microsoft.Extensions.Http]
+[2025-11-13T17:44:02.3225465Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation-Loader, Message=Requester [<null>] requested [Microsoft.Extensions.Http]
+[2025-11-13T17:44:02.3381753Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'MeterProvider configuration: {MetricLimit=1000, CardinalityLimit=2000, ExemplarFilter=, ExemplarFilterForHistograms=}.'
+[2025-11-13T17:44:02.3381753Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Exporters added = "OpenTelemetry.Exporter.OtlpMetricExporter (Paired with PeriodicExportingMetricReader exporting at 60000 milliseconds intervals.)".'
+[2025-11-13T17:44:02.3381753Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Instrumentations added = "RuntimeMetrics;ProcessMetrics".'
+[2025-11-13T17:44:02.3381753Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Listening to following meters = "OpenTelemetry.Instrumentation.AspNet;OpenTelemetry.Instrumentation.Http;OpenTelemetry.Instrumentation.Runtime;OpenTelemetry.Instrumentation.Process;NServiceBus.Core;OpenTelemetry.Instrumentation.SqlClient".'
+[2025-11-13T17:44:02.3538175Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Number of views configured = 0.'
+[2025-11-13T17:44:02.3538175Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Started publishing Instrument = "http.client.request.duration" of Meter = "OpenTelemetry.Instrumentation.Http".'
+[2025-11-13T17:44:02.4007480Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Measurements for Instrument = "http.client.request.duration" of Meter = "OpenTelemetry.Instrumentation.Http" will be processed and aggregated by the SDK.'
+[2025-11-13T17:44:02.4007480Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Started publishing Instrument = "http.server.request.duration" of Meter = "OpenTelemetry.Instrumentation.AspNet".'
+[2025-11-13T17:44:02.4007480Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Measurements for Instrument = "http.server.request.duration" of Meter = "OpenTelemetry.Instrumentation.AspNet" will be processed and aggregated by the SDK.'
+[2025-11-13T17:44:02.4007480Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Started publishing Instrument = "process.runtime.dotnet.gc.collections.count" of Meter = "OpenTelemetry.Instrumentation.Runtime".'
+[2025-11-13T17:44:02.4163896Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Measurements for Instrument = "process.runtime.dotnet.gc.collections.count" of Meter = "OpenTelemetry.Instrumentation.Runtime" will be processed and aggregated by the SDK.'
+[2025-11-13T17:44:02.4163896Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Started publishing Instrument = "process.runtime.dotnet.gc.objects.size" of Meter = "OpenTelemetry.Instrumentation.Runtime".'
+[2025-11-13T17:44:02.4163896Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Measurements for Instrument = "process.runtime.dotnet.gc.objects.size" of Meter = "OpenTelemetry.Instrumentation.Runtime" will be processed and aggregated by the SDK.'
+[2025-11-13T17:44:02.4163896Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Started publishing Instrument = "process.runtime.dotnet.assemblies.count" of Meter = "OpenTelemetry.Instrumentation.Runtime".'
+[2025-11-13T17:44:02.4163896Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Measurements for Instrument = "process.runtime.dotnet.assemblies.count" of Meter = "OpenTelemetry.Instrumentation.Runtime" will be processed and aggregated by the SDK.'
+[2025-11-13T17:44:02.4163896Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Started publishing Instrument = "process.runtime.dotnet.exceptions.count" of Meter = "OpenTelemetry.Instrumentation.Runtime".'
+[2025-11-13T17:44:02.4163896Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Measurements for Instrument = "process.runtime.dotnet.exceptions.count" of Meter = "OpenTelemetry.Instrumentation.Runtime" will be processed and aggregated by the SDK.'
+[2025-11-13T17:44:02.4163896Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Started publishing Instrument = "process.memory.usage" of Meter = "OpenTelemetry.Instrumentation.Process".'
+[2025-11-13T17:44:02.4163896Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Measurements for Instrument = "process.memory.usage" of Meter = "OpenTelemetry.Instrumentation.Process" will be processed and aggregated by the SDK.'
+[2025-11-13T17:44:02.4163896Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Started publishing Instrument = "process.memory.virtual" of Meter = "OpenTelemetry.Instrumentation.Process".'
+[2025-11-13T17:44:02.4163896Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Measurements for Instrument = "process.memory.virtual" of Meter = "OpenTelemetry.Instrumentation.Process" will be processed and aggregated by the SDK.'
+[2025-11-13T17:44:02.4163896Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Started publishing Instrument = "process.cpu.time" of Meter = "OpenTelemetry.Instrumentation.Process".'
+[2025-11-13T17:44:02.4163896Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Measurements for Instrument = "process.cpu.time" of Meter = "OpenTelemetry.Instrumentation.Process" will be processed and aggregated by the SDK.'
+[2025-11-13T17:44:02.4163896Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Started publishing Instrument = "process.cpu.count" of Meter = "OpenTelemetry.Instrumentation.Process".'
+[2025-11-13T17:44:02.4163896Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Measurements for Instrument = "process.cpu.count" of Meter = "OpenTelemetry.Instrumentation.Process" will be processed and aggregated by the SDK.'
+[2025-11-13T17:44:02.4163896Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Started publishing Instrument = "process.thread.count" of Meter = "OpenTelemetry.Instrumentation.Process".'
+[2025-11-13T17:44:02.4163896Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'Measurements for Instrument = "process.thread.count" of Meter = "OpenTelemetry.Instrumentation.Process" will be processed and aggregated by the SDK.'
+[2025-11-13T17:44:02.4163896Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MeterProviderSdk event: 'MeterProvider built successfully.'
+[2025-11-13T17:44:02.4163896Z] [Information] OpenTelemetry meter initialized.
+[2025-11-13T17:44:02.4163896Z] [Information] EventSource=OpenTelemetry-AutoInstrumentation, Message=OpenTelemetry meter initialized.
+[2025-11-13T17:44:02.4788875Z] [Debug] Sending CallTarget direct integration definitions to native library.
+[2025-11-13T17:44:02.4788875Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation, Message=Sending CallTarget direct integration definitions to native library.
+[2025-11-13T17:44:02.4788875Z] [Information] The profiler has been initialized with 35 direct definitions for FFAFA5168C4F4718B40CA8788875C2DA.
+[2025-11-13T17:44:02.4788875Z] [Information] EventSource=OpenTelemetry-AutoInstrumentation, Message=The profiler has been initialized with 35 direct definitions for FFAFA5168C4F4718B40CA8788875C2DA.
+[2025-11-13T17:44:02.4788875Z] [Debug] Sending CallTarget derived integration definitions to native library.
+[2025-11-13T17:44:02.4945113Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation, Message=Sending CallTarget derived integration definitions to native library.
+[2025-11-13T17:44:02.4945113Z] [Information] The profiler has been initialized with 2 derived definitions for 61BF627FA9B5477F85595A9F0D68B29C.
+[2025-11-13T17:44:02.4945113Z] [Information] EventSource=OpenTelemetry-AutoInstrumentation, Message=The profiler has been initialized with 2 derived definitions for 61BF627FA9B5477F85595A9F0D68B29C.
+[2025-11-13T17:44:02.5101210Z] [Debug] Creating BeginMethod Dynamic Method for 'OpenTelemetry.AutoInstrumentation.Instrumentations.AspNet.HttpModuleIntegration' integration. [Target=System.Web.Compilation.BuildManager]
+[2025-11-13T17:44:02.5101210Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation, Message=Creating BeginMethod Dynamic Method for 'OpenTelemetry.AutoInstrumentation.Instrumentations.AspNet.HttpModuleIntegration' integration. [Target=System.Web.Compilation.BuildManager]
+[2025-11-13T17:44:02.5257440Z] [Debug] Created BeginMethod Dynamic Method for 'OpenTelemetry.AutoInstrumentation.Instrumentations.AspNet.HttpModuleIntegration' integration. [Target=System.Web.Compilation.BuildManager]
+[2025-11-13T17:44:02.5257440Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation, Message=Created BeginMethod Dynamic Method for 'OpenTelemetry.AutoInstrumentation.Instrumentations.AspNet.HttpModuleIntegration' integration. [Target=System.Web.Compilation.BuildManager]
+[2025-11-13T17:44:02.5882676Z] [Debug] Creating EndMethod Dynamic Method for 'OpenTelemetry.AutoInstrumentation.Instrumentations.AspNet.HttpModuleIntegration' integration. [Target=System.Web.Compilation.BuildManager]
+[2025-11-13T17:44:02.5882676Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation, Message=Creating EndMethod Dynamic Method for 'OpenTelemetry.AutoInstrumentation.Instrumentations.AspNet.HttpModuleIntegration' integration. [Target=System.Web.Compilation.BuildManager]
+[2025-11-13T17:44:02.9162961Z] [Debug] 'AspNetWebApiInitializer' started
+[2025-11-13T17:44:02.9162961Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation, Message='AspNetWebApiInitializer'started
+[2025-11-13T17:44:02.9162961Z] [Debug] 'AspNetWebApiInitializer' started
+[2025-11-13T17:44:02.9162961Z] [Debug] EventSource=OpenTelemetry-AutoInstrumentation, Message='AspNetWebApiInitializer' started
+[2025-11-13T17:44:03.6194219Z] [Debug] EventSource=OpenTelemetry-Instrumentation-AspNet-Telemetry, Message=Callback='Application_BeginRequest'
+[2025-11-13T17:44:03.6819252Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=Activity started. Name = 'Microsoft.AspNet.HttpReqIn', Id = '00-c340880c360b2d3b6ae0c9ac6b1b6f98-836e8c3d34d11b71-01'.
+[2025-11-13T17:44:03.7132373Z] [Debug] EventSource=OpenTelemetry-Instrumentation-AspNet-Telemetry, Message=Activity started, Id='00-c340880c360b2d3b6ae0c9ac6b1b6f98-836e8c3d34d11b71-01'
+[2025-11-13T17:44:04.5413630Z] [Debug] EventSource=OpenTelemetry-Instrumentation-AspNet-Telemetry, Message=Callback='Application_EndRequest'
+[2025-11-13T17:44:04.5882005Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=Activity stopped. Name = 'GET api/{controller}/{id}', Id = '00-c340880c360b2d3b6ae0c9ac6b1b6f98-836e8c3d34d11b71-01'.
+[2025-11-13T17:44:04.6038807Z] [Debug] EventSource=OpenTelemetry-Instrumentation-AspNet-Telemetry, Message=Activity stopped, Id='00-c340880c360b2d3b6ae0c9ac6b1b6f98-836e8c3d34d11b71-01'
+[2025-11-13T17:44:07.3778458Z] [Warning] EventSource=OpenTelemetry-Api, Message=Failed to inject activity context in format: 'TraceContextPropagator', context: 'Invalid context'.
+...
+[2025-11-13T18:00:03.0020415Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'OpenTelemetry.Exporter.OtlpMetricExporter.Export succeeded.'
+[2025-11-13T18:00:03.0020415Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'ProcessMetrics succeeded.'
+[2025-11-13T18:00:03.0020415Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'MetricReader.Collect succeeded.'
+[2025-11-13T18:01:02.3483839Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'PeriodicExportingMetricReader calling MetricReader.Collect because the export interval has elapsed.'
+[2025-11-13T18:01:02.3483839Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'MetricReader.Collect method called.'
+[2025-11-13T18:01:02.3483839Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'MetricReader.OnCollect called.'
+[2025-11-13T18:01:02.3483839Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'Observable instruments collected.'
+[2025-11-13T18:01:02.3483839Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'ProcessMetrics called.'
+[2025-11-13T18:01:02.3483839Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'BaseExportingMetricReader calling OpenTelemetry.Exporter.OtlpMetricExporter.Export method.'
+[2025-11-13T18:01:02.3483839Z] [Warning] EventSource=OpenTelemetry-Api, Message=Failed to inject activity context in format: 'TraceContextPropagator', context: 'Invalid context'.
+[2025-11-13T18:01:03.0010153Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'OpenTelemetry.Exporter.OtlpMetricExporter.Export succeeded.'
+[2025-11-13T18:01:03.0010153Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'ProcessMetrics succeeded.'
+[2025-11-13T18:01:03.0010153Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'MetricReader.Collect succeeded.'
+[2025-11-13T18:02:02.3491986Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'PeriodicExportingMetricReader calling MetricReader.Collect because the export interval has elapsed.'
+[2025-11-13T18:02:02.3491986Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'MetricReader.Collect method called.'
+[2025-11-13T18:02:02.3491986Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'MetricReader.OnCollect called.'
+[2025-11-13T18:02:02.3491986Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'Observable instruments collected.'
+[2025-11-13T18:02:02.3491986Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'ProcessMetrics called.'
+[2025-11-13T18:02:02.3491986Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'BaseExportingMetricReader calling OpenTelemetry.Exporter.OtlpMetricExporter.Export method.'
+[2025-11-13T18:02:02.3491986Z] [Warning] EventSource=OpenTelemetry-Api, Message=Failed to inject activity context in format: 'TraceContextPropagator', context: 'Invalid context'.
+[2025-11-13T18:02:03.0416122Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'OpenTelemetry.Exporter.OtlpMetricExporter.Export succeeded.'
+[2025-11-13T18:02:03.0416122Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'ProcessMetrics succeeded.'
+[2025-11-13T18:02:03.0416122Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'MetricReader.Collect succeeded.'
+[2025-11-13T18:03:02.3520313Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'PeriodicExportingMetricReader calling MetricReader.Collect because the export interval has elapsed.'
+[2025-11-13T18:03:02.3520313Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'MetricReader.Collectmethod called.'
+[2025-11-13T18:03:02.3520313Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'MetricReader.OnCollect called.'
+[2025-11-13T18:03:02.3520313Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'Observable instruments collected.'
+[2025-11-13T18:03:02.3520313Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'ProcessMetrics called.'
+[2025-11-13T18:03:02.3520313Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'BaseExportingMetricReader calling OpenTelemetry.Exporter.OtlpMetricExporter.Export method.'
+[2025-11-13T18:03:02.3520313Z] [Warning] EventSource=OpenTelemetry-Api, Message=Failed to inject activity context in format: 'TraceContextPropagator', context: 'Invalid context'.
+[2025-11-13T18:03:03.0335911Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'OpenTelemetry.Exporter.OtlpMetricExporter.Export succeeded.'
+[2025-11-13T18:03:03.0335911Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'ProcessMetrics succeeded.'
+[2025-11-13T18:03:03.0335911Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'MetricReader.Collect succeeded.'
+[2025-11-13T18:04:02.3349641Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'PeriodicExportingMetricReader calling MetricReader.Collect because the export interval has elapsed.'
+[2025-11-13T18:04:02.3349641Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'MetricReader.Collect method called.'
+[2025-11-13T18:04:02.3349641Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'MetricReader.OnCollect called.'
+[2025-11-13T18:04:02.3349641Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'Observable instruments collected.'
+[2025-11-13T18:04:02.3349641Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'ProcessMetrics called.'
+[2025-11-13T18:04:02.3349641Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'BaseExportingMetricReader calling OpenTelemetry.Exporter.OtlpMetricExporter.Export method.'
+[2025-11-13T18:04:02.3349641Z] [Warning] EventSource=OpenTelemetry-Api, Message=Failed to inject activity context in format: 'TraceContextPropagator', context: 'Invalid context'.
+[2025-11-13T18:04:02.9925031Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'OpenTelemetry.Exporter.OtlpMetricExporter.Export succeeded.'
+[2025-11-13T18:04:02.9925031Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'ProcessMetrics succeeded.'
+[2025-11-13T18:04:02.9925031Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'MetricReader.Collectsucceeded.'
+[2025-11-13T18:05:02.3359285Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'PeriodicExportingMetricReader calling MetricReader.Collect because the export interval has elapsed.'
+[2025-11-13T18:05:02.3359285Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'MetricReader.Collectmethod called.'
+[2025-11-13T18:05:02.3359285Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'MetricReader.OnCollect called.'
+[2025-11-13T18:05:02.3359285Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'Observable instruments collected.'
+[2025-11-13T18:05:02.3359285Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'ProcessMetrics called.'
+[2025-11-13T18:05:02.3359285Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'BaseExportingMetricReader calling OpenTelemetry.Exporter.OtlpMetricExporter.Export method.'
+[2025-11-13T18:05:02.3359285Z] [Warning] EventSource=OpenTelemetry-Api, Message=Failed to inject activity context in format: 'TraceContextPropagator', context: 'Invalid context'.
+[2025-11-13T18:05:03.0163827Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'OpenTelemetry.Exporter.OtlpMetricExporter.Export succeeded.'
+[2025-11-13T18:05:03.0163827Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'ProcessMetrics succeeded.'
+[2025-11-13T18:05:03.0163827Z] [Debug] EventSource=OpenTelemetry-Sdk, Message=MetricReader event: 'MetricReader.Collect succeeded.'
+[2025-11-13T18:05:42.6299840Z] [Warning] EventSource=OpenTelemetry-Sdk, Message=Failed to create file. LogDirectory ='.', Id = 'System.UnauthorizedAccessException: Access to the path 'c:\windows\system32\inetsrv\w3wp.exe.1652.log' is denied.
+   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   at System.IO.FileStream.Init(String path, FileMode mode, FileAccess access, Int32 rights, Boolean useRights, FileShare share, Int32 bufferSize, FileOptions options, SECURITY_ATTRIBUTES secAttrs, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options)
+   at OpenTelemetry.Internal.SelfDiagnosticsConfigRefresher.OpenLogFile(String newLogDirectory, Int32 newFileSize)'.
+[2025-11-13T18:05:52.6567306Z] [Warning] EventSource=OpenTelemetry-Sdk, Message=Failed to create file. LogDirectory ='.', Id = 'System.UnauthorizedAccessException: Access to the path 'c:\windows\system32\inetsrv\w3wp.exe.1652.log' is denied.
+   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   at System.IO.FileStream.Init(String path, FileMode mode, FileAccess access, Int32 rights, Boolean useRights, FileShare share, Int32 bufferSize, FileOptions options, SECURITY_ATTRIBUTES secAttrs, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options)
+   at OpenTelemetry.Internal.SelfDiagnosticsConfigRefresher.OpenLogFile(String newLogDirectory, Int32 newFileSize)'.
+[2025-11-13T18:05:57.9926867Z] [Information] OpenTelemetry Automatic Instrumentation exit.

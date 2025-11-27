@@ -1,0 +1,6 @@
+# Ignore NuGet packages folder
+packages/
+
+# Also ignore build output
+[Bb]in/
+[Oo]bj/
