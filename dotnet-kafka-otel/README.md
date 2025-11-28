@@ -18,13 +18,15 @@ Go to http://localhost:3000 -> Drilldown -> Traces and you should see traces app
 
 ![trace.png](trace.png)
 
-## How it works
+## How the app was created
+
+The following sections are for information, and they describe how the app was created. They describe the process of going from an uninstrumented app, to adding OTel bootstrapping code, to adding the Kafka client instrumentation.
 
 ### Adding Grafana OpenTelemetry instrumentation
 
-Following: https://grafana.com/docs/opentelemetry/instrument/grafana-dotnet/
+**Following:** https://grafana.com/docs/opentelemetry/instrument/grafana-dotnet/
 
-1. Add OpenTelemetry packages:
+1. With your uninstrumented app, add OpenTelemetry packages:
 
     ```sh
     dotnet add package Grafana.OpenTelemetry
@@ -73,7 +75,7 @@ Following: https://grafana.com/docs/opentelemetry/instrument/grafana-dotnet/
 
 ### Adding community Confluent Kafka instrumentation (OpenTelemetry.Instrumentation.ConfluentKafka)
 
-Read: https://github.com/open-telemetry/opentelemetry-dotnet-contrib/blob/main/src/OpenTelemetry.Instrumentation.ConfluentKafka/README.md
+**Following:** https://github.com/open-telemetry/opentelemetry-dotnet-contrib/blob/main/src/OpenTelemetry.Instrumentation.ConfluentKafka/README.md
 
 To enhance the application to add Confluent Kafka instrumentation, we use the `OpenTelemetry.Instrumentation.ConfluentKafka` package.
 
