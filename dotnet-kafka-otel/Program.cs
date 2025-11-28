@@ -5,14 +5,15 @@ using Grafana.OpenTelemetry;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Logs;
 using Confluent.Kafka;
+using Confluent.Kafka.Extensions.Diagnostics;
+using Confluent.Kafka.Extensions.OpenTelemetry;
 
 using var tracerProvider = Sdk.CreateTracerProviderBuilder()
     .UseGrafana()
-    .AddConsoleExporter()
+    .AddConfluentKafkaInstrumentation()
     .Build();
 using var meterProvider = Sdk.CreateMeterProviderBuilder()
     .UseGrafana()
-    .AddConsoleExporter()
     .Build();
 using var loggerFactory = LoggerFactory.Create(builder =>
 {
@@ -71,14 +72,20 @@ using (var consumer = new ConsumerBuilder<string, string>(config).Build())
     {
         while (true) 
         {
-            var cr = consumer.Consume(cts.Token);
-            logger.LogInformation(
-                "Consumed event from topic {Topic}: key = {Key} value = {Value}",
-                topic, 
-                cr.Message.Key, 
-                cr.Message.Value
-            );
-            Console.WriteLine($"Consumed event from topic {topic}: key = {cr.Message.Key,-10} value = {cr.Message.Value}");
+            // var cr = consumer.ConsumeWithInstrumentation(cts.Token);
+            consumer.ConsumeWithInstrumentation((result) =>
+            {
+                if (result == null) return;
+
+                Console.WriteLine(result.Message.Value);
+                logger.LogInformation(
+                    "Consumed event from topic {Topic}: key = {Key} value = {Value}",
+                    topic, 
+                    result.Message.Key, 
+                    result.Message.Value
+                );
+            }, 2000);
+            Console.WriteLine($"Consumed event from topic");
         }
     }
     catch (OperationCanceledException) 

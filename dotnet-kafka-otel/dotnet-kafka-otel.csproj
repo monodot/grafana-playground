@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Confluent.Kafka" Version="2.12.0" />
+    <PackageReference Include="Confluent.Kafka.Extensions.OpenTelemetry" Version="0.4.0" />
     <PackageReference Include="Grafana.OpenTelemetry" Version="1.3.0" />
     <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.14.0" />
   </ItemGroup>
