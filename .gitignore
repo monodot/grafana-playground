@@ -5,5 +5,12 @@
 .idea/
 target/
 .env
+node_modules/
+.aider*
 .vs/
+nohup.out
+terraform.*.backup
+bin/
+obj/
+Folder.DotSettings.user
 
