@@ -40,7 +40,7 @@ The following sections are for information, and they describe how the app was cr
 
     ```sh
     OTEL_RESOURCE_ATTRIBUTES="service.name=myapp,service.namespace=apps,deployment.environment=local" \
-    OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317 \
+    OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318 \
     OTEL_EXPORTER_OTLP_PROTOCOL="http/protobuf" \
     dotnet run
     ```
@@ -49,7 +49,7 @@ The following sections are for information, and they describe how the app was cr
 
     ```sh
     tdonohue@harold:~/repos/grafana-playground/dotnet-kafka-otel$   OTEL_RESOURCE_ATTRIBUTES="service.name=myapp,service.namespace=apps,deployment.environment=local" \
-    >   OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317 \
+    >   OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318 \
     >   OTEL_EXPORTER_OTLP_PROTOCOL="http/protobuf" \
     >   dotnet run
     Hello, World!
