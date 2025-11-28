@@ -1,3 +1,4 @@
+const tracing = require('./tracing')('requester', 'mythical-requester');
 const {SQSClient, SendMessageCommand} = require('@aws-sdk/client-sqs');
 const express = require('express');
 const opentelemetry = require('@opentelemetry/api');
@@ -11,37 +12,43 @@ if (!QUEUE_URL) {
     process.exit(1);
 }
 
-const app = express();
-app.use(express.urlencoded({extended: false}));
+async function startApp() {
+    const tracingSetup = await require('./tracing')('requester', 'mythical-requester')();
 
-const sqsClient = new SQSClient({region: AWS_REGION});
+    const app = express();
+    app.use(express.urlencoded({extended: false}));
 
-const tracer = opentelemetry.trace.getTracer(
-    'otel-aws-sqs-example'
-);
+    const sqsClient = new SQSClient({region: AWS_REGION});
 
-app.post('/send', async (req, res) => {
-    return tracer.startActiveSpan('POST /send', async (span) => {
-        const message = req.body.message || 'Default message body';
-        const command = new SendMessageCommand({
-            QueueUrl: QUEUE_URL,
-            MessageBody: message,
-            MessageAttributes: {
-                'source': {
-                    DataType: 'String',
-                    StringValue: 'otel-aws-sqs-example'
-                },
-            }
+    const tracer = tracingSetup.tracer;
+
+
+    app.post('/send', async (req, res) => {
+        return tracer.startActiveSpan('POST /send', async (span) => {
+            const message = req.body.message || 'Default message body';
+            const command = new SendMessageCommand({
+                QueueUrl: QUEUE_URL,
+                MessageBody: message,
+                MessageAttributes: {
+                    'source': {
+                        DataType: 'String',
+                        StringValue: 'otel-aws-sqs-example'
+                    },
+                }
+            });
+
+            const result = await sqsClient.send(command);
+            console.log(`Message sent to SQS: ${message}, MessageId: ${result.MessageId}`);
+            span.end();
+            res.status(200).send("Done things!");
         });
 
-        const result = await sqsClient.send(command);
-        console.log(`Message sent to SQS: ${message}, MessageId: ${result.MessageId}`);
-        span.end();
-        res.status(200).send("Done things!");
     });
 
-});
+    app.listen(PORT, () => {
+        console.log(`Listening for requests on http://localhost:${PORT}`);
+    });
 
-app.listen(PORT, () => {
-    console.log(`Listening for requests on http://localhost:${PORT}`);
-});
+}
+
+startApp().catch(console.error);
