@@ -25,22 +25,34 @@ using var loggerFactory = LoggerFactory.Create(builder =>
 
 var logger = loggerFactory.CreateLogger("KafkaConsumer");
 
+// Read configuration from environment variables
+var bootstrapServers = Environment.GetEnvironmentVariable("KAFKA_BOOTSTRAP_SERVERS") ?? "localhost:9092";
+var topic = Environment.GetEnvironmentVariable("KAFKA_TOPIC") ?? "purchases";
+var groupId = Environment.GetEnvironmentVariable("KAFKA_GROUP_ID") ?? "kafka-dotnet-getting-started";
+var saslUsername = Environment.GetEnvironmentVariable("KAFKA_SASL_USERNAME");
+var saslPassword = Environment.GetEnvironmentVariable("KAFKA_SASL_PASSWORD");
+
 // Kafka consumer configuration
 var config = new ConsumerConfig
 {
-    // User-specific properties that you must set
-    BootstrapServers = "<BOOTSTRAP SERVERS>",
-    SaslUsername     = "<CLUSTER API KEY>",
-    SaslPassword     = "<CLUSTER API SECRET>",
-
-    // Fixed properties
-    SecurityProtocol = SecurityProtocol.SaslSsl,
-    SaslMechanism    = SaslMechanism.Plain,
-    GroupId          = "kafka-dotnet-getting-started",
+    BootstrapServers = bootstrapServers,
+    GroupId          = groupId,
     AutoOffsetReset  = AutoOffsetReset.Earliest
 };
 
-const string topic = "purchases";
+// Add SASL authentication if credentials are provided
+if (!string.IsNullOrEmpty(saslUsername) && !string.IsNullOrEmpty(saslPassword))
+{
+    config.SaslUsername = saslUsername;
+    config.SaslPassword = saslPassword;
+    config.SecurityProtocol = SecurityProtocol.SaslSsl;
+    config.SaslMechanism = SaslMechanism.Plain;
+    logger.LogInformation("Using SASL/SSL authentication");
+}
+else
+{
+    logger.LogInformation("Using PLAINTEXT authentication (no credentials provided)");
+}
 
 CancellationTokenSource cts = new CancellationTokenSource();
 Console.CancelKeyPress += (_, e) => {
