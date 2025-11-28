@@ -5,26 +5,6 @@ using Grafana.OpenTelemetry;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Logs;
 using Confluent.Kafka;
-using Confluent.Kafka.Extensions.Diagnostics;
-using Confluent.Kafka.Extensions.OpenTelemetry;
-
-using var tracerProvider = Sdk.CreateTracerProviderBuilder()
-    .UseGrafana()
-    .AddConfluentKafkaInstrumentation()
-    .Build();
-using var meterProvider = Sdk.CreateMeterProviderBuilder()
-    .UseGrafana()
-    .Build();
-using var loggerFactory = LoggerFactory.Create(builder =>
-{
-    builder.AddOpenTelemetry(logging =>
-    {
-        logging.UseGrafana()
-            .AddConsoleExporter();
-    });
-});
-
-var logger = loggerFactory.CreateLogger("KafkaConsumer");
 
 // Read configuration from environment variables
 var bootstrapServers = Environment.GetEnvironmentVariable("KAFKA_BOOTSTRAP_SERVERS") ?? "localhost:9092";
@@ -40,6 +20,28 @@ var config = new ConsumerConfig
     GroupId          = groupId,
     AutoOffsetReset  = AutoOffsetReset.Earliest
 };
+
+// Create an instrumented consumer - this needs to be done before bootstrapping the OTel tracer provider
+var instrumentedConsumerBuilder = new InstrumentedConsumerBuilder<string, string>(config);
+
+using var tracerProvider = Sdk.CreateTracerProviderBuilder()
+    .UseGrafana()
+    .AddKafkaConsumerInstrumentation(instrumentedConsumerBuilder)
+    .Build();
+using var meterProvider = Sdk.CreateMeterProviderBuilder()
+    .UseGrafana()
+    .Build();
+using var loggerFactory = LoggerFactory.Create(builder =>
+{
+    builder.AddOpenTelemetry(logging =>
+    {
+        logging.UseGrafana()
+            .AddConsoleExporter();
+    });
+});
+
+var logger = loggerFactory.CreateLogger("KafkaConsumer");
+
 
 // Add SASL authentication if credentials are provided
 if (!string.IsNullOrEmpty(saslUsername) && !string.IsNullOrEmpty(saslPassword))
@@ -63,7 +65,8 @@ Console.CancelKeyPress += (_, e) => {
 
 logger.LogInformation("Starting Kafka consumer for topic: {Topic}", topic);
 
-using (var consumer = new ConsumerBuilder<string, string>(config).Build())
+// Use the OTel-instrumented consumer builder that we created earlier
+using (var consumer = instrumentedConsumerBuilder.Build())
 {
     consumer.Subscribe(topic);
     logger.LogInformation("Subscribed to topic: {Topic}", topic);
@@ -72,20 +75,14 @@ using (var consumer = new ConsumerBuilder<string, string>(config).Build())
     {
         while (true) 
         {
-            // var cr = consumer.ConsumeWithInstrumentation(cts.Token);
-            consumer.ConsumeWithInstrumentation((result) =>
-            {
-                if (result == null) return;
-
-                Console.WriteLine(result.Message.Value);
-                logger.LogInformation(
-                    "Consumed event from topic {Topic}: key = {Key} value = {Value}",
-                    topic, 
-                    result.Message.Key, 
-                    result.Message.Value
-                );
-            }, 2000);
-            Console.WriteLine($"Consumed event from topic");
+            var cr = consumer.Consume(cts.Token);
+            logger.LogInformation(
+                "Consumed event from topic {Topic}: key = {Key} value = {Value}",
+                topic, 
+                cr.Message.Key, 
+                cr.Message.Value
+            );
+            Console.WriteLine($"Consumed event from topic {topic}: key = {cr.Message.Key,-10} value = {cr.Message.Value}");
         }
     }
     catch (OperationCanceledException) 

@@ -71,9 +71,39 @@ Following: https://grafana.com/docs/opentelemetry/instrument/grafana-dotnet/
     telemetry.sdk.version: 1.14.0
     ```
 
-### Adding Kafka instrumentation
+### Adding community Confluent Kafka instrumentation (OpenTelemetry.Instrumentation.ConfluentKafka)
 
-To enhance the application to add Kafka instrumentation, we used the `Confluent.Kafka.Extensions.OpenTelemetry` package.
+Read: https://github.com/open-telemetry/opentelemetry-dotnet-contrib/blob/main/src/OpenTelemetry.Instrumentation.ConfluentKafka/README.md
+
+To enhance the application to add Confluent Kafka instrumentation, we use the `OpenTelemetry.Instrumentation.ConfluentKafka` package.
+
+1.  Add the package:
+
+    ```sh
+    dotnet package add OpenTelemetry.Instrumentation.ConfluentKafka --prerelease
+    ```
+
+1.  Update the bootstrapping code:
+
+    ```csharp
+    // Create an instrumented consumer - this needs to be done before bootstrapping the OTel tracer provider
+    var instrumentedConsumerBuilder = new InstrumentedConsumerBuilder<string, string>(config);
+    
+    using var tracerProvider = Sdk.CreateTracerProviderBuilder()
+        .UseGrafana()
+        .AddKafkaConsumerInstrumentation(instrumentedConsumerBuilder)
+        .Build();
+    ```
+
+1.  Use the instrumented consumer:
+
+    ```csharp
+    using (var consumer = instrumentedConsumerBuilder.Build()) { ... }
+    ```
+
+### Adding alternative Kafka instrumentation (Confluent.Kafka.Extensions.OpenTelemetry)
+
+You could alternatively use the `Confluent.Kafka.Extensions.OpenTelemetry` package.
 
 1.  Add the package:
 
