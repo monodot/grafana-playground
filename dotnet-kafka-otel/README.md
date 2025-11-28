@@ -2,7 +2,25 @@
 
 Example .NET Core application which consumes messages from a Kafka topic, instrumented with OpenTelemetry.
 
-## Basic steps followed
+## To run/test
+
+```sh
+docker compose up
+```
+
+Then run the test script to send messages to Kafka:
+
+```sh
+./test-publish.sh
+```
+
+Go to http://localhost:3000 -> Drilldown -> Traces and you should see traces appear in Grafana Tempo:
+
+![trace.png](trace.png)
+
+## How it works
+
+### Adding Grafana OpenTelemetry instrumentation
 
 Following: https://grafana.com/docs/opentelemetry/instrument/grafana-dotnet/
 
@@ -26,7 +44,7 @@ Following: https://grafana.com/docs/opentelemetry/instrument/grafana-dotnet/
     ```
 
 1. You should see some output in the console, like:
-    
+
     ```sh
     tdonohue@harold:~/repos/grafana-playground/dotnet-kafka-otel$   OTEL_RESOURCE_ATTRIBUTES="service.name=myapp,service.namespace=apps,deployment.environment=local" \
     >   OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317 \
@@ -51,4 +69,44 @@ Following: https://grafana.com/docs/opentelemetry/instrument/grafana-dotnet/
     telemetry.sdk.name: opentelemetry
     telemetry.sdk.language: dotnet
     telemetry.sdk.version: 1.14.0
+    ```
+
+### Adding Kafka instrumentation
+
+To enhance the application to add Kafka instrumentation, we used the `Confluent.Kafka.Extensions.OpenTelemetry` package.
+
+1.  Add the package:
+
+    ```sh
+    dotnet add package Confluent.Kafka.Extensions.OpenTelemetry
+    ```
+
+1.  Update the bootstrapping code:
+
+    ```csharp
+    using Confluent.Kafka.Extensions.Diagnostics;
+    using Confluent.Kafka.Extensions.OpenTelemetry;
+   
+    using var tracerProvider = Sdk.CreateTracerProviderBuilder()
+        .UseGrafana()
+        .AddConfluentKafkaInstrumentation()
+        .Build();
+    ```
+
+1.  Use `.consumeWithInstrumentation()` instead of `.consume()` in the program.
+
+    ```csharp
+    consumer.ConsumeWithInstrumentation((result) =>
+    {
+        if (result != null)
+        {
+            Console.WriteLine(result.Message.Value);
+            logger.LogInformation(
+                "Consumed event from topic {Topic}: key = {Key} value = {Value}",
+                topic, 
+                result.Message.Key, 
+                result.Message.Value
+            );
+        }   
+    }, 2000);
     ```
