@@ -5,3 +5,12 @@ Accept: application/json
 ### GET request with a header
 GET http://localhost:8081
 Accept: application/json
+
+### Send POST request with json body
+POST http://localhost:8081
+Content-Type: application/json
+
+{
+  "id": 999,
+  "value": "content"
+}
