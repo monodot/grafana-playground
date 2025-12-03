@@ -55,6 +55,51 @@ while true; do
             }, {
               \"key\": \"custom.pet\",
               \"value\": {\"stringValue\": \"fido\"}
+            }, {
+              \"key\": \"user.metadata\",
+              \"value\": {
+                \"kvlistValue\": {
+                  \"values\": [{
+                    \"key\": \"country\",
+                    \"value\": {\"stringValue\": \"US\"}
+                  }, {
+                    \"key\": \"age\",
+                    \"value\": {\"intValue\": \"30\"}
+                  }, {
+                    \"key\": \"premium\",
+                    \"value\": {\"boolValue\": true}
+                  }]
+                }
+              }
+            }, {
+              \"key\": \"res\",
+              \"value\": {
+                \"kvlistValue\": {
+                  \"values\": [{
+                    \"key\": \"headers\",
+                    \"value\": {
+                      \"kvlistValue\": {
+                        \"values\": [{
+                          \"key\": \"content-length\",
+                          \"value\": {\"stringValue\": \"52\"}
+                        }, {
+                          \"key\": \"content-type\",
+                          \"value\": {\"stringValue\": \"application/json; charset=utf-8\"}
+                        }, {
+                          \"key\": \"etag\",
+                          \"value\": {\"stringValue\": \"abc123\"}
+                        }, {
+                          \"key\": \"x-trace-id\",
+                          \"value\": {\"stringValue\": \"aaaa-bbbb-cccccc\"}
+                        }]
+                      }
+                    }
+                  }, {
+                    \"key\": \"statusCode\",
+                    \"value\": {\"intValue\": \"200\"}
+                  }]
+                }
+              }
             }],
             \"traceId\": \"5b8aa5a2d2c872e8321cf37308d69df2\",
             \"spanId\": \"051581bf3cb55c13\"

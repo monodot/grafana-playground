@@ -85,7 +85,7 @@ otelcol.processor.transform "drop_unneeded_resource_attributes" {
 	log_statements {
 	    context = "log"
 	    statements = [
-            "keep_keys(attributes, [\"user.id\", \"http.method\", \"http.status_code\", \"custom.planet\", \"custom.pet\"])",
+            "keep_keys(attributes, [\"res\", \"user.id\", \"user.metadata\", \"http.method\", \"http.status_code\", \"custom.planet\", \"custom.pet\"])",
             // "limit(attributes, 5, [])",
             // "truncate_all(attributes, 4096)",
 	    ]
