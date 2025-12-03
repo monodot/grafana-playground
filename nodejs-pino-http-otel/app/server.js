@@ -5,17 +5,20 @@ const port = 3001;
 
 const logger = pino();
 
-const logger2 = require('pino-http')();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+const logger2 = require('pino-http')({});
+
+app.use(logger2); // Installs pino-http as a middleware in Express.js - https://expressjs.com/en/guide/using-middleware.html
 
 app.get('/', (req, res) => {
     logger.info('GET /');
-    logger2(req, res);
     res.send('Hello World!')
 });
 
 app.post('/', (req, res) => {
     logger.info('POST /');
-    logger2(req, res);
     res.send('Thanks for the input!');
 })
 
