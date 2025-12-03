@@ -4,6 +4,7 @@ import re
 import sys
 from datetime import datetime
 import subprocess
+import yaml
 
 def is_file_in_git(filepath):
     """Check if a file is tracked in Git."""
@@ -39,63 +40,94 @@ def get_latest_modification(directory):
     except subprocess.SubprocessError:
         return None
 
+def parse_frontmatter(content):
+    """Extract frontmatter from markdown content."""
+    # Check if content starts with frontmatter delimiter
+    frontmatter_pattern = re.match(r'^---\s*\n(.*?)\n---\s*\n', content, re.DOTALL)
+
+    if frontmatter_pattern:
+        try:
+            frontmatter_text = frontmatter_pattern.group(1)
+            frontmatter_data = yaml.safe_load(frontmatter_text)
+            # Remove frontmatter from content
+            content_without_frontmatter = content[frontmatter_pattern.end():]
+            return frontmatter_data or {}, content_without_frontmatter
+        except yaml.YAMLError as e:
+            print(f"Error parsing YAML frontmatter: {e}", file=sys.stderr)
+            return {}, content
+
+    return {}, content
+
 def extract_readme_info(filepath):
-    """Extract H1 heading and first paragraph from README.md file."""
+    """Extract H1 heading, first paragraph, and keywords from README.md file."""
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
-            
+
+        # Parse frontmatter first
+        frontmatter, content_without_frontmatter = parse_frontmatter(content)
+        keywords = frontmatter.get('keywords', '')
+
+        # If keywords is a list, join them
+        if isinstance(keywords, list):
+            keywords = ', '.join(keywords)
+        elif keywords is None:
+            keywords = ''
+
         # Find the first H1 heading
-        h1_match = re.search(r'^#\s+(.+)$', content, re.MULTILINE)
+        h1_match = re.search(r'^#\s+(.+)$', content_without_frontmatter, re.MULTILINE)
         if not h1_match:
-            return None, None
-        
+            return None, None, None
+
         heading = h1_match.group(1).strip()
-        
+
         # Find the first non-empty paragraph after the heading
-        paragraphs = content[h1_match.end():].split('\n\n')
+        paragraphs = content_without_frontmatter[h1_match.end():].split('\n\n')
         first_para = None
         for p in paragraphs:
             # Skip empty paragraphs and those that look like headers or lists
             cleaned = p.strip()
-            if (cleaned and 
-                not cleaned.startswith('#') and 
-                not cleaned.startswith('-') and 
+            if (cleaned and
+                not cleaned.startswith('#') and
+                not cleaned.startswith('-') and
                 not cleaned.startswith('*')):
                 first_para = ' '.join(cleaned.split('\n'))
                 break
-                
-        return heading, first_para
+
+        return heading, first_para, keywords
     except Exception as e:
         print(f"Error processing {filepath}: {e}", file=sys.stderr)
-        return None, None
+        return None, None, None
 
 def generate_table():
     """Generate the markdown table content."""
     # Get all immediate subdirectories
-    subdirs = [d for d in os.listdir('.') 
+    subdirs = [d for d in os.listdir('.')
               if os.path.isdir(d) and not d.startswith('.')]
-    
+
     table_lines = []
-    table_lines.append("| Path | Description | Last Updated |")
-    table_lines.append("|------|-------------|--------------|")
-    
+    table_lines.append("| Description | Keywords | Last Updated |")
+    table_lines.append("|-------------|----------|--------------|")
+
     for subdir in sorted(subdirs):  # Sort directories for consistent output
         readme_path = os.path.join(subdir, 'README.md')
         # Only process if file exists and is tracked in Git
         if os.path.exists(readme_path) and is_file_in_git(readme_path):
-            heading, paragraph = extract_readme_info(readme_path)
+            heading, paragraph, keywords = extract_readme_info(readme_path)
             if heading and paragraph:
                 # Get the latest modification date from Git history
                 last_updated = get_latest_modification(subdir) or "N/A"
-                
+
                 # Combine title and description with markdown formatting
-                description = f"**{heading}**<br>{paragraph}"
-                
+                description = f"**[{heading}]({readme_path})** _({subdir})_<br>{paragraph}"
+
+                # Format keywords (empty string if no keywords)
+                keywords_display = keywords if keywords else ""
+
                 # Create the table row
-                row = f"| [{subdir}]({readme_path}) | {description} | {last_updated} |"
+                row = f"| {description} | {keywords_display} | {last_updated} |"
                 table_lines.append(row)
-    
+
     return '\n'.join(table_lines)
 
 def update_main_readme():
