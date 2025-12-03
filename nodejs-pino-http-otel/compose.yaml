@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  otel-lgtm:
+    image: docker.io/grafana/otel-lgtm:latest
+    ports:
+      - "3000:3000"
+      - "4317:4317"
+      - "4318:4318"
+    stop_grace_period: 2s
+
+  app:
+    build:
+      context: app
+    ports:
+      - "8081:3000/tcp"
+    environment:
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_NODE_RESOURCE_DETECTORS=env,host,os
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=pino-service,service.namespace=playground,deployment.environment=development
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-lgtm:4317

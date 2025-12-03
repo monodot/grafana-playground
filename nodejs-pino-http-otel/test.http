@@ -1,0 +1,7 @@
+### GET request with a header
+GET http://localhost:8081/example
+Accept: application/json
+
+### GET request with a header
+GET http://localhost:8081
+Accept: application/json
