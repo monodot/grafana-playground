@@ -14,6 +14,12 @@ Edit the .env file to add your backend details, then:
 docker compose up
 ```
 
+Alloy also writes some of the OTLP log records to stdout, so you can see them, e.g.:
+
+```
+[alloy]   | ts=2025-12-03T11:41:27.8139054Z level=info msg="ResourceLog #0\nResource SchemaURL: https://opentelemetry.io/schemas/1.6.1\nResource attributes:\n     -> service.name: Str(example-service)\n     -> service.version: Str(1.0.0)\n     -> telemetry.sdk.name: Str(beyla)\n     -> host.name: Str(03169ea476a8)\nScopeLogs #0\nScopeLogs SchemaURL: \nInstrumentationScope example-logger 1.0.0\nLogRecord #0\nObservedTimestamp: 2025-12-03 11:41:27.80596297 +0000 UTC\nTimestamp: 2025-12-03 11:41:27.80596297 +0000 UTC\nSeverityText: INFO\nSeverityNumber: Info(9)\nBody: Str(User login successful)\nAttributes:\n     -> user.id: Str(user123)\n     -> http.method: Str(POST)\n     -> http.status_code: Int(200)\n     -> custom.planet: Str(saturn)\n     -> custom.pet: Str(fido)\nTrace ID: 5b8aa5a2d2c872e8321cf37308d69df2\nSpan ID: 051581bf3cb55c13\nFlags: 0\n" component_path=/ component_id=otelcol.exporter.debug.console
+```
+
 ## What it does
 
 The example shows a complete Alloy pipeline that:
