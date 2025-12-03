@@ -11,8 +11,15 @@ services:
       - GRAFANA_CLOUD_API_KEY=${GRAFANA_CLOUD_API_KEY}
     volumes:
       - $PWD/alloy/config.alloy:/etc/alloy/config.alloy:z
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - --stability.level=experimental
+      - /etc/alloy/config.alloy
 
-#  demoapp:
-#    image: docker.io/library/debian:bookworm-slim
-#    volumes:
-#      - ./
+  demoapp:
+    build:
+      context: demoapp
+    volumes:
+      - ./demoapp:/app:z

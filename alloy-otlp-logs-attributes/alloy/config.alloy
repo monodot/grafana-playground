@@ -82,9 +82,18 @@ otelcol.processor.transform "drop_unneeded_resource_attributes" {
 		]
 	}
 
+	log_statements {
+	    context = "log"
+	    statements = [
+            "keep_keys(attributes, [\"user.id\", \"http.method\", \"http.status_code\", \"custom.planet\", \"custom.pet\"])",
+            // "limit(attributes, 5, [])",
+            // "truncate_all(attributes, 4096)",
+	    ]
+    }
+
 	output {
 		metrics = [otelcol.processor.transform.add_resource_attributes_as_metric_attributes.input]
-		logs    = [otelcol.processor.batch.default.input]
+		logs    = [otelcol.processor.batch.default.input, otelcol.exporter.debug.console.input]
 		traces  = [
 			otelcol.processor.batch.default.input,
 			otelcol.connector.host_info.default.input,
@@ -125,6 +134,11 @@ otelcol.processor.batch "default" {
 		logs    = [otelcol.exporter.otlphttp.grafana_cloud.input]
 		traces  = [otelcol.exporter.otlphttp.grafana_cloud.input]
 	}
+}
+
+// Prints a sample of the logs to the console
+otelcol.exporter.debug "console" {
+    verbosity = "detailed"
 }
 
 otelcol.exporter.otlphttp "grafana_cloud" {
