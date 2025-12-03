@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  alloy:
+    image: docker.io/grafana/alloy:latest
+    ports:
+      - "12346:12345/tcp"
+    environment:
+      - GRAFANA_CLOUD_OTLP_ENDPOINT=${GRAFANA_CLOUD_OTLP_ENDPOINT}
+      - GRAFANA_CLOUD_INSTANCE_ID=${GRAFANA_CLOUD_INSTANCE_ID}
+      - GRAFANA_CLOUD_API_KEY=${GRAFANA_CLOUD_API_KEY}
+    volumes:
+      - $PWD/alloy/config.alloy:/etc/alloy/config.alloy:z
+
+#  demoapp:
+#    image: docker.io/library/debian:bookworm-slim
+#    volumes:
+#      - ./
