@@ -1,6 +1,6 @@
 # Alloy: Process OTLP logs attributes
 
-Demonstrates how to filter and retain only specific log attributes when processing OTLP logs using Grafana Alloy, and how nested attributes will appear in Loki.
+Demonstrates how to filter or flatten attributes OTLP logs using Grafana Alloy. Also shows how nested log attributes will appear in Loki.
 
 ## To run
 
@@ -28,12 +28,17 @@ The example shows a complete Alloy pipeline that:
 2. Detects resource attributes automatically (hostname, environment, etc.)
 3. **Drops unwanted resource-level attributes** - Removes unnecessary _resource_ attributes like `process.pid`, `os.description`, and `k8s.pod.start_time` from logs, traces, and metrics
 4. **Retains only specific log attributes** - Uses OTTL to keep only desired _attributes on log records_, dropping all others
+5. **Embeds all _attributes_ in the log line**
 5. Exports the processed logs to Grafana Cloud
 
 The sample app creates an OTel log record every 5 seconds:
 
 - include custom attributes
 - a couple of attributes, like `req` are defined as maps containing child values; these are flattened into structured metadata fields in Loki
+
+Log lines then contain embedded attributes, like this:
+
+![Embedded attributes](./embedded_attributes.png)
 
 ## Key OTTL Statements
 

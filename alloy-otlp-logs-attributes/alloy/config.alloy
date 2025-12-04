@@ -93,11 +93,24 @@ otelcol.processor.transform "drop_unneeded_resource_attributes" {
 
 	output {
 		metrics = [otelcol.processor.transform.add_resource_attributes_as_metric_attributes.input]
-		logs    = [otelcol.processor.batch.default.input, otelcol.exporter.debug.console.input]
+		logs    = [otelcol.processor.transform.move_things_into_log_body.input]
 		traces  = [
 			otelcol.processor.batch.default.input,
 			otelcol.connector.host_info.default.input,
 		]
+	}
+}
+
+otelcol.processor.transform "move_things_into_log_body" {
+    log_statements {
+        context = "log"
+        statements = [
+            "set(body, Concat([body, attributes], \" \"))",
+        ]
+    }
+
+	output {
+		logs    = [otelcol.processor.batch.default.input, otelcol.exporter.debug.console.input]
 	}
 }
 
