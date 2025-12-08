@@ -8,10 +8,18 @@ services:
       - GRAFANA_CLOUD_INSTANCE_ID=${GRAFANA_CLOUD_INSTANCE_ID}
       - GRAFANA_CLOUD_API_KEY=${GRAFANA_CLOUD_API_KEY}
     volumes:
-      - ./alloy/config.alloy:/etc/alloy/config.alloy
+      - $PWD/alloy/config.alloy:/etc/alloy/config.alloy:z
+    command:
+      - run
+      - --stability.level=experimental
+      - /etc/alloy/config.alloy
 
   app:
     build:
       context: app
     ports:
       - "8081:8080/tcp"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4318
+      - OTEL_SERVICE_NAME=custom-metrics-app
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE=delta
