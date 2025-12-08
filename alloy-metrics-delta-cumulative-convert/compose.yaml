@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  alloy:
+    image: docker.io/grafana/alloy:latest
+    environment:
+      - GRAFANA_CLOUD_OTLP_ENDPOINT=${GRAFANA_CLOUD_OTLP_ENDPOINT}
+      - GRAFANA_CLOUD_INSTANCE_ID=${GRAFANA_CLOUD_INSTANCE_ID}
+      - GRAFANA_CLOUD_API_KEY=${GRAFANA_CLOUD_API_KEY}
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy
+
+  app:
+    build:
+      context: app
+    ports:
+      - "8081:8080/tcp"
