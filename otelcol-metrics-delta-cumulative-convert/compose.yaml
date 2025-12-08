@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  otelcol:
+    image: docker.io/otel/opentelemetry-collector-contrib:0.141.0
+    environment:
+      - GRAFANA_CLOUD_OTLP_ENDPOINT=${GRAFANA_CLOUD_OTLP_ENDPOINT}
+      - GRAFANA_CLOUD_INSTANCE_ID=${GRAFANA_CLOUD_INSTANCE_ID}
+      - GRAFANA_CLOUD_API_KEY=${GRAFANA_CLOUD_API_KEY}
+    volumes:
+      - $PWD/otelcol/config.yaml:/etc/otelcol-contrib/config.yaml:z
+
+  app:
+    build:
+      context: app
+    ports:
+      - "8081:8080/tcp"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otelcol:4318
+      - OTEL_SERVICE_NAME=custom-metrics-app
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE=delta

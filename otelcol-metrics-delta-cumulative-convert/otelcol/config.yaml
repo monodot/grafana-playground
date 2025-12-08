@@ -1,0 +1,46 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+  pprof:
+    endpoint: 0.0.0.0:1777
+  zpages:
+    endpoint: 0.0.0.0:55679
+
+  basicauth/grafana_cloud:
+    # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/extension/basicauthextension
+    client_auth:
+      username: "${env:GRAFANA_CLOUD_INSTANCE_ID}"
+      password: "${env:GRAFANA_CLOUD_API_KEY}"
+
+exporters:
+  otlphttp/grafana_cloud:
+    # https://github.com/open-telemetry/opentelemetry-collector/tree/main/exporter/otlphttpexporter
+    endpoint: "${env:GRAFANA_CLOUD_OTLP_ENDPOINT}"
+    auth:
+      authenticator: basicauth/grafana_cloud
+
+processors:
+  deltatocumulative:  # Initialise this processor with default settings
+
+service:
+  extensions: [health_check, pprof, zpages, basicauth/grafana_cloud]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [otlphttp/grafana_cloud]
+    metrics:
+      receivers: [otlp]
+      processors: [deltatocumulative]
+      exporters: [otlphttp/grafana_cloud]
+    logs:
+      receivers: [otlp]
+      exporters: [otlphttp/grafana_cloud]
+
