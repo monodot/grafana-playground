@@ -1,4 +1,4 @@
-# Kafka Client OpenTelemetry Traces with Beyla
+# Go Application: Auto-Instrumenting Kafka Traces using Beyla
 
 This example demonstrates generating a distributed trace that spans HTTP requests and Kafka messaging, using the segmentio/kafka-go library. The setup consists of:
 

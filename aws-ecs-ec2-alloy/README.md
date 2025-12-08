@@ -1,4 +1,4 @@
-# AWS: Send logs from an ECS task on EC2 to Grafana Cloud Logs with Grafana Alloy
+# AWS ECS/EC2: Collecting Logs with Alloy Daemon for Grafana Cloud
 
 This example shows how to collect logs from tasks running on ECS EC2 instances, using Grafana Alloy running as a Daemon on the VM.
 

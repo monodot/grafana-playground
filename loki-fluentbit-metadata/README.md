@@ -1,4 +1,4 @@
-# Fluent Bit: Parsing and sending structured metadata to Loki
+# Loki: Sending Structured Metadata via Fluent Bit
 
 This Compose example shows how to use Fluent Bit's Loki plugin to parse incoming JSON logs, and attach two pieces of _Structured Metadata_ to each log line.
 

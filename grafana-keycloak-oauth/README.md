@@ -1,4 +1,6 @@
-# grafana-keycloak-oauth Example
+# Grafana: Configuring OAuth SSO using Keycloak
+
+A local Compose configuration showing how to use Keycloak as an SSO provider for Grafana.
 
 ```
 podman-compose up

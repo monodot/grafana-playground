@@ -1,4 +1,4 @@
-# Alloy: Consume logs from CloudWatch and extract labels
+# Alloy: Extracting Labels from CloudWatch Logs to Loki
 
 This example shows how to deploy Alloy to consume logs from CloudWatch using the OpenTelemetry CloudWatch receiver, and extract the `service.name` attribute from the CloudWatch log group name.
 

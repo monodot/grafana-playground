@@ -1,4 +1,4 @@
-# alloy-helm-gcplogs
+# Alloy: Deploying with Helm to Collect Logs from GCP PubSub
 
 Shows how to deploy Alloy with the Helm chart, configured with authentication to Google Cloud Platform to pull logs from a PubSub topic.
 

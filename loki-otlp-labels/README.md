@@ -1,4 +1,4 @@
-# Loki: Promote custom OpenTelemetry resource attributes to labels
+# Alloy & Loki: Promoting OTLP Resource Attributes to Log Labels
 
 How to use Alloy to set a custom OpenTelemetry _Resource Attribute_, and then get Loki/GEL to automatically promote the attribute to a label, instead of structured metadata.
 
