@@ -13,4 +13,4 @@ terraform.*.backup
 bin/
 obj/
 Folder.DotSettings.user
-
+vendor/
