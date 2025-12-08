@@ -12,4 +12,4 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     go build -o rolldice
 
-ENTRYPOINT ["sh", "-c", "/app/rolldice"]
+ENTRYPOINT ["/app/rolldice"]
