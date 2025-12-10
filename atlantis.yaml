@@ -1,14 +1,13 @@
 version: 3
 projects:
   - name: grafana-dashboards
-    dir: .
+    dir: terraform-atlantis-demo
     workspace: default
     terraform_version: v1.5.0
     autoplan:
       when_modified:
-        - "*.tf"
-        - "dashboards/*.json"
+        - "terraform-atlantis-demo/*.tf"
+        - "terraform-atlantis-demo/dashboards/*.json"
       enabled: true
     apply_requirements:
       - approved
-
