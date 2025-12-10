@@ -1,4 +1,11 @@
 terraform {
+  # This tells Atlantis to store the terraform state file in a known, fixed location.
+  # This is only added for the purposes of being able to run a simple demo, locally.
+  # In the real world, you would configure an s3 or remote backend here, instead!
+  backend "local" {
+    path = "/atlantis-data/shared-state/terraform.tfstate"
+  }
+
   required_providers {
     grafana = {
       source  = "grafana/grafana"
