@@ -1,0 +1,58 @@
+{
+  "title": "Demo Dashboard",
+  "uid": "demo-dashboard-001",
+  "tags": ["demo", "terraform"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "",
+  "panels": [
+    {
+      "id": 1,
+      "type": "text",
+      "title": "Welcome",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "# Hello from Terraform!\n\nThis dashboard was deployed via:\n- **GitHub PR**\n- **Atlantis**\n- **Terraform**\n\n🚀 Infrastructure as Code in action!"
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Demo Metric",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 50 },
+              { "color": "red", "value": 80 }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "targets": []
+    }
+  ]
+}
+

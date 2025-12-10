@@ -1,0 +1,21 @@
+services:
+  atlantis:
+    image: ghcr.io/runatlantis/atlantis
+    container_name: atlantis
+    ports:
+      - "4141:4141"
+    environment:
+      # GitHub configuration
+      ATLANTIS_GH_USER: ${GITHUB_USER}
+      ATLANTIS_GH_TOKEN: ${GITHUB_TOKEN}
+      ATLANTIS_GH_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET}
+      ATLANTIS_REPO_ALLOWLIST: ${GITHUB_REPO_ALLOWLIST}
+      ATLANTIS_ATLANTIS_URL: ${ATLANTIS_URL}
+      
+      # Terraform variables for Grafana Cloud
+      TF_VAR_grafana_url: ${GRAFANA_URL}
+      TF_VAR_grafana_api_key: ${GRAFANA_API_KEY}
+    command:
+      - server
+    restart: unless-stopped
+

@@ -1,0 +1,5 @@
+# Initialise this vars file if you want to test the Terraform locally
+grafana_url     = "https://mystack.grafana.net"
+
+# Service account token - create at: Your Stack → Administration → Service Accounts
+grafana_api_key = "glsa_xxxxxxxxxxxxxxxxxxxx"
