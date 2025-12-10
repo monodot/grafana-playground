@@ -9,5 +9,3 @@ projects:
         - "terraform-atlantis-demo/*.tf"
         - "terraform-atlantis-demo/dashboards/*.json"
       enabled: true
-    apply_requirements:
-      - approved
