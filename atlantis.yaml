@@ -4,8 +4,8 @@ projects:
     dir: terraform-atlantis-demo
     workspace: default
     terraform_version: v1.5.0
-    autoplan:
-      when_modified:
-        - "terraform-atlantis-demo/*.tf"
-        - "terraform-atlantis-demo/dashboards/*.json"
-      enabled: true
+#    autoplan:
+#      when_modified:
+#        - "terraform-atlantis-demo/*.tf"
+#        - "terraform-atlantis-demo/dashboards/*.json"
+#      enabled: true
