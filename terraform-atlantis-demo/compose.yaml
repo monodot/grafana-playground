@@ -4,6 +4,7 @@ services:
     container_name: atlantis
     ports:
       - "4141:4141"
+    user: root
     environment:
       # GitHub configuration
       ATLANTIS_GH_USER: ${GITHUB_USER}
@@ -11,10 +12,14 @@ services:
       ATLANTIS_GH_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET}
       ATLANTIS_REPO_ALLOWLIST: ${GITHUB_REPO_ALLOWLIST}
       ATLANTIS_ATLANTIS_URL: ${ATLANTIS_URL}
-      
+      ATLANTIS_DATA_DIR: /atlantis-data
+
       # Terraform variables for Grafana Cloud
       TF_VAR_grafana_url: ${GRAFANA_URL}
       TF_VAR_grafana_api_key: ${GRAFANA_API_KEY}
+    volumes:
+      # Persist Atlantis data (cloned repos)
+      - $PWD/atlantis-data:/atlantis-data:Z
     command:
       - server
     restart: unless-stopped
