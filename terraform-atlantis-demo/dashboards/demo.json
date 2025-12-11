@@ -19,7 +19,7 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "# Howdy from Terraform!\n\nThis dashboard was deployed via:\n- **GitHub PR**\n- **Atlantis**\n- **Terraform**\n\n🚀 Infrastructure as Code in action!"
+        "content": "# Hey there from Terraform!\n\nThis dashboard was deployed via:\n- **GitHub PR**\n- **Atlantis**\n- **Terraform**\n\n🚀 Infrastructure as Code in action!"
       }
     },
     {
