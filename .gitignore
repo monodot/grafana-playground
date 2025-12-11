@@ -15,3 +15,5 @@ obj/
 Folder.DotSettings.user
 vendor/
 repomix-output.xml
+atlantis-data/
+terraform.tfvars
