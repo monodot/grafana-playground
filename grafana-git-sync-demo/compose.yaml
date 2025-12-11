@@ -1,0 +1,10 @@
+services:
+  grafana:
+    image: docker.io/grafana/grafana:latest
+    ports:
+      - "3000:3000/tcp"
+    environment:
+      - GF_FEATURE_TOGGLES_ENABLE=provisioning kubernetesDashboards
+      # You definitely do NOT want to set these in production
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
