@@ -1,6 +1,0 @@
-loki_username       = "xxxxx"
-loki_password       = "xxxxx"
-loki_endpoint       = "https://logs-prod-999.grafana.net/loki/api/v1/push"
-prometheus_username = "xxxxx"
-prometheus_password = "xxxxx"
-prometheus_endpoint = "https://prometheus-prod-99-gb-south-9.grafana.net/api/prom/push"
