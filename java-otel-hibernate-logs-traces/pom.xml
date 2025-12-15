@@ -191,6 +191,7 @@
                                 <argument>-Dotel.logs.exporter=otlp</argument>
                                 <argument>-Dotel.exporter.otlp.endpoint=http://localhost:4318</argument>
                                 <argument>-Dotel.javaagent.debug=false</argument>
+                                <argument>-Dotel.instrumentation.jdbc.experimental.capture-query-parameters=true</argument>
                                 <argument>-classpath</argument>
                                 <classpath/>
                                 <argument>com.example.RestApplication</argument>

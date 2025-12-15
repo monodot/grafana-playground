@@ -11,8 +11,10 @@ services:
 
   app:
     build:
-      context: app
+      context: .
     ports:
       - "8081:8080/tcp"
     environment:
-      - HENLO=borb
+      - JAVA_TOOL_OPTIONS=-javaagent:/usr/local/opentelemetry-javaagent.jar
+      - OTEL_SERVICE_NAME=borbservice
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-lgtm:4318
