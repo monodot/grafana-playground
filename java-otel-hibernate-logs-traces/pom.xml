@@ -15,6 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <undertow.version>2.3.10.Final</undertow.version>
         <resteasy.version>6.2.6.Final</resteasy.version>
+        <otel.javaagent.path>${project.basedir}/opentelemetry-javaagent.jar</otel.javaagent.path>
     </properties>
 
     <dependencies>
@@ -119,6 +120,18 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <!-- Logging: Logback (SLF4J implementation) -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.4.14</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.9</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -162,10 +175,29 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.6.2</version>
-                <configuration>
-                    <mainClass>com.example.RestApplication</mainClass>
-                    <cleanupDaemonThreads>false</cleanupDaemonThreads>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>run-with-otel</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <argument>-javaagent:${otel.javaagent.path}</argument>
+                                <argument>-Dotel.service.name=java-otel-hibernate-demo</argument>
+                                <argument>-Dotel.traces.exporter=otlp</argument>
+                                <argument>-Dotel.metrics.exporter=otlp</argument>
+                                <argument>-Dotel.logs.exporter=otlp</argument>
+                                <argument>-Dotel.exporter.otlp.endpoint=http://localhost:4318</argument>
+                                <argument>-Dotel.javaagent.debug=false</argument>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>com.example.RestApplication</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

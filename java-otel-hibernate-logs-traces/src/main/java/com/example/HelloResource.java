@@ -16,6 +16,7 @@ public class HelloResource {
     @Path("/hello")
     @Produces(MediaType.APPLICATION_JSON)
     public Response hello() {
+        System.out.println("GET /hello was called");
         Map<String, String> response = new HashMap<>();
         response.put("message", "Hello from JAX-RS and Undertow!");
         response.put("timestamp", String.valueOf(System.currentTimeMillis()));

@@ -6,9 +6,13 @@ import jakarta.persistence.EntityManager;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Path("/api/customers")
 public class CustomerResource {
+
+    private static final Logger logger = LoggerFactory.getLogger(CustomerResource.class);
 
     @POST
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
@@ -37,9 +41,12 @@ public class CustomerResource {
 
             Customer customer = new Customer(name.trim(), email.trim(),
                     country != null ? country.trim() : null);
+
+            logger.info("Creating customer: name={}, email={}, country={}", name, email, country);
             em.persist(customer);
 
             em.getTransaction().commit();
+            logger.info("Customer created successfully with id={}", customer.getId());
 
             return Response.status(Response.Status.CREATED)
                     .entity(customer)
@@ -61,12 +68,14 @@ public class CustomerResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response listCustomers() {
+        logger.debug("Fetching all customers");
         EntityManager em = HibernateUtil.getEntityManager();
 
         try {
             var customers = em.createQuery("SELECT c FROM Customer c", Customer.class)
                     .getResultList();
 
+            logger.info("Retrieved {} customers", customers.size());
             return Response.ok(customers).build();
 
         } catch (Exception e) {
