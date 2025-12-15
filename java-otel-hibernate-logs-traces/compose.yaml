@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  otel-lgtm:
+    image: docker.io/grafana/otel-lgtm:latest
+    ports:
+      - "3000:3000"
+      - "4317:4317"
+      - "4318:4318"
+    stop_grace_period: 2s
+
+  app:
+    build:
+      context: app
+    ports:
+      - "8081:8080/tcp"
+    environment:
+      - HENLO=borb

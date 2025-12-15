@@ -9,7 +9,11 @@ RUN apt-get update && apt-get install -y maven && \
 
 COPY src ./src
 
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests && \
+    echo "Contents of target directory:" && \
+    ls -la /app/target/ && \
+    echo "Contents of target/lib (if exists):" && \
+    ls -la /app/target/lib/ || echo "target/lib does not exist"
 
 FROM docker.io/eclipse-temurin:17-jre-jammy
 
