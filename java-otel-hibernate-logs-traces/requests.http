@@ -1,0 +1,12 @@
+### Get all customers
+# curl http://localhost:8080/api/customers
+GET http://localhost:8081/api/customers
+
+### Create a customer
+# curl -X POST http://localhost:8080/api/customers
+#  -d "name=Bob Smith&email=bob@example.com"
+POST http://localhost:8080/api/customers
+Content-Type: application/x-www-form-urlencoded
+
+name = {{$random.name.fullName}} &
+email = {{$random.email}}
