@@ -23,6 +23,12 @@ Run the application:
 java -jar target/java-otel-hibernate-demo-1.0-SNAPSHOT.jar
 ```
 
+Or with explicit classpath:
+
+```bash
+java -cp "target/lib/*:target/java-otel-hibernate-demo-1.0-SNAPSHOT.jar" com.example.RestApplication
+```
+
 Or run directly with Maven:
 
 ```bash
