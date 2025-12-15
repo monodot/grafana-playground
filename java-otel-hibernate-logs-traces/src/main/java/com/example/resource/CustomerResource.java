@@ -15,7 +15,8 @@ public class CustomerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createCustomer(
             @FormParam("name") String name,
-            @FormParam("email") String email) {
+            @FormParam("email") String email,
+            @FormParam("country") String country) {
 
         if (name == null || name.trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
@@ -34,7 +35,8 @@ public class CustomerResource {
         try {
             em.getTransaction().begin();
 
-            Customer customer = new Customer(name.trim(), email.trim());
+            Customer customer = new Customer(name.trim(), email.trim(),
+                    country != null ? country.trim() : null);
             em.persist(customer);
 
             em.getTransaction().commit();

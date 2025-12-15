@@ -9,13 +9,11 @@ RUN apt-get update && apt-get install -y maven && \
 
 COPY src ./src
 
-RUN mvn clean package -DskipTests && \
-    echo "Contents of target directory:" && \
-    ls -la /app/target/ && \
-    echo "Contents of target/lib (if exists):" && \
-    ls -la /app/target/lib/ || echo "target/lib does not exist"
+RUN mvn clean package -DskipTests
 
 FROM docker.io/eclipse-temurin:17-jre-jammy
+
+RUN wget -O /usr/local/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v2.23.0/opentelemetry-javaagent.jar
 
 WORKDIR /app
 

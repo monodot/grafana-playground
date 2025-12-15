@@ -16,12 +16,16 @@ public class Customer {
     @Column(nullable = false)
     private String email;
 
+    @Column
+    private String country;
+
     public Customer() {
     }
 
-    public Customer(String name, String email) {
+    public Customer(String name, String email, String country) {
         this.name = name;
         this.email = email;
+        this.country = country;
     }
 
     public Long getId() {
@@ -48,12 +52,21 @@ public class Customer {
         this.email = email;
     }
 
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
     @Override
     public String toString() {
         return "Customer{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
+                ", country='" + country + '\'' +
                 '}';
     }
 }
