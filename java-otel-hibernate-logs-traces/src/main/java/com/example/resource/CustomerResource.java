@@ -65,6 +65,73 @@ public class CustomerResource {
         }
     }
 
+    @POST
+    @Path("/bulk")
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED})
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createBulkCustomers(@FormParam("count") Integer count) {
+        if (count == null || count < 1) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"Count must be at least 1\"}")
+                    .build();
+        }
+
+        if (count > 100) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"Count must not exceed 100\"}")
+                    .build();
+        }
+
+        logger.info("Starting bulk customer creation: count={}", count);
+        EntityManager em = HibernateUtil.getEntityManager();
+
+        try {
+            em.getTransaction().begin();
+
+            var createdCustomers = new java.util.ArrayList<Customer>();
+
+            for (int i = 1; i <= count; i++) {
+                String name = "Customer " + i;
+                String email = "customer" + i + "@example.com";
+                String country = getRandomCountry(i);
+
+                logger.debug("Creating customer {}/{}: name={}", i, count, name);
+                Customer customer = new Customer(name, email, country);
+                em.persist(customer);
+                createdCustomers.add(customer);
+
+                // Flush periodically to generate multiple SQL statements
+                if (i % 10 == 0) {
+                    logger.debug("Flushing batch at customer {}", i);
+                    em.flush();
+                }
+            }
+
+            em.getTransaction().commit();
+            logger.info("Successfully created {} customers", createdCustomers.size());
+
+            return Response.status(Response.Status.CREATED)
+                    .entity(createdCustomers)
+                    .build();
+
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            logger.error("Failed to create bulk customers", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\": \"Failed to create customers: " + e.getMessage() + "\"}")
+                    .build();
+        } finally {
+            em.close();
+        }
+    }
+
+    private String getRandomCountry(int index) {
+        String[] countries = {"USA", "Canada", "UK", "Germany", "France", "Japan", "Australia", "Brazil", "India", "Mexico"};
+        return countries[index % countries.length];
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response listCustomers() {
