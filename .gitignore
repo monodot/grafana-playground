@@ -17,3 +17,12 @@ vendor/
 repomix-output.xml
 atlantis-data/
 terraform.tfvars
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
