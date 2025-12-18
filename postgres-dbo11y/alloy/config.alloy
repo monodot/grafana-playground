@@ -1,0 +1,87 @@
+//local.file "postgres_secret_snaxdb" {
+//  filename  = "/var/lib/alloy/postgres_secret_snaxdb"
+//  is_secret = true
+//}
+
+prometheus.exporter.postgres "postgres_snaxdb" {
+  data_source_names  = ["postgresql://db-o11y:dbo11y-password@postgres:5432/snaxdb?sslmode=disable"] // local.file.postgres_secret_snaxdb.content
+  enabled_collectors = ["stat_statements"]
+
+  autodiscovery {
+    enabled = true
+
+    // If running on AWS RDS, exclude the `rdsadmin` database
+    database_denylist = ["rdsadmin"]
+  }
+}
+
+database_observability.postgres "postgres_snaxdb" {
+  data_source_name  = "postgresql://db-o11y:dbo11y-password@postgres:5432/snaxdb?sslmode=disable" // local.file.postgres_secret_snaxdb.content
+  forward_to        = [loki.relabel.database_observability_postgres_snaxdb.receiver]
+  targets           = prometheus.exporter.postgres.postgres_snaxdb.targets
+  enable_collectors = ["query_details", "query_samples", "schema_details", "explain_plans"]
+
+  // OPTIONAL: provide additional information specific to the cloud provider
+  // that hosts the database to enable certain infrastructure observability
+  // features. See documentation of `database_observability.mysql` for
+  // other cloud providers.
+  cloud_provider {
+    aws {
+      arn = "<AWS_RDS_DB_ARN>"
+    }
+  }
+}
+
+loki.relabel "database_observability_postgres_snaxdb" {
+  forward_to = [loki.write.logs_service.receiver]
+
+  // OPTIONAL: add any additional relabeling rules; must be consistent with rules in "discovery.relabel"
+  rule {
+    target_label = "instance"
+    replacement  = "snaxdb-local"
+  }
+}
+
+discovery.relabel "database_observability_postgres_snaxdb" {
+  targets = database_observability.postgres.postgres_snaxdb.targets
+
+  rule {
+    target_label = "job"
+    replacement  = "integrations/db-o11y"
+  }
+
+  // OPTIONAL: add any additional relabeling rules; must be consistent with rules in "loki.relabel"
+  rule {
+    target_label = "instance"
+    replacement  = "snaxdb-local"
+  }
+}
+
+prometheus.scrape "database_observability_postgres_snaxdb" {
+  targets    = discovery.relabel.database_observability_postgres_snaxdb.output
+  forward_to = [prometheus.remote_write.metrics_service.receiver]
+}
+
+
+prometheus.remote_write "metrics_service" {
+  endpoint {
+    url = sys.env("GCLOUD_HOSTED_METRICS_URL")
+
+    basic_auth {
+      password = sys.env("GCLOUD_RW_API_KEY")
+      username = sys.env("GCLOUD_HOSTED_METRICS_ID")
+    }
+  }
+}
+
+loki.write "logs_service" {
+  endpoint {
+    url = sys.env("GCLOUD_HOSTED_LOGS_URL")
+
+    basic_auth {
+      password = sys.env("GCLOUD_RW_API_KEY")
+      username = sys.env("GCLOUD_HOSTED_LOGS_ID")
+    }
+  }
+}
+

@@ -1,0 +1,17 @@
+### POST Create a snack
+POST http://localhost:3000/snacks
+Content-Type: application/json
+
+{
+  "name": "Chips",
+  "description": "Crispy potato chips",
+  "price": 2.99
+}
+
+### PUT Update a snack
+PUT http://localhost:3000/snacks/1
+Content-Type: application/json
+
+{
+  "price": 3.49
+}
