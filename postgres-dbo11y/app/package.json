@@ -1,0 +1,13 @@
+{
+  "name": "snacks-api",
+  "version": "1.0.0",
+  "description": "REST API for managing snacks in PostgreSQL",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.11.3"
+  }
+}

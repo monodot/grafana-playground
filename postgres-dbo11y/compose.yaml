@@ -1,0 +1,74 @@
+services:
+  alloy:
+    image: docker.io/grafana/alloy:latest
+    # Don't start Alloy until postgres has fully initialised (otherwise we have to wait 1 minute before the next poll interval)
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - $PWD/alloy/config.alloy:/etc/alloy/config.alloy:z
+      - $PWD/alloy/postgres_secret_snaxdb:/var/lib/alloy/postgres_secret_snaxdb:z
+    ports:
+      - "12346:12345"
+    environment:
+      - GCLOUD_RW_API_KEY=${GCLOUD_RW_API_KEY}
+      - GCLOUD_HOSTED_METRICS_URL=${GCLOUD_HOSTED_METRICS_URL}
+      - GCLOUD_HOSTED_METRICS_ID=${GCLOUD_HOSTED_METRICS_ID}
+      - GCLOUD_HOSTED_LOGS_URL=${GCLOUD_HOSTED_LOGS_URL}
+      - GCLOUD_HOSTED_LOGS_ID=${GCLOUD_HOSTED_LOGS_ID}
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - --stability.level=public-preview  # as of alloy v1.12.0
+      - /etc/alloy/config.alloy
+
+  postgres:
+    image: docker.io/library/postgres:18  # PostgreSQL version 16.0 or later
+    ports:
+      - "5432:5432/tcp"
+    environment:
+      - POSTGRES_DB=snaxdb
+      - POSTGRES_PASSWORD=supernature
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+      - "-c"
+      - "track_activity_query_size=4096"
+    volumes:
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:Z
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d snaxdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+
+  snacks-api:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=snaxdb
+      - DB_USER=postgres
+      - DB_PASSWORD=supernature
+
+  k6:
+    image: docker.io/grafana/k6:latest
+    depends_on:
+      - snacks-api
+    volumes:
+      - ./script.js:/script.js:z
+    command: run /script.js
+    restart: always
+    profiles:
+      - load-test

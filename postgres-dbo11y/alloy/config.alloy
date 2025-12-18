@@ -1,10 +1,10 @@
-//local.file "postgres_secret_snaxdb" {
-//  filename  = "/var/lib/alloy/postgres_secret_snaxdb"
-//  is_secret = true
-//}
+local.file "postgres_secret_snaxdb" {
+  filename  = "/var/lib/alloy/postgres_secret_snaxdb"
+  is_secret = true
+}
 
 prometheus.exporter.postgres "postgres_snaxdb" {
-  data_source_names  = ["postgresql://db-o11y:dbo11y-password@postgres:5432/snaxdb?sslmode=disable"] // local.file.postgres_secret_snaxdb.content
+  data_source_names  = [local.file.postgres_secret_snaxdb.content]
   enabled_collectors = ["stat_statements"]
 
   autodiscovery {
@@ -16,19 +16,13 @@ prometheus.exporter.postgres "postgres_snaxdb" {
 }
 
 database_observability.postgres "postgres_snaxdb" {
-  data_source_name  = "postgresql://db-o11y:dbo11y-password@postgres:5432/snaxdb?sslmode=disable" // local.file.postgres_secret_snaxdb.content
+  data_source_name  = local.file.postgres_secret_snaxdb.content
   forward_to        = [loki.relabel.database_observability_postgres_snaxdb.receiver]
   targets           = prometheus.exporter.postgres.postgres_snaxdb.targets
   enable_collectors = ["query_details", "query_samples", "schema_details", "explain_plans"]
 
-  // OPTIONAL: provide additional information specific to the cloud provider
-  // that hosts the database to enable certain infrastructure observability
-  // features. See documentation of `database_observability.mysql` for
-  // other cloud providers.
-  cloud_provider {
-    aws {
-      arn = "<AWS_RDS_DB_ARN>"
-    }
+  query_samples {
+    disable_query_redaction = true  // CAUTION: this might expose sensitive data in the Grafana UI. Consider whether you really need this feature.
   }
 }
 
