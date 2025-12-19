@@ -15,38 +15,32 @@ public class BatchProcessorRoute extends RouteBuilder {
                 .log("Error processing batch: ${exception.message}")
                 .to("jms:queue:orders.dlq");
 
-        // Batch processing route: Poll database -> Transform -> Send to JMS
-        from("sql:SELECT id, order_number, customer_name, amount, status " +
-             "FROM orders " +
-             "WHERE status = 'PENDING' " +
-             "ORDER BY id " +
-             "?dataSource=#dataSource" +
-             "&onConsume=UPDATE orders SET status = 'PROCESSING' WHERE id = :#id" +
-             "&initialDelay=5000" +
-             "&delay=10000" +
-             "&maxMessagesPerPoll=50")
-            .routeId("database-batch-poller")
-            .log("Processing batch of ${header.CamelBatchSize} orders, index: ${header.CamelBatchIndex}")
-
-            // Add trace context to message
-            .setHeader("orderNumber", simple("${body[order_number]}"))
-            .setHeader("customerId", simple("${body[customer_name]}"))
-
-            // Transform to JSON message
+        // Direct route: Send message to orders queue
+        from("direct:sendOrder")
+            .routeId("direct-order-sender")
+            .log("Sending message to orders queue: ${body}")
             .marshal().json()
-            .convertBodyTo(String.class)
+            .to("jms:queue:orders.processing");
 
-            // Log the message
-            .log("Sending order ${header.orderNumber} to JMS: ${body}")
-
-            // Send to ActiveMQ
-            .to("jms:queue:orders.processing")
-
-            // Update status in database
-            .setBody(simple("${header.CamelBatchIndex}"))
-            .to("sql:UPDATE orders SET status = 'SENT', processed_at = CURRENT_TIMESTAMP WHERE id = :#${body}?dataSource=#dataSource")
-
-            .log("Successfully processed order ${header.orderNumber}");
+        // Consumer route: Process orders from queue and save to database
+        from("jms:queue:orders.processing")
+            .routeId("order-queue-consumer")
+            .log("Received order from queue: ${body}")
+            .unmarshal().json()
+            .log("Processing order: ${body[order_number]}")
+            .setHeader("orderNumber", simple("${body[order_number]}"))
+            .setHeader("customerName", simple("${body[customer_name]}"))
+            .setHeader("amount", simple("${body[amount]}"))
+            .setHeader("status", simple("${body[status]}"))
+            .to("sql:INSERT INTO orders (order_number, customer_name, amount, status, created_at) " +
+                "VALUES (:#${header.orderNumber}, :#${header.customerName}, :#${header.amount}, :#${header.status}, CURRENT_TIMESTAMP) " +
+                "ON CONFLICT (order_number) DO UPDATE SET " +
+                "customer_name = EXCLUDED.customer_name, " +
+                "amount = EXCLUDED.amount, " +
+                "status = EXCLUDED.status, " +
+                "processed_at = CURRENT_TIMESTAMP" +
+                "?dataSource=#dataSource")
+            .log("Successfully saved order ${header.orderNumber} to database");
 
     }
 }
