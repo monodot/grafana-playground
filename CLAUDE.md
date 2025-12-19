@@ -10,3 +10,17 @@ A new demo should:
 - Assume Podman; use explicit image URLs (e.g. `docker.io/library/appname`) and explicit bind volume labelling
 - Use the `grafana/otel-lgtm:latest` if this demo requires a local instance of Grafana, Loki, Tempo, Mimir. It includes Grafana (port 3000) and an OTLP endpoint (port 4317)
 - Once the demo's README has been generated, run `./gendocs.py` to regenerate the root README.md
+
+## Naming conventions
+
+The folder naming convention should be: `Category-PrimaryFocus-SecondaryFocus(-Details)` - but in lower-case.
+
+It should go from broad-to-narrow in scope. 
+We should prioritise the Language/Platform first, then the Framework/Stack, and finally the Specific Technology or feature being demonstrated. For example:
+
+- `cloudwatch-alloy-loki-labels`
+- `grafana-sso-keycloak`
+- `java-spring-otel-mlt`
+- `k8s-fluentbit-to-loki`
+- `dotnet-kafka-consumer-otel`
+
