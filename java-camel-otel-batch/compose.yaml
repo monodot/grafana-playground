@@ -1,0 +1,56 @@
+services:
+  # Observability stack (Grafana, Loki, Tempo, Mimir, OTLP receiver)
+  otel-lgtm:
+    image: docker.io/grafana/otel-lgtm:latest
+    ports:
+      - "3000:3000"   # Grafana
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    environment:
+      - OTEL_METRIC_EXPORT_INTERVAL=1000
+
+  # PostgreSQL database for batch source
+  postgres:
+    image: docker.io/library/postgres:16
+    environment:
+      POSTGRES_DB: batchdb
+      POSTGRES_USER: batch
+      POSTGRES_PASSWORD: batch
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:Z
+
+  # ActiveMQ Artemis for JMS messaging
+  activemq:
+    image: docker.io/apache/activemq-artemis:2.32.0
+    ports:
+      - "61616:61616"  # Artemis Core Protocol
+      - "8161:8161"    # Web Console
+    environment:
+      ARTEMIS_USER: admin
+      ARTEMIS_PASSWORD: admin
+
+  # Camel application
+  camel-app:
+    build:
+      context: ./app
+    depends_on:
+      - postgres
+      - activemq
+      - otel-lgtm
+    environment:
+      # Database connection
+      DB_URL: jdbc:postgresql://postgres:5432/batchdb
+      DB_USER: batch
+      DB_PASSWORD: batch
+      # ActiveMQ connection
+      ACTIVEMQ_BROKER_URL: tcp://activemq:61616
+      ACTIVEMQ_USER: admin
+      ACTIVEMQ_PASSWORD: admin
+      # OpenTelemetry configuration
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-lgtm:4318
+      OTEL_SERVICE_NAME: camel-batch-processor
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: otlp
+      OTEL_LOGS_EXPORTER: otlp
