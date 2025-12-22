@@ -198,7 +198,7 @@ For production deployments, consider:
 Estimated AWS costs (us-east-1):
 - EC2 t3.micro: ~$7.50/month (if running continuously)
 - CloudWatch Logs: Minimal (<$1/month with 7-day retention)
-- SSM Parameter Store: Free (standard parameters)
+- SSM Parameter Store: $0.05/month (advanced parameter tier, used for larger Alloy config)
 - Data transfer: Varies based on telemetry volume
 
 **Remember to destroy resources when not in use to avoid unnecessary charges.**
@@ -211,15 +211,16 @@ terraform destroy
 
 ## How It Works
 
-1. **SSM Parameter Store**: Terraform creates an SSM parameter containing the Alloy configuration
-2. **Container Startup**: When the Alloy container starts, it:
-   - Installs AWS CLI (via apk on Alpine Linux)
-   - Fetches the Alloy config from SSM Parameter Store
-   - Writes the config to `/etc/alloy/config.alloy`
-   - Starts Alloy with the fetched configuration
-3. **OTLP Collection**: Alloy listens on ports 4317 (gRPC) and 4318 (HTTP) for OTLP signals
-4. **Forwarding**: Alloy batches and forwards telemetry to Grafana Cloud via OTLP HTTP
-5. **DAEMON Scheduling**: ECS ensures one Alloy task runs on each EC2 instance in the cluster
+1. **SSM Parameter Store**: Terraform creates an advanced-tier SSM parameter containing the Alloy configuration
+2. **ECS Secrets Integration**: ECS automatically fetches the config from SSM at task startup and injects it as the `ALLOY_CONFIG` environment variable
+3. **Container Startup**: When the Alloy container starts, it:
+   - Writes the `ALLOY_CONFIG` environment variable to `/etc/alloy/config.alloy` using `printf`
+   - Starts Alloy with the configuration file
+4. **OTLP Collection**: Alloy listens on ports 4317 (gRPC) and 4318 (HTTP) for OTLP signals
+5. **Signal Processing**: Alloy processes signals through resource detection, transformation, and batching
+6. **Forwarding**: Alloy forwards telemetry to Grafana Cloud via OTLP HTTP with basic auth
+7. **DAEMON Scheduling**: ECS ensures one Alloy task runs on each EC2 instance in the cluster
+8. **Demo Traffic**: The telemetrygen service continuously sends sample traces to demonstrate the pipeline
 
 ## Scaling
 
