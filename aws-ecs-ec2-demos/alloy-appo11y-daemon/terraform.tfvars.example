@@ -1,0 +1,20 @@
+# Your name or identifier (used in resource tags)
+owner = "your-name"
+
+# Unique identifier for this environment (optional)
+environment_id = "demo"
+
+# Grafana Cloud OTLP configuration
+# Get these values from your Grafana Cloud account:
+# 1. Log in to Grafana Cloud
+# 2. Navigate to Connections > Add new connection > OpenTelemetry (OTLP)
+# 3. Copy the endpoint URL, instance ID, and generate an API key
+
+# OTLP endpoint (e.g., https://otlp-gateway-prod-us-central-0.grafana.net/otlp)
+grafana_cloud_otlp_endpoint = "https://otlp-gateway-prod-us-central-0.grafana.net/otlp"
+
+# Instance ID (username for authentication)
+grafana_cloud_instance_id = "123456"
+
+# API key (password for authentication - keep this secret!)
+grafana_cloud_api_key = "glc_xxx...xxx"
