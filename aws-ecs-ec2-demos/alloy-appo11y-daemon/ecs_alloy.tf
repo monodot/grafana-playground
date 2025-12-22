@@ -2,6 +2,7 @@ resource "aws_ecs_task_definition" "alloy_task_def" {
   family             = "grafana-alloy-${var.environment_id}"
   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn      = aws_iam_role.ecs_task_role.arn
+  network_mode       = "host" # Important to enable telemetrygen to reach alloy
 
   container_definitions = jsonencode([
     {
@@ -37,20 +38,6 @@ resource "aws_ecs_task_definition" "alloy_task_def" {
         }
       ]
 
-      portMappings = [
-        {
-          containerPort = 4317
-          hostPort      = 4317
-          protocol      = "tcp"
-          name          = "alloy-otlp-grpc"
-        },
-        {
-          containerPort = 4318
-          hostPort      = 4318
-          protocol      = "tcp"
-          name          = "alloy-otlp-http"
-        }
-      ]
 
       logConfiguration = {
         logDriver = "awslogs"

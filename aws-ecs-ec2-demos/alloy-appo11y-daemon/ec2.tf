@@ -3,8 +3,10 @@ data "aws_ssm_parameter" "ecs_optimized_ami" {
   name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
 }
 
-# EC2 instance running ECS agent
+# EC2 instances running ECS agent
 resource "aws_instance" "ecs_node" {
+  count = var.instance_count
+
   ami                         = data.aws_ssm_parameter.ecs_optimized_ami.value
   instance_type               = "t3.micro"
   associate_public_ip_address = true
@@ -18,6 +20,6 @@ resource "aws_instance" "ecs_node" {
   EOF
 
   tags = {
-    Name = "alloy-daemon-ecs-node-${var.environment_id}"
+    Name = "alloy-daemon-ecs-node-${count.index + 1}-${var.environment_id}"
   }
 }

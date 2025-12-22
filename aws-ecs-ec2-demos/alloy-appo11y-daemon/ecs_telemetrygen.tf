@@ -2,6 +2,7 @@
 resource "aws_ecs_task_definition" "telemetrygen_task_def" {
   family             = "telemetrygen-${var.environment_id}"
   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
+  network_mode       = "host" # Essential to be able to address alloy on localhost (or you could connect with Service Connect)
 
   container_definitions = jsonencode([
     {
@@ -13,7 +14,7 @@ resource "aws_ecs_task_definition" "telemetrygen_task_def" {
       command = [
         "traces",
         "--otlp-endpoint",
-        "${aws_instance.ecs_node.private_ip}:4317",
+        "localhost:4317",
         "--otlp-insecure",
         "--duration",
         "0s",
@@ -58,12 +59,12 @@ resource "aws_cloudwatch_log_group" "telemetrygen_logs" {
   }
 }
 
-# ECS service for telemetrygen (single instance)
+# ECS service for telemetrygen (daemon - one per host)
 resource "aws_ecs_service" "telemetrygen" {
-  name            = "telemetrygen-${var.environment_id}"
-  cluster         = aws_ecs_cluster.workshop.id
-  task_definition = aws_ecs_task_definition.telemetrygen_task_def.arn
-  desired_count   = 1
+  name                = "telemetrygen-${var.environment_id}"
+  cluster             = aws_ecs_cluster.workshop.id
+  task_definition     = aws_ecs_task_definition.telemetrygen_task_def.arn
+  scheduling_strategy = "DAEMON"
 
   tags = {
     Name = "telemetrygen-service-${var.environment_id}"

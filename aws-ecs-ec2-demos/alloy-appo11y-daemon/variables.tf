@@ -24,3 +24,9 @@ variable "grafana_cloud_api_key" {
   type        = string
   sensitive   = true
 }
+
+variable "instance_count" {
+  description = "Number of EC2 instances to run in the ECS cluster"
+  type        = number
+  default     = 2
+}

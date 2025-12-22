@@ -3,29 +3,29 @@ output "ecs_cluster_name" {
   value       = aws_ecs_cluster.workshop.name
 }
 
-output "ec2_instance_id" {
-  description = "ID of the EC2 instance running ECS tasks"
-  value       = aws_instance.ecs_node.id
+output "ec2_instance_ids" {
+  description = "IDs of the EC2 instances running ECS tasks"
+  value       = aws_instance.ecs_node[*].id
 }
 
-output "ec2_public_ip" {
-  description = "Public IP address of the EC2 instance"
-  value       = aws_instance.ecs_node.public_ip
+output "ec2_public_ips" {
+  description = "Public IP addresses of the EC2 instances"
+  value       = aws_instance.ecs_node[*].public_ip
 }
 
-output "ec2_private_ip" {
-  description = "Private IP address of the EC2 instance (use this for OTLP endpoints within VPC)"
-  value       = aws_instance.ecs_node.private_ip
+output "ec2_private_ips" {
+  description = "Private IP addresses of the EC2 instances (use these for OTLP endpoints within VPC)"
+  value       = aws_instance.ecs_node[*].private_ip
 }
 
-output "otlp_grpc_endpoint_private" {
-  description = "OTLP gRPC endpoint for sending telemetry (private IP, use from within VPC)"
-  value       = "http://${aws_instance.ecs_node.private_ip}:4317"
+output "otlp_grpc_endpoints_private" {
+  description = "OTLP gRPC endpoints for sending telemetry (private IPs, use from within VPC)"
+  value       = [for ip in aws_instance.ecs_node[*].private_ip : "http://${ip}:4317"]
 }
 
-output "otlp_http_endpoint_private" {
-  description = "OTLP HTTP endpoint for sending telemetry (private IP, use from within VPC)"
-  value       = "http://${aws_instance.ecs_node.private_ip}:4318"
+output "otlp_http_endpoints_private" {
+  description = "OTLP HTTP endpoints for sending telemetry (private IPs, use from within VPC)"
+  value       = [for ip in aws_instance.ecs_node[*].private_ip : "http://${ip}:4318"]
 }
 
 output "cloudwatch_log_group" {
