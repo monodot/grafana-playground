@@ -37,3 +37,13 @@ output "security_group_id" {
   description = "Security group ID for ECS cluster instances"
   value       = aws_security_group.ecs_cluster.id
 }
+
+output "telemetrygen_service_name" {
+  description = "Name of the telemetrygen demo service"
+  value       = aws_ecs_service.telemetrygen.name
+}
+
+output "telemetrygen_log_group" {
+  description = "CloudWatch log group for telemetrygen logs"
+  value       = aws_cloudwatch_log_group.telemetrygen_logs.name
+}
