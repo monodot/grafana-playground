@@ -37,7 +37,7 @@ The Pyroscope .NET profiler uses a **CLR profiler** that operates at the runtime
 2. The profiler is **injected into the .NET runtime** via environment variables (`CORECLR_PROFILER`)
 3. CPU profiles are **automatically collected** without code changes
 4. Profiles are **pushed directly** to Grafana Cloud Pyroscope
-5. The `Pyroscope` NuGet package provides a **managed API** for adding custom labels
+5. The `Pyroscope` NuGet package provides a **managed API** that can be used to add custom labels
 
 ### Labeling Strategy
 
@@ -86,7 +86,7 @@ View profiles in Grafana:
 
 1. Open http://localhost:3000
 2. Navigate to **Drilldown** -> **Profiles** (compass icon)
-3. View flame graphs for the dotnet-profile-demo application
+3. View flame graphs for the app-with-sdk application
 
 Generate continuous load:
 
@@ -151,70 +151,51 @@ You need a Grafana Cloud account with Pyroscope enabled.
 
 ### 3. Configure the Deployment
 
-#### Option A: Using .env file (Recommended)
-
-Create a `.env` file in the `k8s/` directory (see `.env.example`):
+Create a `.env` file in the `k8s/` directory with your Grafana Cloud credentials:
 
 ```bash
 cd k8s
 cat > .env << EOF
 PYROSCOPE_SERVER_ADDRESS=https://profiles-prod-XXX.grafana.net
-PYROSCOPE_APPLICATION_NAME=dotnet-profile-demo
 PYROSCOPE_BASIC_AUTH_USER=123456
 PYROSCOPE_BASIC_AUTH_PASSWORD=glc_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-PYROSCOPE_LABELS=env:demo,cluster:k3s-local
 EOF
 ```
 
-#### Option B: Manual edit
+Create a Kubernetes Secret from the `.env` file:
 
-Edit `k8s/deployment.yaml` and replace the placeholder values directly:
-
-```yaml
-- name: PYROSCOPE_SERVER_ADDRESS
-  value: "https://profiles-prod-XXX.grafana.net"  # Your Pyroscope URL
-- name: PYROSCOPE_BASIC_AUTH_USER
-  value: "YOUR_GRAFANA_CLOUD_USER"  # Your user ID
-- name: PYROSCOPE_BASIC_AUTH_PASSWORD
-  value: "YOUR_GRAFANA_CLOUD_TOKEN"  # Your API token
+```bash
+kubectl create secret generic pyroscope-config --from-env-file=k8s/.env
 ```
 
-**Production note**: In production, use Kubernetes Secrets instead of plain text environment variables.
+The deployment references this Secret for credentials while keeping app name and labels as plain values.
 
 ### 4. Build and Deploy the .NET Application
 
 Build the Docker image:
 
 ```bash
-cd dotnet-k8s-pyroscope-sdk
-
-docker build -t dotnet-profile-demo:latest ./app
+docker build -t dotnet-pyroscope-app-with-sdk:latest ./app-with-sdk
 ```
 
 Import the image into k3s:
 
 ```bash
-docker save dotnet-profile-demo:latest | sudo k3s ctr images import -
+docker save dotnet-pyroscope-app-with-sdk:latest | sudo k3s ctr images import -
 ```
 
 Deploy to Kubernetes:
 
 ```bash
-# If using .env file (Option A)
-export $(grep -v '^#' .env | xargs)
-envsubst < k8s/deployment.yaml.template | kubectl apply -f -
-kubectl apply -f k8s/service.yaml
-
-# If using manual edit (Option B)
-kubectl apply -f k8s/deployment.yaml
-kubectl apply -f k8s/service.yaml
+kubectl apply -f k8s/app-with-sdk-deploy.yaml
+kubectl apply -f k8s/app-with-sdk-service.yaml
 ```
 
 Verify the deployment:
 
 ```bash
 kubectl get pods
-kubectl logs -l app=dotnet-profile-demo
+kubectl logs -l app=app-with-sdk
 ```
 
 Look for log messages indicating the profiler loaded successfully.
@@ -256,16 +237,16 @@ curl http://${NODE_IP}:30080/hash/10000
 Port-forward to access locally:
 
 ```bash
-kubectl port-forward svc/dotnet-profile-demo 8080:8080
+kubectl port-forward svc/app-with-sdk 8086:8080
 ```
 
 Then test:
 
 ```bash
-curl http://localhost:8080/fibonacci/38
-curl http://localhost:8080/prime/100000
-curl http://localhost:8080/matrix/300
-curl http://localhost:8080/hash/50000
+curl http://localhost:8086/fibonacci/38
+curl http://localhost:8086/prime/100000
+curl http://localhost:8086/matrix/300
+curl http://localhost:8086/hash/50000
 ```
 
 ### Generate Continuous Load
@@ -274,13 +255,13 @@ Create interesting profiles with randomized requests:
 
 ```bash
 while true; do
-  curl -s http://localhost:8080/fibonacci/$(( 30 + RANDOM % 10 )) > /dev/null
+  curl -s http://localhost:8086/fibonacci/$(( 30 + RANDOM % 10 )) > /dev/null
   sleep 1
-  curl -s http://localhost:8080/prime/$(( 20000 + RANDOM % 80000 )) > /dev/null
+  curl -s http://localhost:8086/prime/$(( 20000 + RANDOM % 80000 )) > /dev/null
   sleep 1
-  curl -s http://localhost:8080/matrix/$(( 100 + RANDOM % 200 )) > /dev/null
+  curl -s http://localhost:8086/matrix/$(( 100 + RANDOM % 200 )) > /dev/null
   sleep 1
-  curl -s http://localhost:8080/hash/$(( 5000 + RANDOM % 45000 )) > /dev/null
+  curl -s http://localhost:8086/hash/$(( 5000 + RANDOM % 45000 )) > /dev/null
   sleep 2
 done
 ```
@@ -295,27 +276,16 @@ done
 
 ### 2. Query Profiles
 
-Select the service name: `dotnet-profile-demo`
+Select the service name: `app-with-sdk`
 
 You should see profiles appearing within 10-15 seconds.
 
 ### 3. Filter by Labels
 
-Try these queries:
+Try this Pyroscope query:
 
 ```
-# All profiles from the application
-{service_name="dotnet-profile-demo"}
-
-# Filter by endpoint
-{service_name="dotnet-profile-demo", endpoint="fibonacci"}
-
-# Filter by complexity
-{service_name="dotnet-profile-demo", endpoint="fibonacci", complexity="high"}
-
-# Compare large vs small matrix operations
-{service_name="dotnet-profile-demo", endpoint="matrix", matrix_size="large"}
-{service_name="dotnet-profile-demo", endpoint="matrix", matrix_size="small"}
+{service_name="app-with-sdk"}
 ```
 
 ### 4. Analyze Flame Graphs
@@ -358,7 +328,7 @@ The application exposes these CPU-intensive endpoints:
 Check container logs for profiler initialization:
 
 ```bash
-kubectl logs -l app=dotnet-profile-demo | grep -i pyroscope
+kubectl logs -l app=app-with-sdk | grep -i pyroscope
 ```
 
 ### Profiles not appearing in Grafana Cloud
@@ -367,18 +337,18 @@ kubectl logs -l app=dotnet-profile-demo | grep -i pyroscope
 
 2. **Check application logs**:
    ```bash
-   kubectl logs -l app=dotnet-profile-demo
+   kubectl logs -l app=app-with-sdk
    ```
 
 3. **Verify network connectivity**: Ensure the pods can reach Grafana Cloud:
    ```bash
-   kubectl exec -it deployment/dotnet-profile-demo -- curl -v https://profiles-prod-XXX.grafana.net
+   kubectl exec -it deployment/app-with-sdk -- curl -v https://profiles-prod-XXX.grafana.net
    ```
 
 4. **Check profiler environment variables**:
    ```bash
-   kubectl exec -it deployment/dotnet-profile-demo -- env | grep PYROSCOPE
-   kubectl exec -it deployment/dotnet-profile-demo -- env | grep CORECLR
+   kubectl exec -it deployment/app-with-sdk -- env | grep PYROSCOPE
+   kubectl exec -it deployment/app-with-sdk -- env | grep CORECLR
    ```
 
 ### Build failures
@@ -404,13 +374,13 @@ chmod +x /dotnet/Pyroscope.Linux.ApiWrapper.x64.so
 Verify the image was imported:
 
 ```bash
-sudo k3s ctr images ls | grep dotnet-profile-demo
+sudo k3s ctr images ls | grep app-with-sdk
 ```
 
 If not found, re-import:
 
 ```bash
-docker save dotnet-profile-demo:latest | sudo k3s ctr images import -
+docker save dotnet-pyroscope-app-with-sdk:latest | sudo k3s ctr images import -
 ```
 
 ## Supported Profiling Types

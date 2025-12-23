@@ -1,40 +1,48 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dotnet-profile-demo
+  name: app-with-sdk
   labels:
-    app: dotnet-profile-demo
+    app: app-with-sdk
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: dotnet-profile-demo
+      app: app-with-sdk
   template:
     metadata:
       labels:
-        app: dotnet-profile-demo
+        app: app-with-sdk
     spec:
       containers:
       - name: app
-        image: localhost/dotnet-profile-demo:latest
+        image: localhost/dotnet-pyroscope-app-with-sdk:latest
         imagePullPolicy: Never  # For local k3s testing
         ports:
         - containerPort: 8080
           name: http
         env:
-        # Pyroscope configuration - values substituted from .env file
         - name: PYROSCOPE_SERVER_ADDRESS
-          value: "${PYROSCOPE_SERVER_ADDRESS}"
+          valueFrom:
+            secretKeyRef:
+              name: pyroscope-config
+              key: PYROSCOPE_SERVER_ADDRESS
         - name: PYROSCOPE_APPLICATION_NAME
-          value: "${PYROSCOPE_APPLICATION_NAME:-dotnet-profile-demo}"
+          value: app-with-sdk
         - name: PYROSCOPE_BASIC_AUTH_USER
-          value: "${PYROSCOPE_BASIC_AUTH_USER}"
+          valueFrom:
+            secretKeyRef:
+              name: pyroscope-config
+              key: PYROSCOPE_BASIC_AUTH_USER
         - name: PYROSCOPE_BASIC_AUTH_PASSWORD
-          value: "${PYROSCOPE_BASIC_AUTH_PASSWORD}"
-        # Static labels applied to all profiles
+          valueFrom:
+            secretKeyRef:
+              name: pyroscope-config
+              key: PYROSCOPE_BASIC_AUTH_PASSWORD
         - name: PYROSCOPE_LABELS
-          value: "${PYROSCOPE_LABELS:-env:demo,cluster:k3s-local}"
-        # Kubernetes metadata
+          value: "env:demo,cluster:k3s-local"
+        - name: PYROSCOPE_PROFILING_WALLTIME_ENABLED
+          value: "true"  # Enable another profile type, for demo
         - name: POD_NAME
           valueFrom:
             fieldRef:

@@ -12,9 +12,9 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=true
       - ENABLE_LOGS_PYROSCOPE=true
 
-  dotnet-app:
+  app-with-sdk:
     build:
-      context: ./app
+      context: ./app-with-sdk
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
