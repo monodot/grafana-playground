@@ -2,6 +2,21 @@
 
 Continuous profiling of a .NET application using the Pyroscope .NET native profiler.
 
+This demo compares two different approaches:
+
+- **Using the SDK:** 
+  - Add the Pyroscope SDK to your application
+  - Optionally, define labels - but this is not necessary
+  - Configure the destination to send profiles to, with environment variables
+- **Using eBPF (via the Kubernetes Monitoring Helm chart):** 
+  - Enable `profiles.enabled` in the Kubernetes Monitoring Helm chart
+  - Set this annotation on the Pods to be profiled: `profiles.grafana.com/cpu.ebpf.enabled: "true"`.
+  - The container name (in the Kubernetes manifest) will be used as the **service name** in Pyroscope.
+
+![Continuous profiles collection, two ways](./drilldown-duo.png)
+
+_Continuous profiles collection, two ways_
+
 ## Overview
 
 This demo shows how to:
@@ -170,15 +185,19 @@ kubectl create secret generic pyroscope-config --from-env-file=k8s/.env
 
 The deployment references this Secret for credentials while keeping app name and labels as plain values.
 
-### 4. Build and Deploy the .NET Application
+### 4. Build and Deploy the .NET Applications
 
-Build the Docker image:
+This demo includes two deployments to compare SDK-based vs eBPF-based profiling:
+
+#### Option A: app-with-sdk (SDK-based profiling)
+
+Build the Docker image with Pyroscope SDK:
 
 ```bash
 docker build -t dotnet-pyroscope-app-with-sdk:latest ./app-with-sdk
 ```
 
-Import the image into k3s:
+Import into k3s:
 
 ```bash
 docker save dotnet-pyroscope-app-with-sdk:latest | sudo k3s ctr images import -
@@ -194,11 +213,67 @@ kubectl apply -f k8s/app-with-sdk-service.yaml
 Verify the deployment:
 
 ```bash
-kubectl get pods
+kubectl get pods -l app=app-with-sdk
 kubectl logs -l app=app-with-sdk
 ```
 
-Look for log messages indicating the profiler loaded successfully.
+Look for log messages indicating the Pyroscope profiler loaded successfully.
+
+#### Option B: app-uninstrumented (eBPF-based profiling)
+
+Build the Docker image without Pyroscope SDK (regular .NET app):
+
+```bash
+docker build -t dotnet-pyroscope-app-uninstrumented:latest ./app-uninstrumented
+```
+
+Import into k3s:
+
+```bash
+docker save dotnet-pyroscope-app-uninstrumented:latest | sudo k3s ctr images import -
+```
+
+Deploy to Kubernetes:
+
+```bash
+kubectl apply -f k8s/app-uninstrumented-deploy.yaml
+kubectl apply -f k8s/app-uninstrumented-service.yaml
+```
+
+Verify the deployment:
+
+```bash
+kubectl get pods -l app=app-uninstrumented
+kubectl logs -l app=app-uninstrumented
+```
+
+This deployment uses the annotation `profiles.grafana.com/cpu.ebpf.enabled: "true"` to enable eBPF-based profiling. The container name (`app-without-sdk`) will be used as the service name in Pyroscope.
+
+#### Deploy Both for Comparison
+
+To compare both approaches side-by-side:
+
+```bash
+# Build both images
+docker build -t dotnet-pyroscope-app-with-sdk:latest ./app-with-sdk
+docker build -t dotnet-pyroscope-app-uninstrumented:latest ./app-uninstrumented
+
+# Import both into k3s
+docker save dotnet-pyroscope-app-with-sdk:latest | sudo k3s ctr images import -
+docker save dotnet-pyroscope-app-uninstrumented:latest | sudo k3s ctr images import -
+```
+
+Now deploy both applications and then verify:
+
+```bash
+kubectl apply -f k8s/app-with-sdk-deploy.yaml
+kubectl apply -f k8s/app-with-sdk-service.yaml
+kubectl apply -f k8s/app-uninstrumented-deploy.yaml
+kubectl apply -f k8s/app-uninstrumented-service.yaml
+
+# Verify both deployments
+kubectl get pods
+```
 
 ### 5. Deploy the Load Generator (Optional)
 
@@ -212,16 +287,17 @@ This hits various endpoints every 2 minutes to generate diverse CPU profiles.
 
 ## Testing
 
-### Access the Application
+### Access the Applications
 
 Get the node IP:
 
 ```bash
 NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}')
-echo "Application available at: http://${NODE_IP}:30080"
+echo "app-with-sdk available at: http://${NODE_IP}:30080"
+echo "app-uninstrumented available at: http://${NODE_IP}:30081"
 ```
 
-Test the endpoints:
+Test the app-with-sdk endpoints:
 
 ```bash
 curl http://${NODE_IP}:30080/
@@ -232,21 +308,39 @@ curl http://${NODE_IP}:30080/matrix/200
 curl http://${NODE_IP}:30080/hash/10000
 ```
 
+Test the app-uninstrumented endpoints:
+
+```bash
+curl http://${NODE_IP}:30081/
+curl http://${NODE_IP}:30081/health
+curl http://${NODE_IP}:30081/fibonacci/35
+curl http://${NODE_IP}:30081/prime/50000
+curl http://${NODE_IP}:30081/matrix/200
+curl http://${NODE_IP}:30081/hash/10000
+```
+
 ### Port Forward (Alternative)
 
 Port-forward to access locally:
 
 ```bash
+# app-with-sdk
 kubectl port-forward svc/app-with-sdk 8086:8080
+
+# app-uninstrumented (in a separate terminal)
+kubectl port-forward svc/app-uninstrumented 8087:8080
 ```
 
 Then test:
 
 ```bash
+# Test app-with-sdk
 curl http://localhost:8086/fibonacci/38
 curl http://localhost:8086/prime/100000
-curl http://localhost:8086/matrix/300
-curl http://localhost:8086/hash/50000
+
+# Test app-uninstrumented
+curl http://localhost:8087/fibonacci/38
+curl http://localhost:8087/prime/100000
 ```
 
 ### Generate Continuous Load
@@ -276,16 +370,22 @@ done
 
 ### 2. Query Profiles
 
-Select the service name: `app-with-sdk`
+Select the service names to compare:
+- **app-with-sdk** - SDK-based profiling with Pyroscope libraries
+- **app-without-sdk** - eBPF-based profiling (the container name from app-uninstrumented deployment)
 
 You should see profiles appearing within 10-15 seconds.
 
 ### 3. Filter by Labels
 
-Try this Pyroscope query:
+Try these Pyroscope queries:
 
 ```
+# SDK-based profiling
 {service_name="app-with-sdk"}
+
+# eBPF-based profiling (uses container name)
+{service_name="app-without-sdk"}
 ```
 
 ### 4. Analyze Flame Graphs
@@ -382,6 +482,12 @@ If not found, re-import:
 ```bash
 docker save dotnet-pyroscope-app-with-sdk:latest | sudo k3s ctr images import -
 ```
+
+### Bad magic number
+
+> bad magic number '[77 90 144 0]' in record at byte 0x0
+
+
 
 ## Supported Profiling Types
 

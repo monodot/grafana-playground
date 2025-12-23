@@ -1,46 +1,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-with-sdk
+  name: app-uninstrumented
   labels:
-    app: app-with-sdk
+    app: app-uninstrumented
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: app-with-sdk
+      app: app-uninstrumented
   template:
     metadata:
       labels:
-        app: app-with-sdk
+        app: app-uninstrumented
+      annotations:
+        profiles.grafana.com/cpu.ebpf.enabled: "true"
     spec:
       containers:
-      - name: app-with-sdk
-        image: localhost/dotnet-pyroscope-app-with-sdk:latest
+      - name: app-without-sdk
+        image: localhost/dotnet-pyroscope-app-uninstrumented:latest
         imagePullPolicy: Never  # For local k3s testing
         ports:
         - containerPort: 8080
           name: http
         env:
-        - name: PYROSCOPE_SERVER_ADDRESS
-          valueFrom:
-            secretKeyRef:
-              name: pyroscope-config
-              key: PYROSCOPE_SERVER_ADDRESS
-        - name: PYROSCOPE_APPLICATION_NAME
-          value: app-with-sdk
-        - name: PYROSCOPE_BASIC_AUTH_USER
-          valueFrom:
-            secretKeyRef:
-              name: pyroscope-config
-              key: PYROSCOPE_BASIC_AUTH_USER
-        - name: PYROSCOPE_BASIC_AUTH_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: pyroscope-config
-              key: PYROSCOPE_BASIC_AUTH_PASSWORD
-        - name: PYROSCOPE_LABELS
-          value: "env:demo,cluster:k3s-local"  # These labels are applied to the profile data as a whole
         - name: POD_NAME
           valueFrom:
             fieldRef:
