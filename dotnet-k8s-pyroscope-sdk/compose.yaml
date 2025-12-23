@@ -1,0 +1,26 @@
+services:
+  otel-lgtm:
+    image: docker.io/grafana/otel-lgtm:latest
+    ports:
+      - "3000:3000"   # Grafana UI
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "4040:4040"   # Pyroscope
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - ENABLE_LOGS_PYROSCOPE=true
+
+  dotnet-app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - PYROSCOPE_SERVER_ADDRESS=http://otel-lgtm:4040
+      - PYROSCOPE_APPLICATION_NAME=dotnet-profile-demo
+      - PYROSCOPE_LABELS=env:local,runtime:docker-compose
+    depends_on:
+      - otel-lgtm

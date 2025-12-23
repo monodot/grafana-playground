@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: load-generator
+spec:
+  schedule: "*/2 * * * *"  # Every 2 minutes
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: curl
+            image: docker.io/curlimages/curl:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Generating load on dotnet-profile-demo..."
+
+              # Hit various endpoints to generate different CPU profiles
+              curl -s http://dotnet-profile-demo:8080/fibonacci/35 || true
+              sleep 2
+
+              curl -s http://dotnet-profile-demo:8080/prime/50000 || true
+              sleep 2
+
+              curl -s http://dotnet-profile-demo:8080/matrix/100 || true
+              sleep 2
+
+              curl -s http://dotnet-profile-demo:8080/hash/10000 || true
+              sleep 2
+
+              curl -s http://dotnet-profile-demo:8080/fibonacci/30 || true
+
+              echo "Load generation complete"
+          restartPolicy: OnFailure

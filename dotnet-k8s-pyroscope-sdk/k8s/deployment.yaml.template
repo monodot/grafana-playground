@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dotnet-profile-demo
+  labels:
+    app: dotnet-profile-demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dotnet-profile-demo
+  template:
+    metadata:
+      labels:
+        app: dotnet-profile-demo
+    spec:
+      containers:
+      - name: app
+        image: localhost/dotnet-profile-demo:latest
+        imagePullPolicy: Never  # For local k3s testing
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        # Pyroscope configuration - values substituted from .env file
+        - name: PYROSCOPE_SERVER_ADDRESS
+          value: "${PYROSCOPE_SERVER_ADDRESS}"
+        - name: PYROSCOPE_APPLICATION_NAME
+          value: "${PYROSCOPE_APPLICATION_NAME:-dotnet-profile-demo}"
+        - name: PYROSCOPE_BASIC_AUTH_USER
+          value: "${PYROSCOPE_BASIC_AUTH_USER}"
+        - name: PYROSCOPE_BASIC_AUTH_PASSWORD
+          value: "${PYROSCOPE_BASIC_AUTH_PASSWORD}"
+        # Static labels applied to all profiles
+        - name: PYROSCOPE_LABELS
+          value: "${PYROSCOPE_LABELS:-env:demo,cluster:k3s-local}"
+        # Kubernetes metadata
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
