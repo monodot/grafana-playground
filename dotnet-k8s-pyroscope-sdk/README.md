@@ -152,17 +152,15 @@ Verify k3s is running:
 kubectl get nodes
 ```
 
-### 2. Get Grafana Cloud Pyroscope Credentials
+### 2. Install Kubernetes Monitoring Helm chart
 
 You need a Grafana Cloud account with Pyroscope enabled.
 
 1. Log in to [Grafana Cloud](https://grafana.com)
-2. Navigate to **Connections** → **Add new connection**
-3. Search for "Profiles" or "Pyroscope"
-4. Click **Configure** to get your:
-   - **Pyroscope URL** (e.g., `https://profiles-prod-XXX.grafana.net`)
-   - **User ID** (numeric user ID)
-   - **API Token** (create one with `MetricsPublisher` role)
+2. Navigate to **Kubernetes** → **Configuration**
+3. Enter the details provided
+4. Ensure Profiles option is checked.
+5. Copy the generated shell command to install the k8s-monitoring Helm chart.
 
 ### 3. Configure the Deployment
 
@@ -220,6 +218,9 @@ kubectl logs -l app=app-with-sdk
 Look for log messages indicating the Pyroscope profiler loaded successfully.
 
 #### Option B: app-uninstrumented (eBPF-based profiling)
+
+> [!IMPORTANT]
+> Ensure you have installed the Kubernetes Monitoring Helm chart in your cluster for this to work.
 
 Build the Docker image without Pyroscope SDK (regular .NET app):
 
