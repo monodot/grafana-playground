@@ -1,0 +1,7 @@
+# Statically-defined API tokens
+# Format: token_value client_name;
+# We dont directly use the client_name but might be helpful for documentation
+
+"token-client-a-12345"  client-a;
+"token-client-b-67890"  client-b;
+"token-client-c-abcde"  client-c;

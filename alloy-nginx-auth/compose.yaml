@@ -1,0 +1,63 @@
+services:
+
+  # Grafana, Loki, Tempo and Prometheus in a single container
+  otel-lgtm:
+    image: docker.io/grafana/otel-lgtm:latest
+    ports:
+      - "3000:3000"
+
+  alloy:
+    image: docker.io/grafana/alloy:latest
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:z
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - /etc/alloy/config.alloy
+    depends_on:
+      - otel-lgtm
+
+  # Protects the endpoints on Alloy by requiring a token in the header of each request
+  nginx:
+    image: docker.io/library/nginx:alpine
+    ports:
+      - "4317:4317" # expose OpenTelemetry gRPC
+      - "4318:4318" # expose OpenTelemetry HTTP
+      - "9090:9090" # expose Prometheus remote_write
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:z
+      - ./nginx/tokens.map:/etc/nginx/tokens.map:z
+    depends_on:
+      - alloy
+
+  # client-a:
+  # telemetrygen - sends traces every 1 second to nginx:4317
+  client-a:
+    image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.143.0
+    command:
+      - traces
+      - --otlp-endpoint=nginx:4317
+      - --otlp-insecure
+      - --rate=1
+      - --duration=inf
+      - --service=opentelemetry-example-service
+    environment:
+      - OTEL_EXPORTER_OTLP_HEADERS=X-Example-Key=token-client-a-12345  # Ensures that the header is passed with each trace
+    depends_on:
+      - nginx
+    restart: unless-stopped
+
+  # client-b:
+  # Prometheus, configured to scrape its own metrics and ship to nginx:9090/api/v1/write
+  client-b:
+    image: docker.io/prom/prometheus:latest
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:z
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/prometheus/consoles
+    depends_on:
+      - nginx
+    restart: unless-stopped

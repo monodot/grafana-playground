@@ -1,0 +1,41 @@
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+otelcol.receiver.otlp "default" {
+	grpc {
+		endpoint = "0.0.0.0:4317"
+	}
+
+	http {
+		endpoint = "0.0.0.0:4318"
+	}
+
+	output {
+		metrics = [otelcol.exporter.otlphttp.lgtm.input]
+		logs    = [otelcol.exporter.otlphttp.lgtm.input]
+		traces  = [otelcol.exporter.otlphttp.lgtm.input]
+	}
+}
+
+otelcol.exporter.otlphttp "lgtm" {
+	client {
+		endpoint = "http://otel-lgtm:4318"
+	}
+}
+
+prometheus.receive_http "default" {
+	http {
+		listen_address = "0.0.0.0"
+		listen_port    = 9090
+	}
+
+	forward_to = [prometheus.remote_write.lgtm.receiver]
+}
+
+prometheus.remote_write "lgtm" {
+	endpoint {
+		url = "http://otel-lgtm:9090/api/v1/write" // When enabled, the Prom remote write receiver endpoint is /api/v1/write.
+	}
+}
