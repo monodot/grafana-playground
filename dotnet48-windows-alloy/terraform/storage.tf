@@ -35,6 +35,14 @@ resource "azurerm_storage_blob" "setup_script" {
   })
 }
 
+resource "azurerm_storage_blob" "alloy_config" {
+  name                   = "windows_scrape.alloy"
+  storage_account_name   = azurerm_storage_account.scripts.name
+  storage_container_name = azurerm_storage_container.scripts.name
+  type                   = "Block"
+  source                 = "${path.module}/templates/windows_scrape.alloy"
+}
+
 # Generate SAS token for script access
 data "azurerm_storage_account_blob_container_sas" "scripts" {
   connection_string = azurerm_storage_account.scripts.primary_connection_string

@@ -25,7 +25,7 @@ resource "azurerm_windows_virtual_machine" "main" {
   }
 }
 
-# Custom Script Extension
+# Add bootstrap script and alloy config to the machine
 resource "azurerm_virtual_machine_extension" "setup" {
   count                = var.vm_count
   name                 = "setup-script"
@@ -39,6 +39,9 @@ resource "azurerm_virtual_machine_extension" "setup" {
   })
 
   protected_settings = jsonencode({
-    fileUris = ["${azurerm_storage_blob.setup_script.url}${data.azurerm_storage_account_blob_container_sas.scripts.sas}"]
+    fileUris = [
+      "${azurerm_storage_blob.setup_script.url}${data.azurerm_storage_account_blob_container_sas.scripts.sas}",
+      "${azurerm_storage_blob.alloy_config.url}${data.azurerm_storage_account_blob_container_sas.scripts.sas}"
+    ]
   })
 }
