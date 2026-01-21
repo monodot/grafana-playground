@@ -34,3 +34,14 @@ export GRAFANA_URL=http://grafana:3000
 
 - Username: admin 
 - Password: invest-catalina-basin
+
+## Set up Team Sync (optional)
+
+If you want to demo Team Sync, you will need to add a Grafana Enterprise license key, and then:
+
+1. Create a new group in Keycloak (e.g. `developers`) and add a user to it.
+2. Navigate to Clients -> grafana-oauth -> Client Scopes
+3. Click the `grafana-oauth-dedicated` client scope.
+4. Click **Configure a new mapper** -> **Group membership**.
+5. Give the new mapper a name, and a _Token Claim Name_. Set _Full group path_ to OFF.
+6. In Grafana, create a Team (e.g. _Developers_), and in the _External group sync_ tab, give the external group name (e.g. `developers`) that should be mapped to this Team.
