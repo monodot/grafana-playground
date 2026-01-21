@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   keycloak:
-    image: quay.io/keycloak/keycloak:latest
+    image: quay.io/keycloak/keycloak:26.5.0
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
@@ -25,7 +25,7 @@ services:
     #     /opt/keycloak/keycloak-setup.sh
 
   grafana:
-    image: docker.io/grafana/grafana:latest
+    image: docker.io/grafana/grafana-enterprise:12.3.1
     ports:
       - "3000:3000"
     environment:
@@ -40,11 +40,10 @@ services:
       GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "http://keycloak:8080/realms/${REALM_NAME}/protocol/openid-connect/token"
       GF_AUTH_GENERIC_OAUTH_API_URL: "http://keycloak:8080/realms/${REALM_NAME}/protocol/openid-connect/userinfo"
       GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "contains(realm_access.roles[*], 'admin') && 'Admin' || contains(realm_access.roles[*], 'editor') && 'Editor' || 'Viewer'"
+      GF_ENTERPRISE_LICENSE_TEXT: ${GF_ENTERPRISE_LICENSE_TEXT}
     depends_on:
       - keycloak
 
 volumes:
   keycloak-data:
   grafana-data:
-
-
