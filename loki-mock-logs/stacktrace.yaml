@@ -13,7 +13,7 @@ spec:
         app: stacktrace
     spec:
       containers:
-      - name: alpine
+      - name: stacktrace
         image: alpine:latest
         command: ["/bin/sh", "-c"]
         args:
