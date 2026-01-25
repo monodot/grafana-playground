@@ -1,0 +1,21 @@
+services:
+  # Observability stack (Grafana, Loki, Tempo, Mimir, OTLP receiver)
+  otel-lgtm:
+    image: docker.io/grafana/otel-lgtm:latest
+    ports:
+      - "3000:3000"   # Grafana
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    environment:
+      - GF_FEATURE_TOGGLES_ENABLE=sqlExpressions
+    volumes:
+      - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro,z
+      - ./extra-dashboards.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/extra-dashboards.yaml:ro,z
+
+  app:
+    build: app
+    depends_on:
+      - otel-lgtm
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-lgtm:4317
+      - OTEL_SERVICE_NAME=job-simulator
