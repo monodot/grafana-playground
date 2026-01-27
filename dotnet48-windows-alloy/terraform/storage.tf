@@ -43,6 +43,22 @@ resource "azurerm_storage_blob" "alloy_config" {
   source                 = "${path.module}/templates/windows_scrape.alloy"
 }
 
+resource "azurerm_storage_blob" "app_default_aspx" {
+  name                   = "Default.aspx"
+  storage_account_name   = azurerm_storage_account.scripts.name
+  storage_container_name = azurerm_storage_container.scripts.name
+  type                   = "Block"
+  source                 = "${path.module}/../app/Default.aspx"
+}
+
+resource "azurerm_storage_blob" "app_web_config" {
+  name                   = "Web.config"
+  storage_account_name   = azurerm_storage_account.scripts.name
+  storage_container_name = azurerm_storage_container.scripts.name
+  type                   = "Block"
+  source                 = "${path.module}/../app/Web.config"
+}
+
 # Generate SAS token for script access
 data "azurerm_storage_account_blob_container_sas" "scripts" {
   connection_string = azurerm_storage_account.scripts.primary_connection_string

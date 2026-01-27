@@ -41,7 +41,9 @@ resource "azurerm_virtual_machine_extension" "setup" {
   protected_settings = jsonencode({
     fileUris = [
       "${azurerm_storage_blob.setup_script.url}${data.azurerm_storage_account_blob_container_sas.scripts.sas}",
-      "${azurerm_storage_blob.alloy_config.url}${data.azurerm_storage_account_blob_container_sas.scripts.sas}"
+      "${azurerm_storage_blob.alloy_config.url}${data.azurerm_storage_account_blob_container_sas.scripts.sas}",
+      "${azurerm_storage_blob.app_default_aspx.url}${data.azurerm_storage_account_blob_container_sas.scripts.sas}",
+      "${azurerm_storage_blob.app_web_config.url}${data.azurerm_storage_account_blob_container_sas.scripts.sas}"
     ]
   })
 }

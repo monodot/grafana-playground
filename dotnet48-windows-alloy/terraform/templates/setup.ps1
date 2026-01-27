@@ -14,7 +14,19 @@ Add-Content -Path $alloyConfigPath -Value "`n$windowsScrapeConfig"
 Write-Host "Restarting Alloy service..."
 Restart-Service -Name "Alloy" -Force
 
+Write-Host "Installing IIS and ASP.NET 4.8..."
+Install-WindowsFeature -Name Web-Server -IncludeManagementTools
+Install-WindowsFeature -Name Web-Asp-Net45
+
 Write-Host "Deploying application..."
-# Add your app deployment commands here
+$appPath = "C:\inetpub\wwwroot\demoapp"
+New-Item -ItemType Directory -Path $appPath -Force
+Copy-Item "$scriptDir\Default.aspx" -Destination $appPath
+Copy-Item "$scriptDir\Web.config" -Destination $appPath
+
+Write-Host "Configuring IIS..."
+Import-Module WebAdministration
+Remove-Website -Name "Default Web Site" -ErrorAction SilentlyContinue
+New-Website -Name "DemoApp" -Port 80 -PhysicalPath $appPath -ApplicationPool "DefaultAppPool"
 
 Write-Host "Setup complete!"
