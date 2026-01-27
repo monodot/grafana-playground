@@ -32,6 +32,7 @@ resource "azurerm_storage_blob" "setup_script" {
     grafana_cloud_hosted_logs_url           = var.grafana_cloud_hosted_logs_url
     grafana_cloud_fm_url                    = var.grafana_cloud_fm_url
     grafana_cloud_fm_hosted_id              = var.grafana_cloud_fm_hosted_id
+    cheese_app_release_tag                  = var.cheese_app_release_tag
   })
 }
 
@@ -41,22 +42,6 @@ resource "azurerm_storage_blob" "alloy_config" {
   storage_container_name = azurerm_storage_container.scripts.name
   type                   = "Block"
   source                 = "${path.module}/templates/windows_scrape.alloy"
-}
-
-resource "azurerm_storage_blob" "app_default_aspx" {
-  name                   = "Default.aspx"
-  storage_account_name   = azurerm_storage_account.scripts.name
-  storage_container_name = azurerm_storage_container.scripts.name
-  type                   = "Block"
-  source                 = "${path.module}/../app/Default.aspx"
-}
-
-resource "azurerm_storage_blob" "app_web_config" {
-  name                   = "Web.config"
-  storage_account_name   = azurerm_storage_account.scripts.name
-  storage_container_name = azurerm_storage_container.scripts.name
-  type                   = "Block"
-  source                 = "${path.module}/../app/Web.config"
 }
 
 # Generate SAS token for script access

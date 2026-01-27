@@ -3,7 +3,7 @@
 Demo scenario consisting of:
 
 - 3 Windows VMs in Azure, with the following installed on each:
-  - A simple ASP.NET demo application
+  - The [cheese-app](https://github.com/monodot/dotnet-playground/tree/main/cheese-app) ASP.NET Web API application (.NET Framework 4.8)
   - IIS
   - Grafana Alloy, configured to ship telemetry to Grafana Cloud
 - Azure load balancer, to access the demo app
@@ -53,13 +53,26 @@ Once the infrastructure is deployed, access the demo application:
 terraform output application_url
 ```
 
-Visit the URL in your browser. You'll see a simple page showing:
-- The server hostname (which VM handled the request)
-- .NET Framework version
-- Request timestamp
-- Your client IP
+Visit the URL in your browser to see API documentation.
 
-Refresh the page multiple times to see the load balancer distributing requests across the 3 VMs.
+#### Test the REST API
+
+The application exposes several REST endpoints:
+
+```sh
+# Get values
+curl http://<load-balancer-ip>/api/values
+
+# Get specific value
+curl http://<load-balancer-ip>/api/values/5
+
+# Create value
+curl -X POST http://<load-balancer-ip>/api/values \
+  -H "Content-Type: application/json" \
+  -d '"test"'
+```
+
+Each request will be load balanced across the 3 VMs.
 
 ### Access the VMs
 
