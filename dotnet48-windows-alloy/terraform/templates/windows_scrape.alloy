@@ -1,111 +1,257 @@
 prometheus.exporter.windows "integrations_windows_exporter" {
-  enabled_collectors = ["cpu", "memory", "pagefile","logical_disk", "net", "os", "service", "system", "time", "diskdrive"]
+        enabled_collectors = ["cpu", "memory", "pagefile", "logical_disk", "net", "os", "service", "system", "time", "diskdrive"]
 }
+
 discovery.relabel "integrations_windows_exporter" {
-  targets = prometheus.exporter.windows.integrations_windows_exporter.targets
+        targets = prometheus.exporter.windows.integrations_windows_exporter.targets
 
-  rule {
-    target_label = "job"
-    replacement  = "integrations/windows_exporter"
-  }
+        rule {
+                target_label = "job"
+                replacement  = "integrations/windows_exporter"
+        }
 
-  rule {
-    target_label = "instance"
-    replacement  = constants.hostname
-  }
+        rule {
+                target_label = "instance"
+                replacement  = constants.hostname
+        }
 }
+
 prometheus.scrape "integrations_windows_exporter" {
-  targets    = discovery.relabel.integrations_windows_exporter.output
-  forward_to = [prometheus.relabel.integrations_windows_exporter.receiver]
-  job_name   = "integrations/windows_exporter"
+        targets    = discovery.relabel.integrations_windows_exporter.output
+        forward_to = [prometheus.relabel.integrations_windows_exporter.receiver]
+        job_name   = "integrations/windows_exporter"
 }
+
 prometheus.relabel "integrations_windows_exporter" {
-  forward_to = [prometheus.remote_write.metrics_service.receiver]
+        forward_to = [prometheus.remote_write.metrics_service.receiver]
 
-  rule {
-    source_labels = ["volume"]
-    regex         = "HarddiskVolume.*"
-    action        = "drop"
-  }
+        rule {
+                source_labels = ["volume"]
+                regex         = "HarddiskVolume.*"
+                action        = "drop"
+        }
 
-  rule {
-    action = "keep"
-    regex = "up|windows_cpu_interrupts_total|windows_cpu_logical_processor|windows_cpu_time_total|windows_cs_logical_processors|windows_cs_physical_memory_bytes|windows_disk_drive_status|windows_logical_disk_avg_read_requests_queued|windows_logical_disk_avg_write_requests_queued|windows_logical_disk_free_bytes|windows_logical_disk_idle_seconds_total|windows_logical_disk_read_bytes_total|windows_logical_disk_read_seconds_total|windows_logical_disk_reads_total|windows_logical_disk_size_bytes|windows_logical_disk_write_bytes_total|windows_logical_disk_write_seconds_total|windows_logical_disk_writes_total|windows_memory_physical_free_bytes|windows_memory_physical_total_bytes|windows_net_bytes_received_total|windows_net_bytes_sent_total|windows_net_packets_outbound_discarded_total|windows_net_packets_outbound_errors_total|windows_net_packets_received_discarded_total|windows_net_packets_received_errors_total|windows_net_packets_received_unknown_total|windows_os_info|windows_os_paging_limit_bytes|windows_os_physical_memory_free_bytes|windows_os_timezone|windows_pagefile_limit_bytes|windows_service_status|windows_system_boot_time_timestamp|windows_system_boot_time_timestamp_seconds|windows_system_context_switches_total|windows_system_processor_queue_length|windows_system_system_up_time|windows_time_computed_time_offset_seconds|windows_time_ntp_round_trip_delay_seconds|windows_time_timezone"
-    source_labels = ["__name__"]
-  }
+        rule {
+                action        = "keep"
+                regex         = "up|windows_cpu_interrupts_total|windows_cpu_logical_processor|windows_cpu_time_total|windows_cs_logical_processors|windows_cs_physical_memory_bytes|windows_disk_drive_status|windows_logical_disk_avg_read_requests_queued|windows_logical_disk_avg_write_requests_queued|windows_logical_disk_free_bytes|windows_logical_disk_idle_seconds_total|windows_logical_disk_read_bytes_total|windows_logical_disk_read_seconds_total|windows_logical_disk_reads_total|windows_logical_disk_size_bytes|windows_logical_disk_write_bytes_total|windows_logical_disk_write_seconds_total|windows_logical_disk_writes_total|windows_memory_physical_free_bytes|windows_memory_physical_total_bytes|windows_net_bytes_received_total|windows_net_bytes_sent_total|windows_net_packets_outbound_discarded_total|windows_net_packets_outbound_errors_total|windows_net_packets_received_discarded_total|windows_net_packets_received_errors_total|windows_net_packets_received_unknown_total|windows_os_info|windows_os_paging_limit_bytes|windows_os_physical_memory_free_bytes|windows_os_timezone|windows_pagefile_limit_bytes|windows_service_status|windows_system_boot_time_timestamp|windows_system_boot_time_timestamp_seconds|windows_system_context_switches_total|windows_system_processor_queue_length|windows_system_system_up_time|windows_time_computed_time_offset_seconds|windows_time_ntp_round_trip_delay_seconds|windows_time_timezone"
+                source_labels = ["__name__"]
+        }
 }
 
 loki.process "logs_integrations_windows_exporter_application" {
-  forward_to = [loki.write.grafana_cloud_loki.receiver]
+        forward_to = [loki.write.grafana_cloud_loki.receiver]
 
-  stage.json {
-    expressions = {
-      level  = "levelText",
-      source = "source",
-    }
-  }
+        stage.json {
+                expressions = {
+                        level  = "levelText",
+                        source = "source",
+                }
+        }
 
-  stage.labels {
-    values = {
-      level  = "",
-      source = "",
-    }
-  }
+        stage.labels {
+                values = {
+                        level  = "",
+                        source = "",
+                }
+        }
 }
+
 loki.relabel "logs_integrations_windows_exporter_application" {
-  forward_to = [loki.process.logs_integrations_windows_exporter_application.receiver]
+        forward_to = [loki.process.logs_integrations_windows_exporter_application.receiver]
 
-  rule {
-    source_labels = ["computer"]
-    target_label  = "agent_hostname"
-  }
+        rule {
+                source_labels = ["computer"]
+                target_label  = "agent_hostname"
+        }
 }
+
 loki.source.windowsevent "logs_integrations_windows_exporter_application" {
-  locale                 = 1033
-  eventlog_name          = "Application"
-  bookmark_path          = "./bookmarks-app.xml"
-  poll_interval          = "0s"
-  use_incoming_timestamp = true
-  forward_to             = [loki.relabel.logs_integrations_windows_exporter_application.receiver]
-  labels                 = {
-    instance = constants.hostname,
-    job      = "integrations/windows_exporter",
-  }
+        locale                 = 1033
+        eventlog_name          = "Application"
+        bookmark_path          = "./bookmarks-app.xml"
+        poll_interval          = "0s"
+        use_incoming_timestamp = true
+        forward_to             = [loki.relabel.logs_integrations_windows_exporter_application.receiver]
+        labels                 = {
+                instance = constants.hostname,
+                job      = "integrations/windows_exporter",
+        }
 }
+
 loki.process "logs_integrations_windows_exporter_system" {
-  forward_to = [loki.write.grafana_cloud_loki.receiver]
+        forward_to = [loki.write.grafana_cloud_loki.receiver]
 
-  stage.json {
-    expressions = {
-      level  = "levelText",
-      source = "source",
-    }
-  }
+        stage.json {
+                expressions = {
+                        level  = "levelText",
+                        source = "source",
+                }
+        }
 
-  stage.labels {
-    values = {
-      level  = "",
-      source = "",
-    }
-  }
+        stage.labels {
+                values = {
+                        level  = "",
+                        source = "",
+                }
+        }
 }
+
 loki.relabel "logs_integrations_windows_exporter_system" {
-  forward_to = [loki.process.logs_integrations_windows_exporter_system.receiver]
+        forward_to = [loki.process.logs_integrations_windows_exporter_system.receiver]
 
-  rule {
-    source_labels = ["computer"]
-    target_label  = "agent_hostname"
-  }
+        rule {
+                source_labels = ["computer"]
+                target_label  = "agent_hostname"
+        }
 }
+
 loki.source.windowsevent "logs_integrations_windows_exporter_system" {
-  locale                 = 1033
-  eventlog_name          = "System"
-  bookmark_path          = "./bookmarks-sys.xml"
-  poll_interval          = "0s"
-  use_incoming_timestamp = true
-  forward_to             = [loki.relabel.logs_integrations_windows_exporter_system.receiver]
-  labels                 = {
-    instance = constants.hostname,
-    job      = "integrations/windows_exporter",
-  }
+        locale                 = 1033
+        eventlog_name          = "System"
+        bookmark_path          = "./bookmarks-sys.xml"
+        poll_interval          = "0s"
+        use_incoming_timestamp = true
+        forward_to             = [loki.relabel.logs_integrations_windows_exporter_system.receiver]
+        labels                 = {
+                instance = constants.hostname,
+                job      = "integrations/windows_exporter",
+        }
+}
+
+otelcol.receiver.otlp "default" {
+        // https://grafana.com/docs/alloy/latest/reference/components/otelcol.receiver.otlp/
+
+        // configures the default grpc endpoint "0.0.0.0:4317"
+        grpc { }
+        // configures the default http/protobuf endpoint "0.0.0.0:4318"
+        http { }
+
+        output {
+                metrics = [otelcol.processor.resourcedetection.default.input]
+                logs    = [otelcol.processor.resourcedetection.default.input]
+                traces  = [otelcol.processor.resourcedetection.default.input]
+        }
+}
+
+otelcol.processor.resourcedetection "default" {
+        // https://grafana.com/docs/alloy/latest/reference/components/otelcol.processor.resourcedetection/
+        detectors = ["env", "system"]
+
+        system {
+                hostname_sources = ["os"]
+        }
+
+        output {
+                metrics = [otelcol.processor.transform.drop_unneeded_resource_attributes.input]
+                logs    = [otelcol.processor.transform.drop_unneeded_resource_attributes.input]
+                traces  = [otelcol.processor.transform.drop_unneeded_resource_attributes.input]
+        }
+}
+
+otelcol.processor.transform "drop_unneeded_resource_attributes" {
+        // https://grafana.com/docs/alloy/latest/reference/components/otelcol.processor.transform/
+        error_mode = "ignore"
+
+        trace_statements {
+                context    = "resource"
+                statements = [
+                        "delete_key(attributes, \"k8s.pod.start_time\")",
+                        "delete_key(attributes, \"os.description\")",
+                        "delete_key(attributes, \"os.type\")",
+                        "delete_key(attributes, \"process.command_args\")",
+                        "delete_key(attributes, \"process.executable.path\")",
+                        "delete_key(attributes, \"process.pid\")",
+                        "delete_key(attributes, \"process.runtime.description\")",
+                        "delete_key(attributes, \"process.runtime.name\")",
+                        "delete_key(attributes, \"process.runtime.version\")",
+                ]
+        }
+
+        metric_statements {
+                context    = "resource"
+                statements = [
+                        "delete_key(attributes, \"k8s.pod.start_time\")",
+                        "delete_key(attributes, \"os.description\")",
+                        "delete_key(attributes, \"os.type\")",
+                        "delete_key(attributes, \"process.command_args\")",
+                        "delete_key(attributes, \"process.executable.path\")",
+                        "delete_key(attributes, \"process.pid\")",
+                        "delete_key(attributes, \"process.runtime.description\")",
+                        "delete_key(attributes, \"process.runtime.name\")",
+                        "delete_key(attributes, \"process.runtime.version\")",
+                ]
+        }
+
+        log_statements {
+                context    = "resource"
+                statements = [
+                        "delete_key(attributes, \"k8s.pod.start_time\")",
+                        "delete_key(attributes, \"os.description\")",
+                        "delete_key(attributes, \"os.type\")",
+                        "delete_key(attributes, \"process.command_args\")",
+                        "delete_key(attributes, \"process.executable.path\")",
+                        "delete_key(attributes, \"process.pid\")",
+                        "delete_key(attributes, \"process.runtime.description\")",
+                        "delete_key(attributes, \"process.runtime.name\")",
+                        "delete_key(attributes, \"process.runtime.version\")",
+                ]
+        }
+
+        output {
+                metrics = [otelcol.processor.transform.add_resource_attributes_as_metric_attributes.input]
+                logs    = [otelcol.processor.batch.default.input]
+                traces  = [
+                        otelcol.processor.batch.default.input,
+                        otelcol.connector.host_info.default.input,
+                ]
+        }
+}
+
+otelcol.connector.host_info "default" {
+        // https://grafana.com/docs/alloy/latest/reference/components/otelcol.connector.host_info/
+        host_identifiers = ["host.name"]
+
+        output {
+                metrics = [otelcol.processor.batch.default.input]
+        }
+}
+
+otelcol.processor.transform "add_resource_attributes_as_metric_attributes" {
+        // https://grafana.com/docs/alloy/latest/reference/components/otelcol.processor.transform/
+        error_mode = "ignore"
+
+        metric_statements {
+                context    = "datapoint"
+                statements = [
+                        "set(attributes[\"deployment.environment\"], resource.attributes[\"deployment.environment\"])",
+                        "set(attributes[\"service.version\"], resource.attributes[\"service.version\"])",
+                ]
+        }
+
+        output {
+                metrics = [otelcol.processor.batch.default.input]
+        }
+}
+
+otelcol.processor.batch "default" {
+        // https://grafana.com/docs/alloy/latest/reference/components/otelcol.processor.batch/
+        output {
+                metrics = [otelcol.exporter.otlphttp.grafana_cloud.input]
+                logs    = [otelcol.exporter.otlphttp.grafana_cloud.input]
+                traces  = [otelcol.exporter.otlphttp.grafana_cloud.input]
+        }
+}
+
+otelcol.exporter.otlphttp "grafana_cloud" {
+        // https://grafana.com/docs/alloy/latest/reference/components/otelcol.exporter.otlphttp/
+        client {
+                endpoint = "https://otlp-gateway-prod-gb-south-0.grafana.net/otlp"
+                auth     = otelcol.auth.basic.grafana_cloud.handler
+        }
+}
+
+otelcol.auth.basic "grafana_cloud" {
+        // https://grafana.com/docs/alloy/latest/reference/components/otelcol.auth.basic/
+        username = "432817"
+        password = "your-grafana-token"
 }

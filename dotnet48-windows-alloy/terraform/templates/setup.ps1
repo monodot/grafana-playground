@@ -34,4 +34,12 @@ Import-Module WebAdministration
 Remove-Website -Name "Default Web Site" -ErrorAction SilentlyContinue
 New-Website -Name "CheeseApp" -Port 80 -PhysicalPath $appPath -ApplicationPool "DefaultAppPool"
 
+$module_url = "https://github.com/open-telemetry/opentelemetry-dotnet-instrumentation/releases/latest/download/OpenTelemetry.DotNet.Auto.psm1"
+$download_path = Join-Path $env:temp "OpenTelemetry.DotNet.Auto.psm1"
+Invoke-WebRequest -Uri $module_url -OutFile $download_path -UseBasicParsing
+
+Import-Module $download_path
+Install-OpenTelemetryCore
+Register-OpenTelemetryForIIS
+
 Write-Host "Setup complete!"

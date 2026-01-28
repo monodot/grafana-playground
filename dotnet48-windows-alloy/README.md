@@ -1,6 +1,8 @@
 # .NET Framework 4.8 and Alloy on Windows VMs
 
-Demo scenario consisting of:
+A .NET Framework application running on IIS, instrumented with OpenTelemetry, shipping signals to a local Alloy and onward to Grafana Cloud. Deploys on Azure.
+
+This demo consists of:
 
 - 3 Windows VMs in Azure, with the following installed on each:
   - The [cheese-app](https://github.com/monodot/dotnet-playground/tree/main/cheese-app) ASP.NET Web API application (.NET Framework 4.8)
