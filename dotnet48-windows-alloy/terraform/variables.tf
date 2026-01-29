@@ -80,3 +80,9 @@ variable "grafana_cloud_fm_hosted_id" {
   description = "Grafana Cloud Fleet Management Hosted ID"
   type        = string
 }
+
+variable "cheese_app_release_tag" {
+  description = "GitHub release tag for the cheese-app release in monodot/dotnet-playground"
+  type        = string
+  default     = "v0.2.3"
+}

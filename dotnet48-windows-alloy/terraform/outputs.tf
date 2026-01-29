@@ -2,6 +2,11 @@ output "load_balancer_ip" {
   value = azurerm_public_ip.lb.ip_address
 }
 
+output "application_url" {
+  value       = "http://${azurerm_public_ip.lb.ip_address}"
+  description = "URL to access the demo application through the load balancer"
+}
+
 output "vm_names" {
   value = azurerm_windows_virtual_machine.main[*].name
 }

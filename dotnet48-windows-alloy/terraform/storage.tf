@@ -32,6 +32,7 @@ resource "azurerm_storage_blob" "setup_script" {
     grafana_cloud_hosted_logs_url           = var.grafana_cloud_hosted_logs_url
     grafana_cloud_fm_url                    = var.grafana_cloud_fm_url
     grafana_cloud_fm_hosted_id              = var.grafana_cloud_fm_hosted_id
+    cheese_app_release_tag                  = var.cheese_app_release_tag
   })
 }
 

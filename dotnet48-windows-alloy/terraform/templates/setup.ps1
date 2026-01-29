@@ -14,7 +14,32 @@ Add-Content -Path $alloyConfigPath -Value "`n$windowsScrapeConfig"
 Write-Host "Restarting Alloy service..."
 Restart-Service -Name "Alloy" -Force
 
+Write-Host "Installing IIS and ASP.NET 4.8..."
+Install-WindowsFeature -Name Web-Server -IncludeManagementTools
+Install-WindowsFeature -Name Web-Asp-Net45
+
+Write-Host "Downloading cheese-app from GitHub Release..."
+$appZipUrl = "https://github.com/monodot/dotnet-playground/releases/download/${cheese_app_release_tag}/cheese-app-build.zip"
+$appZip = "$env:TEMP\cheese-app-build.zip"
+$appPath = "C:\inetpub\wwwroot\cheeseapp"
+
+Invoke-WebRequest -Uri $appZipUrl -OutFile $appZip -UseBasicParsing
+
 Write-Host "Deploying application..."
-# Add your app deployment commands here
+New-Item -ItemType Directory -Path $appPath -Force
+Expand-Archive -Path $appZip -DestinationPath $appPath -Force
+
+Write-Host "Configuring IIS..."
+Import-Module WebAdministration
+Remove-Website -Name "Default Web Site" -ErrorAction SilentlyContinue
+New-Website -Name "CheeseApp" -Port 80 -PhysicalPath $appPath -ApplicationPool "DefaultAppPool"
+
+$module_url = "https://github.com/open-telemetry/opentelemetry-dotnet-instrumentation/releases/latest/download/OpenTelemetry.DotNet.Auto.psm1"
+$download_path = Join-Path $env:temp "OpenTelemetry.DotNet.Auto.psm1"
+Invoke-WebRequest -Uri $module_url -OutFile $download_path -UseBasicParsing
+
+Import-Module $download_path
+Install-OpenTelemetryCore
+Register-OpenTelemetryForIIS
 
 Write-Host "Setup complete!"
