@@ -24,6 +24,17 @@ JOB_MIN_DURATION = 10    # minimum job duration in seconds
 JOB_MAX_DURATION = 120   # maximum job duration in seconds
 ERROR_RATE = 0.05        # 5% of jobs end in error
 
+USERNAMES = ["alice", "bob", "charlie", "diana", "eve"]
+JOB_TYPES = ["data_export", "report_generation", "backup", "etl_pipeline", "cleanup"]
+ERROR_REASONS = [
+    "connection timeout",
+    "insufficient permissions",
+    "disk space exhausted",
+    "rate limit exceeded",
+    "invalid input data",
+    "upstream service unavailable",
+]
+
 
 def setup_logging() -> logging.Logger:
     """Configure OpenTelemetry logging with OTLP export."""
@@ -53,18 +64,25 @@ def setup_logging() -> logging.Logger:
 async def run_job(logger: logging.Logger, job_id: str) -> None:
     """Simulate a job: log start, wait, log end with status."""
     duration = random.uniform(JOB_MIN_DURATION, JOB_MAX_DURATION)
+    username = random.choice(USERNAMES)
+    job_type = random.choice(JOB_TYPES)
 
     # Log job start (logfmt syntax)
-    logger.info(f'event=start job_id={job_id}')
+    logger.info(f'event=start job_id={job_id} user={username} job_type={job_type}')
 
     # Simulate work
     await asyncio.sleep(duration)
 
     # Determine outcome (5% error rate)
-    status = "error" if random.random() < ERROR_RATE else "success"
+    is_error = random.random() < ERROR_RATE
+    status = "error" if is_error else "success"
 
     # Log job end (logfmt syntax)
-    logger.info(f'event=end job_id={job_id} status={status} duration_seconds={round(duration, 2)}')
+    log_line = f'event=end job_id={job_id} status={status} duration_seconds={round(duration, 2)}'
+    if is_error:
+        reason = random.choice(ERROR_REASONS)
+        log_line += f' error_reason="{reason}"'
+    logger.info(log_line)
 
 
 async def job_spawner(logger: logging.Logger) -> None:

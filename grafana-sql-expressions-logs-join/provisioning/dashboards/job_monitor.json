@@ -18,15 +18,41 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 4,
+  "id": 1,
   "links": [],
   "panels": [
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 9,
+        "x": 0,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "### Using SQL Expressions to join two queries\n\nThis job monitoring table is powered by two Loki queries to find job start and completion events. It uses a SQL Expression to join these two result sets together, by job_id. This allows us to see information logged at the start of each job (user, job type) with information logged at the end (status, error reason, job duration)",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.3.1",
+      "title": "",
+      "transparent": true,
+      "type": "text"
+    },
     {
       "datasource": {
         "type": "loki",
         "uid": "loki"
       },
-      "description": "Shows recent jobs and their start and finish times. It uses two Loki queries to find job starts and ends, and then joins them together by job_id using a SQL Expression.",
+      "description": "Shows a table of recent jobs and their start and finish times. ",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -96,6 +122,18 @@
               "options": "Job ID"
             },
             "properties": []
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
           }
         ]
       },
@@ -103,7 +141,7 @@
         "h": 14,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 5
       },
       "id": 1,
       "options": {
@@ -142,7 +180,7 @@
             "type": "__expr__",
             "uid": "__expr__"
           },
-          "expression": "SELECT\n  JSON_EXTRACT(job_starts.labels, '$.job_id') AS 'Job ID',\n  JSON_EXTRACT(job_completions.labels, '$.status') AS 'Status',\n  job_starts.Time as 'Start time',\n  COALESCE(job_completions.Time, '(in progress)') AS 'End time'\nFROM\n  job_starts\n  LEFT OUTER JOIN job_completions ON JSON_EXTRACT(job_starts.labels, '$.job_id') = JSON_EXTRACT(job_completions.labels, '$.job_id') --  JSON_EXTRACT(starts.labels, '$.brokkr_owner') AS 'Owner',\nORDER BY job_starts.Time DESC\nLIMIT\n  50",
+          "expression": "SELECT\n  JSON_EXTRACT(job_starts.labels, '$.job_id') AS 'Job ID',\n  JSON_EXTRACT(job_starts.labels, '$.user') AS 'User',\n  JSON_EXTRACT(job_starts.labels, '$.job_type') AS 'Job type',\n  JSON_EXTRACT(job_completions.labels, '$.status') AS 'Status',\n  job_starts.Time as 'Start time',\n  COALESCE(job_completions.Time, '(in progress)') AS 'End time',\n  JSON_EXTRACT(job_completions.labels, '$.duration_seconds') AS 'Duration',\n  JSON_EXTRACT(job_completions.labels, '$.error_reason') AS 'Error reason'\nFROM\n  job_starts\n  LEFT OUTER JOIN job_completions ON JSON_EXTRACT(job_starts.labels, '$.job_id') = JSON_EXTRACT(job_completions.labels, '$.job_id')\nORDER BY job_starts.Time DESC\nLIMIT\n  50\n",
           "hide": false,
           "refId": "A",
           "type": "sql"
@@ -150,6 +188,75 @@
       ],
       "title": "Recent jobs",
       "type": "table"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 0,
+        "y": 19
+      },
+      "id": 3,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "The unparsed logs are shown below. A lot harder to understand.\n",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.3.1",
+      "title": "",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "description": "Shows the original logs, without any joins or parsing",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 16,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "id": 2,
+      "options": {
+        "dedupStrategy": "none",
+        "enableInfiniteScrolling": false,
+        "enableLogDetails": true,
+        "showControls": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "direction": "backward",
+          "editorMode": "code",
+          "expr": "{service_name=\"job-simulator\"}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Original logs",
+      "type": "logs"
     }
   ],
   "preload": false,
