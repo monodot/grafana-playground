@@ -102,7 +102,45 @@ Using an RDP client (like Remmina), connect to one of the VMs:
 
 1. **IP address:** Use the `vm_rdp_addresses` output from Terraform to choose a VM to connect to.
 2. **Connect** to the VM instance using `adminuser` and the password you set in the TF var `admin_password`
-3. View Alloy logs: Start > Event Viewer > Windows Logs > Application. Optionally click _Filter current log_ and set _Event source_ to **Alloy**, to show only Alloy logs.
-4. View IIS logs: `C:\inetpub\logs\LogFiles\W3SVC*\` 
+3. **View Alloy logs** by going to Start > Event Viewer > Windows Logs > Application. Optionally click _Filter current log_ and set _Event source_ to **Alloy**, to show only Alloy logs.
+4. **View IIS logs** by going to `C:\inetpub\logs\LogFiles\W3SVC*\` 
 
 ### Observe in Grafana Cloud
+
+Make a few test requests to the application first, to ensure it is emitting some traces.
+
+#### Drilldown
+
+1. In Grafana Cloud, go to **Drilldown** -> **Traces**
+2. Use the grouping selector to group by **service.name**
+3. Drill into `CheeseApp`
+
+### Making changes
+
+##### Change the **OpenTelemetry service name**
+
+The service name is inherited from the Site Name by default. But you can change it. 
+
+Edit the file `C:\inetpub\wwwroot\cheeseapp\web.config` and add this line under `<appSettings>`:
+
+```shell
+<add key="OTEL_RESOURCE_ATTRIBUTES" value="service.name=cheese-app-iis,deployment.environment.name=development" />
+```
+
+Then open IIS Manager -> Sites -> CheeseApp. In the right-hand pane, click **Restart**.
+
+### Tear down
+
+```sh
+cd terraform
+
+terraform destroy
+```
+
+## Troubleshooting
+
+#### Telemetry is missing in Grafana Cloud
+
+- Check that the VM setup script completed successfully. View logs in `C:\WindowsAzure\Logs\Plugins\Microsoft.Compute.CustomScriptExtension` 
+- Check the execution logs: `C:\Packages\Plugins\Microsoft.Compute.CustomScriptExtension\1.10.21\Status`
+- Check otelcol components in Alloy are alive and healthy: RDP to the Windows VM, and open http://localhost:12345 in a browser.
