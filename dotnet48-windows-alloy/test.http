@@ -1,0 +1,23 @@
+### GET values
+GET {{host}}/api/values
+
+### GET specific value
+GET {{host}}/api/values/5
+
+### POST create a value
+POST {{host}}/api/values
+Content-Type: application/x-www-form-urlencoded
+
+"test"
+
+### POST create a new redis key
+POST {{host}}/api/redis
+Content-Type: application/json
+
+{
+  "key": "bla",
+  "value": "okie-dokie"
+}
+
+### GET an existing Redis key
+GET {{host}}/api/redis/bla
