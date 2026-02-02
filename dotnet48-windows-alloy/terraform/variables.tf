@@ -89,5 +89,5 @@ variable "grafana_cloud_otlp_user_id" {
 variable "cheese_app_release_tag" {
   description = "GitHub release tag for the cheese-app release in monodot/dotnet-playground"
   type        = string
-  default     = "v0.2.3"
+  default     = "v0.3.1" # Adds Redis/StackExchange
 }
