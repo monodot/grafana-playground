@@ -33,6 +33,9 @@ resource "azurerm_storage_blob" "setup_script" {
     grafana_cloud_fm_url                    = var.grafana_cloud_fm_url
     grafana_cloud_fm_hosted_id              = var.grafana_cloud_fm_hosted_id
     cheese_app_release_tag                  = var.cheese_app_release_tag
+    redis_host                              = azurerm_redis_cache.main.hostname
+    redis_port                              = "6380"
+    redis_password                          = azurerm_redis_cache.main.primary_access_key
   })
 }
 

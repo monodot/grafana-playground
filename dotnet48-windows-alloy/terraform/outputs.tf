@@ -23,3 +23,19 @@ output "vm_rdp_addresses" {
   }
   description = "Map of VM names to their public IPs for RDP access"
 }
+
+output "redis_hostname" {
+  value       = azurerm_redis_cache.main.hostname
+  description = "Redis cache hostname"
+}
+
+output "redis_ssl_port" {
+  value       = azurerm_redis_cache.main.ssl_port
+  description = "Redis SSL port (default: 6380)"
+}
+
+output "redis_primary_key" {
+  value       = azurerm_redis_cache.main.primary_access_key
+  sensitive   = true
+  description = "Redis primary access key (sensitive)"
+}

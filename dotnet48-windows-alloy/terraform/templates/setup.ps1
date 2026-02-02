@@ -23,16 +23,46 @@ $appZipUrl = "https://github.com/monodot/dotnet-playground/releases/download/${c
 $appZip = "$env:TEMP\cheese-app-build.zip"
 $appPath = "C:\inetpub\wwwroot\cheeseapp"
 
+# Redis configuration
+$redisHost = "${redis_host}"
+$redisPort = "${redis_port}"
+$redisPassword = "${redis_password}"
+
 Invoke-WebRequest -Uri $appZipUrl -OutFile $appZip -UseBasicParsing
 
 Write-Host "Deploying application..."
 New-Item -ItemType Directory -Path $appPath -Force
 Expand-Archive -Path $appZip -DestinationPath $appPath -Force
 
+Write-Host "Configuring Redis connection..."
+$webConfigPath = Join-Path $appPath "Web.config"
+[xml]$webConfig = Get-Content $webConfigPath
+
+# Find or create the RedisConnectionString appSetting
+$redisConnectionString = "$redisHost`:$redisPort,password=$redisPassword,ssl=true,abortConnect=false"
+$redisSetting = $webConfig.configuration.appSettings.add | Where-Object { $_.key -eq "RedisConnectionString" }
+
+if ($redisSetting) {
+    Write-Host "Updating existing RedisConnectionString..."
+    $redisSetting.value = $redisConnectionString
+} else {
+    Write-Host "Adding RedisConnectionString..."
+    $newSetting = $webConfig.CreateElement("add")
+    $newSetting.SetAttribute("key", "RedisConnectionString")
+    $newSetting.SetAttribute("value", $redisConnectionString)
+    $webConfig.configuration.appSettings.AppendChild($newSetting)
+}
+
+$webConfig.Save($webConfigPath)
+Write-Host "Redis configuration updated successfully"
+
 Write-Host "Configuring IIS..."
 Import-Module WebAdministration
 Remove-Website -Name "Default Web Site" -ErrorAction SilentlyContinue
 New-Website -Name "CheeseApp" -Port 80 -PhysicalPath $appPath -ApplicationPool "DefaultAppPool"
+
+Write-Host "Deployment complete!"
+Write-Host "Test Redis connection: http://localhost/api/redis/status"
 
 $module_url = "https://github.com/open-telemetry/opentelemetry-dotnet-instrumentation/releases/latest/download/OpenTelemetry.DotNet.Auto.psm1"
 $download_path = Join-Path $env:temp "OpenTelemetry.DotNet.Auto.psm1"

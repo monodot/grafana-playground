@@ -9,6 +9,7 @@ This demo consists of:
   - IIS
   - Grafana Alloy, configured to ship telemetry to Grafana Cloud
 - Azure load balancer, to access the demo app
+- Azure Cache for Redis (Basic tier), accessible from all VMs
 
 ## Instructions
 
@@ -55,8 +56,6 @@ Once the infrastructure is deployed, access the demo application:
 terraform output application_url
 ```
 
-Visit the URL in your browser to see API documentation.
-
 #### Test the REST API
 
 The application exposes several REST endpoints:
@@ -72,9 +71,30 @@ curl http://<load-balancer-ip>/api/values/5
 curl -X POST http://<load-balancer-ip>/api/values \
   -H "Content-Type: application/json" \
   -d '"test"'
+  
+# Redis interaction
+curl http://<load-balancer-ip>/api/redis/status
 ```
 
 Each request will be load balanced across the 3 VMs.
+
+### Access Redis
+
+Get the Redis connection details:
+
+```sh
+terraform output redis_hostname
+
+terraform output -raw redis_primary_key
+```
+
+To connect from a .NET application, use a connection string like:
+
+```
+<hostname>:6380,password=<primary_key>,ssl=True,abortConnect=False
+```
+
+All three VMs can connect to Redis using these credentials. Redis is accessible only from within the virtual network (10.0.2.0/24).
 
 ### Access the VMs
 
