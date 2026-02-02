@@ -47,6 +47,16 @@ resource "azurerm_storage_blob" "alloy_config" {
   source                 = "${path.module}/templates/windows_scrape.alloy"
 }
 
+resource "azurerm_storage_blob" "alloy_config_app_o11y" {
+  name                   = "app_o11y.alloy"
+  storage_account_name   = azurerm_storage_account.scripts.name
+  storage_container_name = azurerm_storage_container.scripts.name
+  type                   = "Block"
+  source_content = templatefile("${path.module}/templates/app_o11y.alloy", {
+    grafana_cloud_otlp_user_id = var.grafana_cloud_otlp_user_id
+  })
+}
+
 # Generate SAS token for script access
 data "azurerm_storage_account_blob_container_sas" "scripts" {
   connection_string = azurerm_storage_account.scripts.primary_connection_string

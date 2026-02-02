@@ -81,6 +81,11 @@ variable "grafana_cloud_fm_hosted_id" {
   type        = string
 }
 
+variable "grafana_cloud_otlp_user_id" {
+  description = "Grafana Cloud user ID in OpenTelemetry"
+  type        = string
+}
+
 variable "cheese_app_release_tag" {
   description = "GitHub release tag for the cheese-app release in monodot/dotnet-playground"
   type        = string
