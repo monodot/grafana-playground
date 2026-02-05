@@ -55,8 +55,23 @@ if ($redisSetting) {
     $webConfig.configuration.appSettings.AppendChild($newSetting)
 }
 
+# Configure OTEL_RESOURCE_ATTRIBUTES
+$otelResourceAttributes = "service.namespace=${service_namespace},deployment.environment=${deployment_environment}"
+$otelSetting = $webConfig.configuration.appSettings.add | Where-Object { $_.key -eq "OTEL_RESOURCE_ATTRIBUTES" }
+
+if ($otelSetting) {
+    Write-Host "Updating existing OTEL_RESOURCE_ATTRIBUTES..."
+    $otelSetting.value = $otelResourceAttributes
+} else {
+    Write-Host "Adding OTEL_RESOURCE_ATTRIBUTES..."
+    $newSetting = $webConfig.CreateElement("add")
+    $newSetting.SetAttribute("key", "OTEL_RESOURCE_ATTRIBUTES")
+    $newSetting.SetAttribute("value", $otelResourceAttributes)
+    $webConfig.configuration.appSettings.AppendChild($newSetting)
+}
+
 $webConfig.Save($webConfigPath)
-Write-Host "Redis configuration updated successfully"
+Write-Host "Web.config updated successfully (Redis and OTEL resource attributes)"
 
 Write-Host "Configuring IIS..."
 Import-Module WebAdministration

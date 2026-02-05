@@ -7,7 +7,7 @@ This demo consists of:
 - 3 Windows VMs in Azure, with the following installed on each:
   - The [cheese-app](https://github.com/monodot/dotnet-playground/tree/main/cheese-app) ASP.NET Web API application (.NET Framework 4.8)
   - IIS
-  - Grafana Alloy, configured to ship telemetry to Grafana Cloud
+  - Grafana Alloy, configured to ship telemetry to Grafana Cloud, and set a consistent `cluster` label on all Prometheus metrics
 - Azure load balancer, to access the demo app
 - Azure Cache for Redis (Basic tier), accessible from all VMs
 
@@ -78,32 +78,13 @@ curl http://<load-balancer-ip>/api/redis/status
 
 Each request will be load balanced across the 3 VMs.
 
-### Access Redis
+### Run the load generator
 
-Get the Redis connection details:
+A k6 script is included, which will make some example requests to the API, which will be load balanced across the three nodes:
 
-```sh
-terraform output redis_hostname
-
-terraform output -raw redis_primary_key
+```shell
+k6 run -e HOST=$(terraform -chdir=terraform output -raw application_url) script.js
 ```
-
-To connect from a .NET application, use a connection string like:
-
-```
-<hostname>:6380,password=<primary_key>,ssl=True,abortConnect=False
-```
-
-All three VMs can connect to Redis using these credentials. Redis is accessible only from within the virtual network (10.0.2.0/24).
-
-### Access the VMs
-
-Using an RDP client (like Remmina), connect to one of the VMs:
-
-1. **IP address:** Use the `vm_rdp_addresses` output from Terraform to choose a VM to connect to.
-2. **Connect** to the VM instance using `adminuser` and the password you set in the TF var `admin_password`
-3. **View Alloy logs** by going to Start > Event Viewer > Windows Logs > Application. Optionally click _Filter current log_ and set _Event source_ to **Alloy**, to show only Alloy logs.
-4. **View IIS logs** by going to `C:\inetpub\logs\LogFiles\W3SVC*\` 
 
 ### Observe in Grafana Cloud
 
@@ -139,7 +120,34 @@ terraform destroy
 
 ## Troubleshooting
 
-#### Telemetry is missing in Grafana Cloud
+### Access Redis
+
+Get the Redis connection details:
+
+```sh
+terraform output redis_hostname
+
+terraform output -raw redis_primary_key
+```
+
+To connect from a .NET application, use a connection string like:
+
+```
+<hostname>:6380,password=<primary_key>,ssl=True,abortConnect=False
+```
+
+All three VMs can connect to Redis using these credentials. Redis is accessible only from within the virtual network (10.0.2.0/24).
+
+### Access the VMs
+
+Using an RDP client (like Remmina), connect to one of the VMs:
+
+1. **IP address:** Use the `vm_rdp_addresses` output from Terraform to choose a VM to connect to.
+2. **Connect** to the VM instance using `adminuser` and the password you set in the TF var `admin_password`
+3. **View Alloy logs** by going to Start > Event Viewer > Windows Logs > Application. Optionally click _Filter current log_ and set _Event source_ to **Alloy**, to show only Alloy logs.
+4. **View IIS logs** by going to `C:\inetpub\logs\LogFiles\W3SVC*\`
+
+### Telemetry is missing in Grafana Cloud
 
 - Check that the VM setup script completed successfully. View logs in `C:\WindowsAzure\Logs\Plugins\Microsoft.Compute.CustomScriptExtension` 
 - Check the execution logs: `C:\Packages\Plugins\Microsoft.Compute.CustomScriptExtension\1.10.21\Status`

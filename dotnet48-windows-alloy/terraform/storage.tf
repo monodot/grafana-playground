@@ -33,6 +33,8 @@ resource "azurerm_storage_blob" "setup_script" {
     grafana_cloud_fm_url                    = var.grafana_cloud_fm_url
     grafana_cloud_fm_hosted_id              = var.grafana_cloud_fm_hosted_id
     cheese_app_release_tag                  = var.cheese_app_release_tag
+    service_namespace                       = var.service_namespace
+    deployment_environment                  = var.deployment_environment
     redis_host                              = azurerm_redis_cache.main.hostname
     redis_port                              = "6380"
     redis_password                          = azurerm_redis_cache.main.primary_access_key
@@ -44,7 +46,9 @@ resource "azurerm_storage_blob" "alloy_config" {
   storage_account_name   = azurerm_storage_account.scripts.name
   storage_container_name = azurerm_storage_container.scripts.name
   type                   = "Block"
-  source                 = "${path.module}/templates/windows_scrape.alloy"
+  source_content = templatefile("${path.module}/templates/windows_scrape.alloy", {
+    deployment_environment = var.deployment_environment
+  })
 }
 
 resource "azurerm_storage_blob" "alloy_config_app_o11y" {

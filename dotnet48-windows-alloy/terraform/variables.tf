@@ -91,3 +91,15 @@ variable "cheese_app_release_tag" {
   type        = string
   default     = "v0.3.1" # Adds Redis/StackExchange
 }
+
+variable "service_namespace" {
+  description = "Service namespace for OpenTelemetry resource attributes"
+  type        = string
+  default     = "cheeses"
+}
+
+variable "deployment_environment" {
+  description = "Deployment environment for OpenTelemetry resource attributes"
+  type        = string
+  default     = "production-demo"
+}
