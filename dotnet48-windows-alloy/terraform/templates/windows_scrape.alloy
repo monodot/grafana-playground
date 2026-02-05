@@ -15,9 +15,9 @@ discovery.relabel "integrations_windows_exporter" {
                 replacement  = constants.hostname
         }
 
-        # For Knowledge Graph: adding a consistent label to all metrics which will become our "env" in Knowledge Graph
-        # This allows KG to 'discover' the metrics and relabel them appropriately
-        # Here, we are setting cluster="${deployment_environment}"
+        // For Knowledge Graph: adding a consistent label to all metrics which will become our "env" in Knowledge Graph
+        // This allows KG to 'discover' the metrics and relabel them appropriately
+        // Here, we are setting cluster="${deployment_environment}"
         rule {
                 target_label = "cluster"
                 replacement  = "${deployment_environment}"
