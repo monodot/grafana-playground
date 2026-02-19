@@ -25,12 +25,14 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Logger;
 
 /**
  * Lambda handler for processing orders and storing receipts in S3.
  */
 public class OrderHandler implements RequestHandler<OrderHandler.Order, String> {
 
+    private static final Logger LOGGER = Logger.getLogger(OrderHandler.class.getName());
     private static final S3Client S3_CLIENT = S3Client.builder().build();
 
     /**
@@ -55,12 +57,12 @@ public class OrderHandler implements RequestHandler<OrderHandler.Order, String> 
             // Upload the receipt to S3
             uploadReceiptToS3(bucketName, key, receiptContent);
 
-            context.getLogger().log("Successfully processed order " + event.orderId() +
+            LOGGER.info("Successfully processed order " + event.orderId() +
                     " and stored receipt in S3 bucket " + bucketName);
             return "Success";
 
         } catch (Exception e) {
-            context.getLogger().log("Failed to process order: " + e.getMessage());
+            LOGGER.severe("Failed to process order: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }
