@@ -111,7 +111,7 @@ resource "aws_lambda_function" "order_handler" {
       RECEIPT_BUCKET = aws_s3_bucket.receipts.bucket
 
       # ADOT auto-instrumentation
-      AWS_LAMBDA_EXEC_WRAPPER                     = "/opt/otel-handler" # "/opt/otel-instrument"
+      AWS_LAMBDA_EXEC_WRAPPER                     = "/opt/otel-handler" # for wrapping regular handlers (implementing RequestHandler)
       OTEL_SERVICE_NAME                           = "${var.function_name}-${data.external.whoami.result.user}"
       OTEL_RESOURCE_ATTRIBUTES                    = "service.namespace=nigella"
       OTEL_TRACES_EXPORTER                        = "otlp"
