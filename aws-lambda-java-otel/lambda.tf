@@ -124,9 +124,7 @@ resource "aws_lambda_function" "order_handler" {
       OTEL_LOG_LEVEL                              = "debug"
       OTEL_JAVAAGENT_DEBUG                        = "true"
       OTEL_INSTRUMENTATION_COMMON_DEFAULT_ENABLED = "true" # by default only AWS SDK and HTTP instrumentations are enabled. This env var enables all instrumentations
-      OTEL_METRICS_EXPORTER                       = "otlp"
-      OTEL_LOGS_EXPORTER                          = "otlp"
-      OTEL_EXPORTER_OTLP_LOGS_ENDPOINT            = "${var.grafana_cloud_otlp_endpoint}/v1/logs"
+      OTEL_LOGS_EXPORTER                          = "otlp" # This is required
     }
   }
 
