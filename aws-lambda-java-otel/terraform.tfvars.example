@@ -1,0 +1,3 @@
+grafana_cloud_access_policy_token      = ""
+grafana_cloud_instance_id              = ""
+grafana_cloud_otlp_endpoint            = ""
