@@ -1,27 +1,50 @@
 version: "3.8"
 
 services:
-  # Service to instrument. Change it to any
-  # other container that you want to instrument.
-  goblog:
-    image: docker.io/mariomac/goblog:dev
+  java-server:
+    build: ./java-server
     ports:
-      # Exposes port 18843, forwarding it to container port 8443
-      - "18443:8443"
+      - "18081:18081"
+    stop_grace_period: 0s
 
-  autoinstrumenter:
+  node-client:
+    build: ./node-client
+    depends_on:
+      - java-server
+    environment:
+      JAVA_SERVER_HOST: java-server
+      JAVA_SERVER_PORT: "18081"
+      LISTEN_PORT: "3001"
+      INTERVAL_MS: "5000"
+    ports:
+      - "3001:3001"
+    stop_grace_period: 0s
+
+  nginx:
+    image: docker.io/library/nginx:latest
+    depends_on:
+      - node-client
+    ports:
+      - "18080:18080"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:z
+    stop_grace_period: 0s
+
+  beyla:
     image: docker.io/grafana/beyla:3
-    pid: host # "service:goblog"
+    pid: host
     privileged: true
     depends_on:
-      - goblog # Ensure the container doesn't start until goblog has started (so podman doesn't reject the goblog namespace)
+      - goblog
+      - java-server
+      - node-client
+      - nginx
     environment:
-#      BEYLA_TRACE_PRINTER: text
-      BEYLA_AUTO_TARGET_EXE: "/goblog*" # just instrument the /goblog program
+      BEYLA_TRACE_PRINTER: text
       BEYLA_LOG_LEVEL: debug
-#      BEYLA_OPEN_PORT: 8443 # Instrument anything which has the port 8443 opened
+      BEYLA_OPEN_PORT: "18080,3001,18081" # nginx → node-client → java-server
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-lgtm:4317"
-    stop_grace_period: 2s
+    stop_grace_period: 0s
 
   otel-lgtm:
     image: docker.io/grafana/otel-lgtm:latest
@@ -29,7 +52,8 @@ services:
       - "3000:3000"
       - "4317:4317"
       - "4318:4318"
-    stop_grace_period: 2s
-    environment:
-      - ENABLE_LOGS_TEMPO=true
-      - ENABLE_LOGS_OTELCOL=true
+    stop_grace_period: 0s
+    # Uncomment these if you like logs
+    # environment:
+    #   - ENABLE_LOGS_TEMPO=true
+    #   - ENABLE_LOGS_OTELCOL=true
