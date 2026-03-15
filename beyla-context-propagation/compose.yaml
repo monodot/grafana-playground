@@ -1,8 +1,30 @@
 version: "3.8"
 
 services:
+  postgres:
+    image: docker.io/library/postgres:16
+    environment:
+      POSTGRES_DB: demo
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:z
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demo -d demo"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    stop_grace_period: 0s
+
   java-server:
     build: ./java-server
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/demo
+      DB_USER: demo
+      DB_PASSWORD: demo
     ports:
       - "18081:18081"
     stop_grace_period: 0s
@@ -35,14 +57,13 @@ services:
     pid: host
     privileged: true
     depends_on:
-      - goblog
       - java-server
       - node-client
       - nginx
     environment:
       BEYLA_TRACE_PRINTER: text
       BEYLA_LOG_LEVEL: debug
-      BEYLA_OPEN_PORT: "18080,3001,18081" # nginx → node-client → java-server
+      BEYLA_OPEN_PORT: "18080,3001,18081,5432" # nginx → node-client → java-server and postgres
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-lgtm:4317"
     stop_grace_period: 0s
 
