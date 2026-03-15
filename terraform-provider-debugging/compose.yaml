@@ -9,6 +9,8 @@ services:
     stop_grace_period: 2s
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      - ENABLE_LOGS_PYROSCOPE=true
+      - ENABLE_LOGS_OTELCOL=true
 
   mitmproxy:
     image: docker.io/mitmproxy/mitmproxy:12.2
@@ -19,3 +21,16 @@ services:
       - ./mitmproxy:/scripts:z
     depends_on:
       - otel-lgtm
+
+  otel-ebpf-profiler:
+    image: docker.io/otel/opentelemetry-collector-ebpf-profiler:0.147.0
+    command:
+      - --config=/etc/ebpf-profiler-config.yaml
+      - --feature-gates=service.profilesSupport
+    privileged: true
+    pid: "host"
+    volumes:
+      - ./ebpf-profiler/config.yaml:/etc/ebpf-profiler-config.yaml:ro
+      - /sys/kernel/debug:/sys/kernel/debug:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /proc:/proc:ro

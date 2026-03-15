@@ -1,0 +1,27 @@
+receivers:
+  profiling:
+    samples_per_second: 97
+
+processors:
+  resource/metadata:
+    attributes:
+      - action: upsert
+        key: k8s.cluster.name
+        value: demo
+      - action: upsert
+        key: service.name
+        from_attribute: process.executable.name
+
+exporters:
+  otlp_grpc:
+    endpoint: otel-lgtm:4040
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    profiles:
+      receivers: [profiling]
+      processors:
+        - resource/metadata
+      exporters: [otlp_grpc]
