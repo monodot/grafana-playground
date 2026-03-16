@@ -1,0 +1,16 @@
+trace_printer: text
+log_level: debug
+
+open_port: "18080,3001,18081,18082,5432" # Does this take precedence over everything else?
+
+# We don't need to enable this for this setup, because Beyla can instrument Node.js and Java processes without it
+#ebpf:
+#  context_propagation: all
+
+#javaagent:
+#  enabled: false  # don't attach the agent
+#nodejs:
+#  enabled: false  # don't attach the agent to Node.js processes
+
+discovery:
+  exclude_otel_instrumented_services: true

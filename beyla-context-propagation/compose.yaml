@@ -29,13 +29,32 @@ services:
       - "18081:18081"
     stop_grace_period: 0s
 
+  java-otel-server:
+    build: ./java-otel-server
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/demo
+      DB_USER: demo
+      DB_PASSWORD: demo
+      OTEL_SERVICE_NAME: java-otel-server
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-lgtm:4318
+      OTEL_LOG_LEVEL: debug
+    ports:
+      - "18082:18082"
+    stop_grace_period: 0s
+
   node-client:
     build: ./node-client
     depends_on:
       - java-server
+      - java-otel-server
     environment:
       JAVA_SERVER_HOST: java-server
       JAVA_SERVER_PORT: "18081"
+      JAVA_OTEL_SERVER_HOST: java-otel-server
+      JAVA_OTEL_SERVER_PORT: "18082"
       LISTEN_PORT: "3001"
       INTERVAL_MS: "5000"
     ports:
@@ -58,13 +77,19 @@ services:
     privileged: true
     depends_on:
       - java-server
+      - java-otel-server
       - node-client
       - nginx
     environment:
-      BEYLA_TRACE_PRINTER: text
-      BEYLA_LOG_LEVEL: debug
-      BEYLA_OPEN_PORT: "18080,3001,18081,5432" # nginx → node-client → java-server and postgres
+      BEYLA_CONFIG_PATH: /config/beyla-config.yaml
+#      BEYLA_TRACE_PRINTER: text
+#      BEYLA_LOG_LEVEL: debug
+#      BEYLA_OPEN_PORT: "18080,3001,18081,18082,5432" # nginx → node-client → java-server / java-otel-server → postgres
+#      BEYLA_BPF_CONTEXT_PROPAGATION: all
+#      BEYLA_JAVA_JVMTOOLS_ENABLED: "false" # prevent Beyla injecting its own Java agent; OTel Java agent handles java-otel-server
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-lgtm:4317"
+    volumes:
+      - ./beyla:/config:z
     stop_grace_period: 0s
 
   otel-lgtm:
