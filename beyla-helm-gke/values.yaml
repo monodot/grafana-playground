@@ -1,17 +1,20 @@
+# Run unprivileged on GKE. See:
+# https://grafana.com/docs/beyla/latest/setup/kubernetes/#deploy-beyla-unprivileged
+privileged: false
+
+# Actual Beyla config goes here
 config:
   data:
-    # Run unprivileged on GKE. See:
-    # https://grafana.com/docs/beyla/latest/setup/kubernetes/#deploy-beyla-unprivileged
-    privileged: false
-
     discovery:
       instrument:
-        - k8s_namespace: "*"
+        - k8s_namespace: default
+        - k8s_namespace: foo
 
 env:
   OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: "${OTEL_EXPORTER_OTLP_METRICS_ENDPOINT}"
   OTEL_EXPORTER_OTLP_METRICS_HEADERS: "Authorization=Basic ${GRAFANA_CLOUD_AUTH_STRING}"
   OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT}"
   OTEL_EXPORTER_OTLP_TRACES_HEADERS: "Authorization=Basic ${GRAFANA_CLOUD_AUTH_STRING}"
+  BEYLA_BPF_CONTEXT_PROPAGATION: all
   BEYLA_NETWORK_METRICS: true
   BEYLA_OTEL_METRIC_FEATURES: "application_span,application_service_graph,application_host,application"
