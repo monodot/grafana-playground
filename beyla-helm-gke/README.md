@@ -64,9 +64,25 @@ Deploy `http-echo` (the instrumented service) and a k6 load generator that hits 
 kubectl apply -f manifests/
 ```
 
-Beyla will automatically detect the `http-echo` service and ship traces to Grafana Cloud.
+Restart services if you've modified them:
+
+```shell
+kubectl rollout restart deploy/k6 deploy/http-echo deploy/node-server
+```
+
+Beyla will automatically detect and instrument the service calls, and ship traces to Grafana Cloud.
 
 ## Tear down
+
+Uninstall the workloads and Beyla:
+
+```shell
+kubectl delete -f manifests/
+
+helm uninstall beyla -n beyla
+```
+
+Destroy the cluster completely:
 
 ```shell
 gcloud container clusters delete beyla-helm-demo --zone us-central1-a
