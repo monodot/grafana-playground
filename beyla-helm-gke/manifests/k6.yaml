@@ -13,7 +13,7 @@ data:
     };
 
     export default function () {
-      http.get('http://http-echo:5678');
+      http.get('http://node-server:3000');
       sleep(1);
     }
 ---
