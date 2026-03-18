@@ -104,6 +104,10 @@ kubectl rollout restart deploy/k6 deploy/http-echo deploy/node-server
 
 The OpenTelemetry Operator will automatically instrument the services, and ship traces to Grafana Cloud.
 
+You should see traces like this:
+
+![](./trace.jpg)
+
 ## Tear down
 
 Uninstall the workloads:
