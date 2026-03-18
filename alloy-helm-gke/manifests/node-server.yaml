@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: node-server-script
+data:
+  server.js: |
+    const http = require('http');
+
+    const server = http.createServer((req, res) => {
+      console.log(`${req.method} ${req.url}`);
+      http.get('http://http-echo:5678', (echoRes) => {
+        let body = '';
+        echoRes.on('data', (chunk) => body += chunk);
+        echoRes.on('end', () => {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            message: 'here is some rubbish',
+            echo: body.trim(),
+            timestamp: Date.now(),
+            random: Math.random(),
+          }));
+        });
+      });
+    });
+
+    server.listen(3000, () => console.log('listening on port 3000'));
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-server
+  template:
+    metadata:
+      labels:
+        app: node-server
+    spec:
+      containers:
+        - name: node-server
+          image: docker.io/library/node:lts-alpine
+          command:
+            - node
+            - /app/server.js
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: node-server-script
+              mountPath: /app
+      volumes:
+        - name: node-server-script
+          configMap:
+            name: node-server-script
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-server
+spec:
+  selector:
+    app: node-server
+  ports:
+    - port: 3000
+      targetPort: 3000
