@@ -8,6 +8,7 @@ config:
     discovery:
       instrument:
         - k8s_namespace: default
+          exe_path: "{*k6*,*node*,*http-echo*}"
         - k8s_namespace: foo
 
 env:
