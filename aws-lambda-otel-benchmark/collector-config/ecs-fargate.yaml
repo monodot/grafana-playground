@@ -1,0 +1,46 @@
+# OTel Collector config for the ECS Fargate external collector (config 5).
+#
+# This YAML is passed to the collector as the OTEL_CONFIG environment variable
+# and loaded with --config=env:OTEL_CONFIG. The collector still expands
+# ${env:VAR_NAME} references within it at startup.
+
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+processors:
+  batch:
+    timeout: 5s
+    send_batch_size: 256
+
+exporters:
+  otlphttp:
+    endpoint: ${env:GRAFANA_CLOUD_OTLP_ENDPOINT}
+    headers:
+      authorization: Basic ${env:GRAFANA_CLOUD_AUTH}
+    tls:
+      insecure: false
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp]

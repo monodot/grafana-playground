@@ -1,0 +1,39 @@
+# OTel Collector config for the Lambda Layer extension (configs 4, 6, 7, 8, 9, 10).
+#
+# This file is packaged into a Lambda layer at /opt/collector-config/config.yaml.
+# The collector extension reads it on startup.
+#
+# Credentials are injected via Lambda environment variables using OTel's
+# ${env:VAR_NAME} substitution syntax — the values never appear in this file.
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: localhost:4317
+      http:
+        endpoint: localhost:4318
+
+exporters:
+  otlphttp:
+    endpoint: ${env:GRAFANA_CLOUD_OTLP_ENDPOINT}
+    headers:
+      authorization: Basic ${env:GRAFANA_CLOUD_AUTH}
+    tls:
+      insecure: false
+
+extensions:
+  health_check: {}
+
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [otlphttp]
+    metrics:
+      receivers: [otlp]
+      exporters: [otlphttp]
+    logs:
+      receivers: [otlp]
+      exporters: [otlphttp]

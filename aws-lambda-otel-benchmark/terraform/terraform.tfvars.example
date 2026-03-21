@@ -1,0 +1,16 @@
+aws_region   = "us-east-1"
+name_prefix  = "otel-bench"
+
+# Grafana Cloud — find these in your stack's "Details" page
+grafana_cloud_otlp_endpoint        = "https://otlp-gateway-prod-us-east-0.grafana.net/otlp"
+grafana_cloud_instance_id          = "123456"
+grafana_cloud_access_policy_token  = "glc_eyJ..."
+
+# OTel Lambda layers — append the version number shown in the AWS console or
+# Lambda > Layers > opentelemetry-javaagent-* / opentelemetry-collector-amd64-*
+java_agent_layer_arn  = "arn:aws:lambda:us-east-1:184161586896:layer:opentelemetry-javaagent-0_17_0:<version>"
+collector_layer_arn   = "arn:aws:lambda:us-east-1:184161586896:layer:opentelemetry-collector-amd64-0_12_0:<version>"
+
+# CloudWatch Lambda Insights — latest x86_64 version for us-east-1
+# See https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versions.html
+lambda_insights_layer_arn = "arn:aws:lambda:us-east-1:580247275435:layer:LambdaInsightsExtension:53"

@@ -1,0 +1,898 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "panels": [
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "## 🔬 Lambda OTel Benchmark Results\nMeasures the impact of different **OpenTelemetry instrumentation configurations** on AWS Lambda **response times**, as measured by k6. Configurations include baseline, OTel layer variants, embedded collector setups, and more. Use the **time picker** to scope to a specific test run window. **Lower duration = better performance.**",
+        "mode": "markdown"
+      },
+      "pluginVersion": "13.0.0-23264332861",
+      "title": "",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "efgkouhs3pslcf"
+      },
+      "description": "Use this graph to ensure the time range includes all the Lambda functions you're interested in.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "bars",
+            "fillOpacity": 81,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 0,
+        "y": 3
+      },
+      "id": 3,
+      "options": {
+        "annotations": {
+          "clustering": -1,
+          "multiLane": false
+        },
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.0.0-23264332861",
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "efgkouhs3pslcf"
+          },
+          "dimensions": {},
+          "expression": "",
+          "id": "",
+          "label": "",
+          "logGroups": [],
+          "matchExact": false,
+          "metricEditorMode": 1,
+          "metricName": "Invocations",
+          "metricQueryType": 1,
+          "namespace": "AWS/Lambda",
+          "period": "",
+          "queryLanguage": "CWLI",
+          "queryMode": "Metrics",
+          "refId": "A",
+          "region": "default",
+          "sql": {
+            "select": {
+              "name": "AVG",
+              "type": "function"
+            }
+          },
+          "sqlExpression": "SELECT SUM(Invocations) FROM SCHEMA(\"AWS/Lambda\", FunctionName) GROUP BY FunctionName  ",
+          "statistic": "Sum"
+        }
+      ],
+      "title": "Rate - All Lambda invocations over time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "efgkouhs3pslcf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "red",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 8,
+        "y": 3
+      },
+      "id": 10,
+      "options": {
+        "annotations": {
+          "clustering": -1,
+          "multiLane": false
+        },
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.0.0-23264332861",
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "efgkouhs3pslcf"
+          },
+          "dimensions": {},
+          "expression": "filter @message like /ERROR/\n| parse @log /\\/aws\\/lambda\\/(?<functionName>[^\"]+)/\n| stats count(*) as errorCount by functionName, bin(5m)",
+          "id": "",
+          "label": "",
+          "logGroupPrefixes": [],
+          "logGroups": [
+            {
+              "accountId": "487248437766",
+              "arn": "arn:aws:logs:us-east-1:487248437766:log-group:/aws/lambda/otel-bench-c1-baseline:*",
+              "name": "/aws/lambda/otel-bench-c1-baseline"
+            },
+            {
+              "accountId": "487248437766",
+              "arn": "arn:aws:logs:us-east-1:487248437766:log-group:/aws/lambda/otel-bench-c2-sdk:*",
+              "name": "/aws/lambda/otel-bench-c2-sdk"
+            },
+            {
+              "accountId": "487248437766",
+              "arn": "arn:aws:logs:us-east-1:487248437766:log-group:/aws/lambda/otel-bench-c3-direct:*",
+              "name": "/aws/lambda/otel-bench-c3-direct"
+            }
+          ],
+          "logsQueryScope": "logGroupName",
+          "matchExact": false,
+          "metricEditorMode": 0,
+          "metricName": "",
+          "metricQueryType": 0,
+          "namespace": "",
+          "period": "",
+          "queryLanguage": "CWLI",
+          "queryMode": "Logs",
+          "refId": "A",
+          "region": "default",
+          "sqlExpression": "",
+          "statistic": "Average",
+          "statsGroups": [
+            "functionName",
+            "bin(5m)"
+          ]
+        }
+      ],
+      "title": "Errors - Logs containing string 'ERROR'",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Value": true,
+              "bin(5m)": false,
+              "errorCount": false
+            },
+            "includeByName": {},
+            "indexByName": {
+              "Value": 3,
+              "bin(5m)": 0,
+              "errorCount": 2,
+              "functionName": 1
+            },
+            "orderByMode": "manual",
+            "renameByName": {}
+          }
+        },
+        {
+          "id": "prepareTimeSeries",
+          "options": {
+            "format": "multi"
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "efgkouhs3pslcf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "log": 2,
+              "type": "log"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 3
+      },
+      "id": 11,
+      "options": {
+        "annotations": {
+          "clustering": -1,
+          "multiLane": false
+        },
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.0.0-23264332861",
+      "targets": [
+        {
+          "alias": "",
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "efgkouhs3pslcf"
+          },
+          "dimensions": {
+            "FunctionName": "*"
+          },
+          "expression": "",
+          "id": "",
+          "label": "",
+          "logGroups": [],
+          "matchExact": true,
+          "metricEditorMode": 0,
+          "metricName": "Duration",
+          "metricQueryType": 0,
+          "namespace": "AWS/Lambda",
+          "period": "",
+          "queryLanguage": "CWLI",
+          "queryMode": "Metrics",
+          "refId": "A",
+          "region": "default",
+          "sql": {
+            "from": {
+              "property": {
+                "name": "AWS/Lambda",
+                "type": "string"
+              },
+              "type": "property"
+            },
+            "groupBy": {
+              "expressions": [
+                {
+                  "property": {
+                    "name": "FunctionName",
+                    "type": "string"
+                  },
+                  "type": "groupBy"
+                }
+              ],
+              "type": "and"
+            },
+            "select": {
+              "name": "AVG",
+              "parameters": [
+                {
+                  "name": "Duration",
+                  "type": "functionParameter"
+                }
+              ],
+              "type": "function"
+            }
+          },
+          "sqlExpression": "SELECT AVG(Duration) FROM \"AWS/Lambda\" GROUP BY FunctionName",
+          "statistic": "p95"
+        }
+      ],
+      "title": "Lambda - Function duration (95th percentile)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "k6-datasource",
+        "uid": "grafanacloud-k6"
+      },
+      "description": "P95 response time for cold Lambda invocations, as measured by k6.\n\nThis includes the round-trip from the test location to the Lambda.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byType",
+              "options": "number"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "gauge",
+                  "valueDisplayMode": "text"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-GrYlRd"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Variant",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "pattern": "cold_start_duration_ms\\{config=\"(.+)\"\\}",
+                      "result": {
+                        "index": 0,
+                        "text": "$1"
+                      }
+                    },
+                    "type": "regex"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
+      "id": 13,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "13.0.0-23264332861",
+      "targets": [
+        {
+          "body": {
+            "config": {
+              "label": "histogram_quantile(0.95)(cold_start_duration_ms)",
+              "name": "cold_start_duration_ms",
+              "plot": {
+                "style": "solid",
+                "type": "line"
+              },
+              "query": {
+                "groupBy": [
+                  "config"
+                ],
+                "method": "histogram_quantile(0.95)",
+                "metric": "cold_start_duration_ms",
+                "tags": {},
+                "type": "aggregate"
+              },
+              "type": "metric",
+              "unit": "none"
+            },
+            "projectId": "3668667",
+            "testId": "1183047",
+            "testRunId": "$k6_test_run",
+            "type": "testrun"
+          },
+          "datasource": {
+            "type": "k6-datasource",
+            "uid": "grafanacloud-k6"
+          },
+          "refId": "A",
+          "version": 4
+        }
+      ],
+      "title": "k6 - 🧊 Cold start invocation duration (p95) - milliseconds",
+      "transformations": [
+        {
+          "id": "seriesToRows",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "Metric": "Variant",
+              "Value": "Duration (P95, ms)"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "k6-datasource",
+        "uid": "grafanacloud-k6"
+      },
+      "description": "P95 response time for warm Lambda invocations, as measured by k6.\n\nThis includes the round-trip from the test location to the Lambda.\n\nExcludes requests where the Lambda response flagged that it was a cold start. ",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byType",
+              "options": "number"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "gauge",
+                  "valueDisplayMode": "text"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-GrYlRd"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Variant",
+              "scope": "series"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "pattern": "warm_duration_ms\\{config=\"(.+)\"\\}",
+                      "result": {
+                        "index": 0,
+                        "text": "$1"
+                      }
+                    },
+                    "type": "regex"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "id": 12,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "13.0.0-23264332861",
+      "targets": [
+        {
+          "body": {
+            "config": {
+              "label": "histogram_quantile(0.95)(warm_duration_ms)",
+              "name": "warm_duration_ms",
+              "plot": {
+                "style": "solid",
+                "type": "line"
+              },
+              "query": {
+                "groupBy": [
+                  "config"
+                ],
+                "method": "histogram_quantile(0.95)",
+                "metric": "warm_duration_ms",
+                "tags": {},
+                "type": "aggregate"
+              },
+              "type": "metric",
+              "unit": "none"
+            },
+            "projectId": "3668667",
+            "testId": "1183047",
+            "testRunId": "$k6_test_run",
+            "type": "testrun"
+          },
+          "datasource": {
+            "type": "k6-datasource",
+            "uid": "grafanacloud-k6"
+          },
+          "refId": "A",
+          "version": 4
+        }
+      ],
+      "title": "k6 - ♨ Warm invocation duration (p95) - milliseconds",
+      "transformations": [
+        {
+          "id": "seriesToRows",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "Metric": "Variant",
+              "Value": "Duration (P95, ms)"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "preload": false,
+  "schemaVersion": 42,
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "Default project",
+          "value": "3668667"
+        },
+        "datasource": {
+          "type": "k6-datasource",
+          "uid": "grafanacloud-k6"
+        },
+        "definition": "",
+        "description": "",
+        "label": "k6 Project",
+        "name": "k6_project",
+        "options": [],
+        "query": {
+          "config": {
+            "type": "project"
+          },
+          "refId": "",
+          "version": 1
+        },
+        "refresh": 1,
+        "regex": "",
+        "regexApplyTo": "value",
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "Lambda OTel Benchmark — all configs",
+          "value": "1183047"
+        },
+        "datasource": {
+          "type": "k6-datasource",
+          "uid": "grafanacloud-k6"
+        },
+        "definition": "",
+        "label": "k6 Test",
+        "name": "k6_test",
+        "options": [],
+        "query": {
+          "config": {
+            "projectId": "$k6_project",
+            "type": "test"
+          },
+          "refId": "",
+          "version": 1
+        },
+        "refresh": 1,
+        "regex": "",
+        "regexApplyTo": "value",
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "2026-03-21 15:53:36",
+          "value": "7071079"
+        },
+        "datasource": {
+          "type": "k6-datasource",
+          "uid": "grafanacloud-k6"
+        },
+        "definition": "",
+        "label": "k6 Test Run",
+        "name": "k6_test_run",
+        "options": [],
+        "query": {
+          "config": {
+            "projectId": "$k6_project",
+            "testId": "$k6_test",
+            "type": "testRun"
+          },
+          "refId": "",
+          "version": 1
+        },
+        "refresh": 1,
+        "regex": "",
+        "regexApplyTo": "value",
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Lambda OTel Benchmark results",
+  "uid": "tofgpsd",
+  "version": 34,
+  "weekStart": ""
+}
