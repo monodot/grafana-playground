@@ -60,7 +60,7 @@ export const options = {
       startTime: '50s',
       rate: 10,
       timeUnit: '1s',
-      duration: '120s',
+      duration: '60s',
       preAllocatedVUs: 15,
       maxVUs: 30,
       env: { FUNCTION_URL: __ENV.C1_BASELINE_URL || '', CONFIG_NAME: 'c1-baseline' },
@@ -69,7 +69,7 @@ export const options = {
     // ── Config 2: OTel SDK loaded, all exporters disabled ─────────────────────
     c2_sdk_burst: {
       executor: 'ramping-vus',
-      startTime: '180s',
+      startTime: '120s',
       startVUs: 1,
       stages: [
         { duration: '10s', target: 50 },
@@ -81,10 +81,10 @@ export const options = {
     },
     c2_sdk_warm: {
       executor: 'constant-arrival-rate',
-      startTime: '230s',
+      startTime: '170s',
       rate: 10,
       timeUnit: '1s',
-      duration: '120s',
+      duration: '60s',
       preAllocatedVUs: 15,
       maxVUs: 30,
       env: { FUNCTION_URL: __ENV.C2_SDK_URL || '', CONFIG_NAME: 'c2-sdk' },
@@ -93,7 +93,7 @@ export const options = {
     // ── Config 3: Direct export to Grafana Cloud ──────────────────────────────
     c3_direct_burst: {
       executor: 'ramping-vus',
-      startTime: '360s',
+      startTime: '240s',
       startVUs: 1,
       stages: [
         { duration: '10s', target: 50 },
@@ -105,10 +105,10 @@ export const options = {
     },
     c3_direct_warm: {
       executor: 'constant-arrival-rate',
-      startTime: '410s',
+      startTime: '290s',
       rate: 10,
       timeUnit: '1s',
-      duration: '120s',
+      duration: '60s',
       preAllocatedVUs: 15,
       maxVUs: 30,
       env: { FUNCTION_URL: __ENV.C3_DIRECT_URL || '', CONFIG_NAME: 'c3-direct' },
@@ -117,7 +117,7 @@ export const options = {
     // ── Config 4: Collector Lambda Layer ──────────────────────────────────────
     c4_col_layer_burst: {
       executor: 'ramping-vus',
-      startTime: '540s',
+      startTime: '360s',
       startVUs: 1,
       stages: [
         { duration: '10s', target: 50 },
@@ -129,10 +129,10 @@ export const options = {
     },
     c4_col_layer_warm: {
       executor: 'constant-arrival-rate',
-      startTime: '590s',
+      startTime: '410s',
       rate: 10,
       timeUnit: '1s',
-      duration: '120s',
+      duration: '60s',
       preAllocatedVUs: 15,
       maxVUs: 30,
       env: { FUNCTION_URL: __ENV.C4_COL_LAYER_URL || '', CONFIG_NAME: 'c4-col-layer' },
@@ -141,7 +141,7 @@ export const options = {
     // ── Config 5: External ECS Fargate collector ───────────────────────────────
     c5_ext_col_burst: {
       executor: 'ramping-vus',
-      startTime: '720s',
+      startTime: '480s',
       startVUs: 1,
       stages: [
         { duration: '10s', target: 50 },
@@ -153,10 +153,10 @@ export const options = {
     },
     c5_ext_col_warm: {
       executor: 'constant-arrival-rate',
-      startTime: '770s',
+      startTime: '530s',
       rate: 10,
       timeUnit: '1s',
-      duration: '120s',
+      duration: '60s',
       preAllocatedVUs: 15,
       maxVUs: 30,
       env: { FUNCTION_URL: __ENV.C5_EXT_COL_URL || '', CONFIG_NAME: 'c5-ext-col' },
@@ -165,7 +165,7 @@ export const options = {
     // ── Config 6: Collector Layer — metrics only ───────────────────────────────
     c6_metrics_burst: {
       executor: 'ramping-vus',
-      startTime: '900s',
+      startTime: '600s',
       startVUs: 1,
       stages: [
         { duration: '10s', target: 50 },
@@ -177,10 +177,10 @@ export const options = {
     },
     c6_metrics_warm: {
       executor: 'constant-arrival-rate',
-      startTime: '950s',
+      startTime: '650s',
       rate: 10,
       timeUnit: '1s',
-      duration: '120s',
+      duration: '60s',
       preAllocatedVUs: 15,
       maxVUs: 30,
       env: { FUNCTION_URL: __ENV.C6_METRICS_URL || '', CONFIG_NAME: 'c6-metrics' },
@@ -189,7 +189,7 @@ export const options = {
     // ── Config 7: Collector Layer — traces only ────────────────────────────────
     c7_traces_burst: {
       executor: 'ramping-vus',
-      startTime: '1080s',
+      startTime: '720s',
       startVUs: 1,
       stages: [
         { duration: '10s', target: 50 },
@@ -201,10 +201,10 @@ export const options = {
     },
     c7_traces_warm: {
       executor: 'constant-arrival-rate',
-      startTime: '1130s',
+      startTime: '770s',
       rate: 10,
       timeUnit: '1s',
-      duration: '120s',
+      duration: '60s',
       preAllocatedVUs: 15,
       maxVUs: 30,
       env: { FUNCTION_URL: __ENV.C7_TRACES_URL || '', CONFIG_NAME: 'c7-traces' },
@@ -213,7 +213,7 @@ export const options = {
     // ── Config 8: Collector Layer — 128 MB (expected to time out) ──────────────
     c8_128mb_burst: {
       executor: 'ramping-vus',
-      startTime: '1260s',
+      startTime: '840s',
       startVUs: 1,
       stages: [
         { duration: '10s', target: 50 },
@@ -225,10 +225,10 @@ export const options = {
     },
     c8_128mb_warm: {
       executor: 'constant-arrival-rate',
-      startTime: '1310s',
+      startTime: '890s',
       rate: 10,
       timeUnit: '1s',
-      duration: '120s',
+      duration: '60s',
       preAllocatedVUs: 15,
       maxVUs: 30,
       env: { FUNCTION_URL: __ENV.C8_128MB_URL || '', CONFIG_NAME: 'c8-128mb' },
@@ -237,7 +237,7 @@ export const options = {
     // ── Config 9: Collector Layer — 1024 MB ───────────────────────────────────
     c9_1024mb_burst: {
       executor: 'ramping-vus',
-      startTime: '1440s',
+      startTime: '960s',
       startVUs: 1,
       stages: [
         { duration: '10s', target: 50 },
@@ -249,10 +249,10 @@ export const options = {
     },
     c9_1024mb_warm: {
       executor: 'constant-arrival-rate',
-      startTime: '1490s',
+      startTime: '1010s',
       rate: 10,
       timeUnit: '1s',
-      duration: '120s',
+      duration: '60s',
       preAllocatedVUs: 15,
       maxVUs: 30,
       env: { FUNCTION_URL: __ENV.C9_1024MB_URL || '', CONFIG_NAME: 'c9-1024mb' },
@@ -261,7 +261,7 @@ export const options = {
     // ── Config 10: Collector Layer + SnapStart ─────────────────────────────────
     c10_snapstart_burst: {
       executor: 'ramping-vus',
-      startTime: '1620s',
+      startTime: '1080s',
       startVUs: 1,
       stages: [
         { duration: '10s', target: 50 },
@@ -273,10 +273,10 @@ export const options = {
     },
     c10_snapstart_warm: {
       executor: 'constant-arrival-rate',
-      startTime: '1670s',
+      startTime: '1130s',
       rate: 10,
       timeUnit: '1s',
-      duration: '120s',
+      duration: '60s',
       preAllocatedVUs: 15,
       maxVUs: 30,
       env: { FUNCTION_URL: __ENV.C10_SNAPSTART_URL || '', CONFIG_NAME: 'c10-snapstart' },
@@ -285,7 +285,7 @@ export const options = {
     // ── Config 11: Direct export + SnapStart ───────────────────────────────────
     c11_direct_snap_burst: {
       executor: 'ramping-vus',
-      startTime: '1800s',
+      startTime: '1200s',
       startVUs: 1,
       stages: [
         { duration: '10s', target: 50 },
@@ -297,10 +297,10 @@ export const options = {
     },
     c11_direct_snap_warm: {
       executor: 'constant-arrival-rate',
-      startTime: '1850s',
+      startTime: '1250s',
       rate: 10,
       timeUnit: '1s',
-      duration: '120s',
+      duration: '60s',
       preAllocatedVUs: 15,
       maxVUs: 30,
       env: { FUNCTION_URL: __ENV.C11_DIRECT_SNAP_URL || '', CONFIG_NAME: 'c11-direct-snap' },
