@@ -228,141 +228,141 @@ module "config_5" {
 }
 
 # # ── Config 6: Collector Layer — metrics only ──────────────────────────────────
-#
-# module "config_6" {
-#   source = "./modules/lambda-demo-variant"
-#
-#   name_prefix                 = "${var.name_prefix}-c6-metrics"
-#   jar_path                    = local.jar_path
-#   source_code_hash            = local.source_code_hash
-#   execution_role_arn          = aws_iam_role.lambda.arn
-#   lambda_insights_layer_arn   = var.lambda_insights_layer_arn
-#   java_agent_layer_arn        = var.java_agent_layer_arn
-#   collector_layer_arn         = var.collector_layer_arn
-#   collector_config_layer_arn  = local.collector_config_layer_arn
-#   otel_traces_exporter        = "none"
-#   otel_metrics_exporter       = "otlp"
-#   otel_logs_exporter          = "none"
-#   grafana_cloud_otlp_endpoint = var.grafana_cloud_otlp_endpoint
-#   grafana_cloud_auth          = local.grafana_auth
-#
-#   tags       = local.common_tags
-#   depends_on = [null_resource.build_jar]
-# }
-#
+
+module "config_6" {
+  source = "./modules/lambda-demo-variant"
+
+  name_prefix                 = "${var.name_prefix}-c6-metrics"
+  jar_path                    = local.jar_path
+  source_code_hash            = local.source_code_hash
+  execution_role_arn          = aws_iam_role.lambda.arn
+  lambda_insights_layer_arn   = var.lambda_insights_layer_arn
+  java_agent_layer_arn        = var.java_agent_layer_arn
+  collector_layer_arn         = var.collector_layer_arn
+  collector_config_layer_arn  = local.collector_config_layer_arn
+  otel_traces_exporter        = "none"
+  otel_metrics_exporter       = "otlp"
+  otel_logs_exporter          = "none"
+  grafana_cloud_otlp_endpoint = var.grafana_cloud_otlp_endpoint
+  grafana_cloud_auth          = local.grafana_auth
+
+  tags       = local.common_tags
+  depends_on = [null_resource.build_jar]
+}
+
 # # ── Config 7: Collector Layer — traces only ───────────────────────────────────
-#
-# module "config_7" {
-#   source = "./modules/lambda-demo-variant"
-#
-#   name_prefix                 = "${var.name_prefix}-c7-traces"
-#   jar_path                    = local.jar_path
-#   source_code_hash            = local.source_code_hash
-#   execution_role_arn          = aws_iam_role.lambda.arn
-#   lambda_insights_layer_arn   = var.lambda_insights_layer_arn
-#   java_agent_layer_arn        = var.java_agent_layer_arn
-#   collector_layer_arn         = var.collector_layer_arn
-#   collector_config_layer_arn  = local.collector_config_layer_arn
-#   otel_traces_exporter        = "otlp"
-#   otel_metrics_exporter       = "none"
-#   otel_logs_exporter          = "none"
-#   grafana_cloud_otlp_endpoint = var.grafana_cloud_otlp_endpoint
-#   grafana_cloud_auth          = local.grafana_auth
-#
-#   tags       = local.common_tags
-#   depends_on = [null_resource.build_jar]
-# }
-#
+
+module "config_7" {
+  source = "./modules/lambda-demo-variant"
+
+  name_prefix                 = "${var.name_prefix}-c7-traces"
+  jar_path                    = local.jar_path
+  source_code_hash            = local.source_code_hash
+  execution_role_arn          = aws_iam_role.lambda.arn
+  lambda_insights_layer_arn   = var.lambda_insights_layer_arn
+  java_agent_layer_arn        = var.java_agent_layer_arn
+  collector_layer_arn         = var.collector_layer_arn
+  collector_config_layer_arn  = local.collector_config_layer_arn
+  otel_traces_exporter        = "otlp"
+  otel_metrics_exporter       = "none"
+  otel_logs_exporter          = "none"
+  grafana_cloud_otlp_endpoint = var.grafana_cloud_otlp_endpoint
+  grafana_cloud_auth          = local.grafana_auth
+
+  tags       = local.common_tags
+  depends_on = [null_resource.build_jar]
+}
+
 # # ── Config 8: Collector Layer — 128 MB ────────────────────────────────────────
-#
-# module "config_8" {
-#   source = "./modules/lambda-demo-variant"
-#
-#   name_prefix                 = "${var.name_prefix}-c8-128mb"
-#   jar_path                    = local.jar_path
-#   source_code_hash            = local.source_code_hash
-#   execution_role_arn          = aws_iam_role.lambda.arn
-#   lambda_insights_layer_arn   = var.lambda_insights_layer_arn
-#   java_agent_layer_arn        = var.java_agent_layer_arn
-#   collector_layer_arn         = var.collector_layer_arn
-#   collector_config_layer_arn  = local.collector_config_layer_arn
-#   otel_traces_exporter        = "otlp"
-#   otel_metrics_exporter       = "otlp"
-#   otel_logs_exporter          = "otlp"
-#   grafana_cloud_otlp_endpoint = var.grafana_cloud_otlp_endpoint
-#   grafana_cloud_auth          = local.grafana_auth
-#   memory_size                 = 128
-#
-#   tags       = local.common_tags
-#   depends_on = [null_resource.build_jar]
-# }
-#
+
+module "config_8" {
+  source = "./modules/lambda-demo-variant"
+
+  name_prefix                 = "${var.name_prefix}-c8-128mb"
+  jar_path                    = local.jar_path
+  source_code_hash            = local.source_code_hash
+  execution_role_arn          = aws_iam_role.lambda.arn
+  lambda_insights_layer_arn   = var.lambda_insights_layer_arn
+  java_agent_layer_arn        = var.java_agent_layer_arn
+  collector_layer_arn         = var.collector_layer_arn
+  collector_config_layer_arn  = local.collector_config_layer_arn
+  otel_traces_exporter        = "otlp"
+  otel_metrics_exporter       = "otlp"
+  otel_logs_exporter          = "otlp"
+  grafana_cloud_otlp_endpoint = var.grafana_cloud_otlp_endpoint
+  grafana_cloud_auth          = local.grafana_auth
+  memory_size                 = 128
+
+  tags       = local.common_tags
+  depends_on = [null_resource.build_jar]
+}
+
 # # ── Config 9: Collector Layer — 1024 MB ───────────────────────────────────────
-#
-# module "config_9" {
-#   source = "./modules/lambda-demo-variant"
-#
-#   name_prefix                 = "${var.name_prefix}-c9-1024mb"
-#   jar_path                    = local.jar_path
-#   source_code_hash            = local.source_code_hash
-#   execution_role_arn          = aws_iam_role.lambda.arn
-#   lambda_insights_layer_arn   = var.lambda_insights_layer_arn
-#   java_agent_layer_arn        = var.java_agent_layer_arn
-#   collector_layer_arn         = var.collector_layer_arn
-#   collector_config_layer_arn  = local.collector_config_layer_arn
-#   otel_traces_exporter        = "otlp"
-#   otel_metrics_exporter       = "otlp"
-#   otel_logs_exporter          = "otlp"
-#   grafana_cloud_otlp_endpoint = var.grafana_cloud_otlp_endpoint
-#   grafana_cloud_auth          = local.grafana_auth
-#   memory_size                 = 1024
-#
-#   tags       = local.common_tags
-#   depends_on = [null_resource.build_jar]
-# }
-#
+
+module "config_9" {
+  source = "./modules/lambda-demo-variant"
+
+  name_prefix                 = "${var.name_prefix}-c9-1024mb"
+  jar_path                    = local.jar_path
+  source_code_hash            = local.source_code_hash
+  execution_role_arn          = aws_iam_role.lambda.arn
+  lambda_insights_layer_arn   = var.lambda_insights_layer_arn
+  java_agent_layer_arn        = var.java_agent_layer_arn
+  collector_layer_arn         = var.collector_layer_arn
+  collector_config_layer_arn  = local.collector_config_layer_arn
+  otel_traces_exporter        = "otlp"
+  otel_metrics_exporter       = "otlp"
+  otel_logs_exporter          = "otlp"
+  grafana_cloud_otlp_endpoint = var.grafana_cloud_otlp_endpoint
+  grafana_cloud_auth          = local.grafana_auth
+  memory_size                 = 1024
+
+  tags       = local.common_tags
+  depends_on = [null_resource.build_jar]
+}
+
 # # ── Config 10: Collector Layer + SnapStart ────────────────────────────────────
-#
-# module "config_10" {
-#   source = "./modules/lambda-demo-variant"
-#
-#   name_prefix                 = "${var.name_prefix}-c10-snapstart"
-#   jar_path                    = local.jar_path
-#   source_code_hash            = local.source_code_hash
-#   execution_role_arn          = aws_iam_role.lambda.arn
-#   lambda_insights_layer_arn   = var.lambda_insights_layer_arn
-#   java_agent_layer_arn        = var.java_agent_layer_arn
-#   collector_layer_arn         = var.collector_layer_arn
-#   collector_config_layer_arn  = local.collector_config_layer_arn
-#   otel_traces_exporter        = "otlp"
-#   otel_metrics_exporter       = "otlp"
-#   otel_logs_exporter          = "otlp"
-#   grafana_cloud_otlp_endpoint = var.grafana_cloud_otlp_endpoint
-#   grafana_cloud_auth          = local.grafana_auth
-#   snapstart_enabled           = true
-#
-#   tags       = local.common_tags
-#   depends_on = [null_resource.build_jar]
-# }
-#
+
+module "config_10" {
+  source = "./modules/lambda-demo-variant"
+
+  name_prefix                 = "${var.name_prefix}-c10-snapstart"
+  jar_path                    = local.jar_path
+  source_code_hash            = local.source_code_hash
+  execution_role_arn          = aws_iam_role.lambda.arn
+  lambda_insights_layer_arn   = var.lambda_insights_layer_arn
+  java_agent_layer_arn        = var.java_agent_layer_arn
+  collector_layer_arn         = var.collector_layer_arn
+  collector_config_layer_arn  = local.collector_config_layer_arn
+  otel_traces_exporter        = "otlp"
+  otel_metrics_exporter       = "otlp"
+  otel_logs_exporter          = "otlp"
+  grafana_cloud_otlp_endpoint = var.grafana_cloud_otlp_endpoint
+  grafana_cloud_auth          = local.grafana_auth
+  snapstart_enabled           = true
+
+  tags       = local.common_tags
+  depends_on = [null_resource.build_jar]
+}
+
 # # ── Config 11: Direct export + SnapStart ──────────────────────────────────────
-#
-# module "config_11" {
-#   source = "./modules/lambda-demo-variant"
-#
-#   name_prefix                 = "${var.name_prefix}-c11-direct-snap"
-#   jar_path                    = local.jar_path
-#   source_code_hash            = local.source_code_hash
-#   execution_role_arn          = aws_iam_role.lambda.arn
-#   lambda_insights_layer_arn   = var.lambda_insights_layer_arn
-#   java_agent_layer_arn        = var.java_agent_layer_arn
-#   otel_traces_exporter        = "otlp"
-#   otel_metrics_exporter       = "otlp"
-#   otel_logs_exporter          = "otlp"
-#   otel_exporter_otlp_endpoint = var.grafana_cloud_otlp_endpoint
-#   otel_exporter_otlp_headers  = local.grafana_otlp_headers
-#   snapstart_enabled           = true
-#
-#   tags       = local.common_tags
-#   depends_on = [null_resource.build_jar]
-# }
+
+module "config_11" {
+  source = "./modules/lambda-demo-variant"
+
+  name_prefix                 = "${var.name_prefix}-c11-direct-snap"
+  jar_path                    = local.jar_path
+  source_code_hash            = local.source_code_hash
+  execution_role_arn          = aws_iam_role.lambda.arn
+  lambda_insights_layer_arn   = var.lambda_insights_layer_arn
+  java_agent_layer_arn        = var.java_agent_layer_arn
+  otel_traces_exporter        = "otlp"
+  otel_metrics_exporter       = "otlp"
+  otel_logs_exporter          = "otlp"
+  otel_exporter_otlp_endpoint = var.grafana_cloud_otlp_endpoint
+  otel_exporter_otlp_headers  = local.grafana_otlp_headers
+  snapstart_enabled           = true
+
+  tags       = local.common_tags
+  depends_on = [null_resource.build_jar]
+}

@@ -95,6 +95,12 @@ k6 cloud run \
   --env C3_DIRECT_URL=$(terraform -chdir=terraform output -raw config_3_url) \
   --env C4_COL_LAYER_URL=$(terraform -chdir=terraform output -raw config_4_url) \
   --env C5_EXT_COL_URL=$(terraform -chdir=terraform output -raw config_5_url) \
+  --env C6_METRICS_URL=$(terraform -chdir=terraform output -raw config_6_url) \
+  --env C7_TRACES_URL=$(terraform -chdir=terraform output -raw config_7_url) \
+  --env C8_128MB_URL=$(terraform -chdir=terraform output -raw config_8_url) \
+  --env C9_1024MB_URL=$(terraform -chdir=terraform output -raw config_9_url) \
+  --env C10_SNAPSTART_URL=$(terraform -chdir=terraform output -raw config_10_url) \
+  --env C11_DIRECT_SNAP_URL=$(terraform -chdir=terraform output -raw config_11_url) \
   k6/benchmark-with-scenarios.js
 ```
 
@@ -107,6 +113,12 @@ k6 cloud run --local-execution \
   --env C3_DIRECT_URL=$(terraform -chdir=terraform output -raw config_3_url) \
   --env C4_COL_LAYER_URL=$(terraform -chdir=terraform output -raw config_4_url) \
   --env C5_EXT_COL_URL=$(terraform -chdir=terraform output -raw config_5_url) \
+  --env C6_METRICS_URL=$(terraform -chdir=terraform output -raw config_6_url) \
+  --env C7_TRACES_URL=$(terraform -chdir=terraform output -raw config_7_url) \
+  --env C8_128MB_URL=$(terraform -chdir=terraform output -raw config_8_url) \
+  --env C9_1024MB_URL=$(terraform -chdir=terraform output -raw config_9_url) \
+  --env C10_SNAPSTART_URL=$(terraform -chdir=terraform output -raw config_10_url) \
+  --env C11_DIRECT_SNAP_URL=$(terraform -chdir=terraform output -raw config_11_url) \
   k6/benchmark-with-scenarios.js
 ```
 

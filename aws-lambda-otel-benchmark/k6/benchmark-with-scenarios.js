@@ -11,9 +11,16 @@
  *   C3_DIRECT_URL=https://... \
  *   C4_COL_LAYER_URL=https://... \
  *   C5_EXT_COL_URL=https://... \
+ *   C6_METRICS_URL=https://... \
+ *   C7_TRACES_URL=https://... \
+ *   C8_128MB_URL=https://... \
+ *   C9_1024MB_URL=https://... \
+ *   C10_SNAPSTART_URL=https://... \
+ *   C11_DIRECT_SNAP_URL=https://... \
  *   k6 run k6/benchmark-with-scenarios.js
  *
  * If a URL is not provided, that config's scenarios are skipped.
+ * Note: c8-128mb (128 MB) will always time out — include it to capture the failure data.
  *
  * Each config slot is 180 s:
  *   0 s   — burst ramp-up begins (forces cold starts)
@@ -154,26 +161,187 @@ export const options = {
       maxVUs: 30,
       env: { FUNCTION_URL: __ENV.C5_EXT_COL_URL || '', CONFIG_NAME: 'c5-ext-col' },
     },
+
+    // ── Config 6: Collector Layer — metrics only ───────────────────────────────
+    c6_metrics_burst: {
+      executor: 'ramping-vus',
+      startTime: '900s',
+      startVUs: 1,
+      stages: [
+        { duration: '10s', target: 50 },
+        { duration: '20s', target: 50 },
+        { duration: '10s', target: 0  },
+      ],
+      gracefulRampDown: '5s',
+      env: { FUNCTION_URL: __ENV.C6_METRICS_URL || '', CONFIG_NAME: 'c6-metrics' },
+    },
+    c6_metrics_warm: {
+      executor: 'constant-arrival-rate',
+      startTime: '950s',
+      rate: 10,
+      timeUnit: '1s',
+      duration: '120s',
+      preAllocatedVUs: 15,
+      maxVUs: 30,
+      env: { FUNCTION_URL: __ENV.C6_METRICS_URL || '', CONFIG_NAME: 'c6-metrics' },
+    },
+
+    // ── Config 7: Collector Layer — traces only ────────────────────────────────
+    c7_traces_burst: {
+      executor: 'ramping-vus',
+      startTime: '1080s',
+      startVUs: 1,
+      stages: [
+        { duration: '10s', target: 50 },
+        { duration: '20s', target: 50 },
+        { duration: '10s', target: 0  },
+      ],
+      gracefulRampDown: '5s',
+      env: { FUNCTION_URL: __ENV.C7_TRACES_URL || '', CONFIG_NAME: 'c7-traces' },
+    },
+    c7_traces_warm: {
+      executor: 'constant-arrival-rate',
+      startTime: '1130s',
+      rate: 10,
+      timeUnit: '1s',
+      duration: '120s',
+      preAllocatedVUs: 15,
+      maxVUs: 30,
+      env: { FUNCTION_URL: __ENV.C7_TRACES_URL || '', CONFIG_NAME: 'c7-traces' },
+    },
+
+    // ── Config 8: Collector Layer — 128 MB (expected to time out) ──────────────
+    c8_128mb_burst: {
+      executor: 'ramping-vus',
+      startTime: '1260s',
+      startVUs: 1,
+      stages: [
+        { duration: '10s', target: 50 },
+        { duration: '20s', target: 50 },
+        { duration: '10s', target: 0  },
+      ],
+      gracefulRampDown: '5s',
+      env: { FUNCTION_URL: __ENV.C8_128MB_URL || '', CONFIG_NAME: 'c8-128mb' },
+    },
+    c8_128mb_warm: {
+      executor: 'constant-arrival-rate',
+      startTime: '1310s',
+      rate: 10,
+      timeUnit: '1s',
+      duration: '120s',
+      preAllocatedVUs: 15,
+      maxVUs: 30,
+      env: { FUNCTION_URL: __ENV.C8_128MB_URL || '', CONFIG_NAME: 'c8-128mb' },
+    },
+
+    // ── Config 9: Collector Layer — 1024 MB ───────────────────────────────────
+    c9_1024mb_burst: {
+      executor: 'ramping-vus',
+      startTime: '1440s',
+      startVUs: 1,
+      stages: [
+        { duration: '10s', target: 50 },
+        { duration: '20s', target: 50 },
+        { duration: '10s', target: 0  },
+      ],
+      gracefulRampDown: '5s',
+      env: { FUNCTION_URL: __ENV.C9_1024MB_URL || '', CONFIG_NAME: 'c9-1024mb' },
+    },
+    c9_1024mb_warm: {
+      executor: 'constant-arrival-rate',
+      startTime: '1490s',
+      rate: 10,
+      timeUnit: '1s',
+      duration: '120s',
+      preAllocatedVUs: 15,
+      maxVUs: 30,
+      env: { FUNCTION_URL: __ENV.C9_1024MB_URL || '', CONFIG_NAME: 'c9-1024mb' },
+    },
+
+    // ── Config 10: Collector Layer + SnapStart ─────────────────────────────────
+    c10_snapstart_burst: {
+      executor: 'ramping-vus',
+      startTime: '1620s',
+      startVUs: 1,
+      stages: [
+        { duration: '10s', target: 50 },
+        { duration: '20s', target: 50 },
+        { duration: '10s', target: 0  },
+      ],
+      gracefulRampDown: '5s',
+      env: { FUNCTION_URL: __ENV.C10_SNAPSTART_URL || '', CONFIG_NAME: 'c10-snapstart' },
+    },
+    c10_snapstart_warm: {
+      executor: 'constant-arrival-rate',
+      startTime: '1670s',
+      rate: 10,
+      timeUnit: '1s',
+      duration: '120s',
+      preAllocatedVUs: 15,
+      maxVUs: 30,
+      env: { FUNCTION_URL: __ENV.C10_SNAPSTART_URL || '', CONFIG_NAME: 'c10-snapstart' },
+    },
+
+    // ── Config 11: Direct export + SnapStart ───────────────────────────────────
+    c11_direct_snap_burst: {
+      executor: 'ramping-vus',
+      startTime: '1800s',
+      startVUs: 1,
+      stages: [
+        { duration: '10s', target: 50 },
+        { duration: '20s', target: 50 },
+        { duration: '10s', target: 0  },
+      ],
+      gracefulRampDown: '5s',
+      env: { FUNCTION_URL: __ENV.C11_DIRECT_SNAP_URL || '', CONFIG_NAME: 'c11-direct-snap' },
+    },
+    c11_direct_snap_warm: {
+      executor: 'constant-arrival-rate',
+      startTime: '1850s',
+      rate: 10,
+      timeUnit: '1s',
+      duration: '120s',
+      preAllocatedVUs: 15,
+      maxVUs: 30,
+      env: { FUNCTION_URL: __ENV.C11_DIRECT_SNAP_URL || '', CONFIG_NAME: 'c11-direct-snap' },
+    },
   },
 
   thresholds: {
     http_req_failed: ['rate<0.01'],
     // Sub-metric thresholds — these also make per-config rows appear in handleSummary.
-    'cold_start_duration_ms{config:c1-baseline}':  [],
-    'cold_start_duration_ms{config:c2-sdk}':       [],
-    'cold_start_duration_ms{config:c3-direct}':    [],
-    'cold_start_duration_ms{config:c4-col-layer}': [],
-    'cold_start_duration_ms{config:c5-ext-col}':   [],
-    'warm_duration_ms{config:c1-baseline}':         ['p(99)<5000'],
-    'warm_duration_ms{config:c2-sdk}':              ['p(99)<5000'],
-    'warm_duration_ms{config:c3-direct}':           ['p(99)<5000'],
-    'warm_duration_ms{config:c4-col-layer}':        ['p(99)<5000'],
-    'warm_duration_ms{config:c5-ext-col}':          ['p(99)<5000'],
-    'cold_start_count{config:c1-baseline}':         [],
-    'cold_start_count{config:c2-sdk}':              [],
-    'cold_start_count{config:c3-direct}':           [],
-    'cold_start_count{config:c4-col-layer}':        [],
-    'cold_start_count{config:c5-ext-col}':          [],
+    'cold_start_duration_ms{config:c1-baseline}':   [],
+    'cold_start_duration_ms{config:c2-sdk}':        [],
+    'cold_start_duration_ms{config:c3-direct}':     [],
+    'cold_start_duration_ms{config:c4-col-layer}':  [],
+    'cold_start_duration_ms{config:c5-ext-col}':    [],
+    'cold_start_duration_ms{config:c6-metrics}':    [],
+    'cold_start_duration_ms{config:c7-traces}':     [],
+    'cold_start_duration_ms{config:c8-128mb}':      [],
+    'cold_start_duration_ms{config:c9-1024mb}':     [],
+    'cold_start_duration_ms{config:c10-snapstart}': [],
+    'cold_start_duration_ms{config:c11-direct-snap}': [],
+    'warm_duration_ms{config:c1-baseline}':           ['p(99)<5000'],
+    'warm_duration_ms{config:c2-sdk}':                ['p(99)<5000'],
+    'warm_duration_ms{config:c3-direct}':             ['p(99)<5000'],
+    'warm_duration_ms{config:c4-col-layer}':          ['p(99)<5000'],
+    'warm_duration_ms{config:c5-ext-col}':            ['p(99)<5000'],
+    'warm_duration_ms{config:c6-metrics}':            ['p(99)<5000'],
+    'warm_duration_ms{config:c7-traces}':             ['p(99)<5000'],
+    'warm_duration_ms{config:c9-1024mb}':             ['p(99)<5000'],
+    'warm_duration_ms{config:c10-snapstart}':         ['p(99)<5000'],
+    'warm_duration_ms{config:c11-direct-snap}':       ['p(99)<5000'],
+    'cold_start_count{config:c1-baseline}':           [],
+    'cold_start_count{config:c2-sdk}':                [],
+    'cold_start_count{config:c3-direct}':             [],
+    'cold_start_count{config:c4-col-layer}':          [],
+    'cold_start_count{config:c5-ext-col}':            [],
+    'cold_start_count{config:c6-metrics}':            [],
+    'cold_start_count{config:c7-traces}':             [],
+    'cold_start_count{config:c8-128mb}':              [],
+    'cold_start_count{config:c9-1024mb}':             [],
+    'cold_start_count{config:c10-snapstart}':         [],
+    'cold_start_count{config:c11-direct-snap}':       [],
   },
 
   summaryTrendStats: ['avg', 'min', 'med', 'max', 'p(90)', 'p(95)', 'p(99)', 'count'],
@@ -240,7 +408,7 @@ export function handleSummary(data) {
   };
 }
 
-const CONFIGS = ['c1-baseline', 'c2-sdk', 'c3-direct', 'c4-col-layer', 'c5-ext-col'];
+const CONFIGS = ['c1-baseline', 'c2-sdk', 'c3-direct', 'c4-col-layer', 'c5-ext-col', 'c6-metrics', 'c7-traces', 'c8-128mb', 'c9-1024mb', 'c10-snapstart', 'c11-direct-snap'];
 
 function buildTextSummary(data) {
   const pad = (s, w) => String(s ?? 'n/a').padStart(w);
