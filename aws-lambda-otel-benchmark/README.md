@@ -164,6 +164,60 @@ Each run produces CSV output in `k6/results/`.
 aws lambda invoke --region us-east-1 --function-name otel-bench-c1-baseline --payload '{}' /tmp/lambda-response.json 2>&1 && cat /tmp/lambda-response.json
 ```
 
+Scenario 3:
+
+```shell
+aws lambda invoke --region us-east-1 --function-name otel-bench-c3-direct --payload '{}' /tmp/lambda-response.json 2>&1 && cat /tmp/lambda-response.json
+```
+
+Scenario 4:
+
+```shell
+aws lambda invoke --region us-east-1 --function-name otel-bench-c4-col-layer --payload '{}' /tmp/lambda-response.json 2>&1 && cat /tmp/lambda-response.json
+```
+
+Scenario 5:
+
+```shell
+aws lambda invoke --region us-east-1 --function-name otel-bench-c5-ext-col --payload '{}' /tmp/lambda-response.json 2>&1 && cat /tmp/lambda-response.json
+```
+
+Scenario 6:
+
+```shell
+aws lambda invoke --region us-east-1 --function-name otel-bench-c6-metrics --payload '{}' /tmp/lambda-response.json 2>&1 && cat /tmp/lambda-response.json
+```
+
+Scenario 7:
+
+```shell
+aws lambda invoke --region us-east-1 --function-name otel-bench-c7-traces --payload '{}' /tmp/lambda-response.json 2>&1 && cat /tmp/lambda-response.json
+```
+
+Scenario 8 - fails with timeout:
+
+```shell
+aws lambda invoke --region us-east-1 --function-name otel-bench-c8-128mb --payload '{}' /tmp/lambda-response.json 2>&1 && cat /tmp/lambda-response.json
+```
+
+Scenario 9:
+
+```shell
+aws lambda invoke --region us-east-1 --function-name otel-bench-c9-1024mb --payload '{}' /tmp/lambda-response.json 2>&1 && cat /tmp/lambda-response.json
+```
+
+Scenario 10:
+
+```shell
+aws lambda invoke --region us-east-1 --function-name otel-bench-c10-snapstart --payload '{}' /tmp/lambda-response.json 2>&1 && cat /tmp/lambda-response.json
+```
+
+Scenario 11:
+
+```shell
+aws lambda invoke --region us-east-1 --function-name otel-bench-c11-direct-snap --payload '{}' /tmp/lambda-response.json 2>&1 && cat /tmp/lambda-response.json
+```
+
 ## Observe the results in Grafana
 
 All functions have CloudWatch Lambda Insights enabled. Metrics are available in CloudWatch under the `LambdaInsights` namespace, so we'll set up the CloudWatch data source in Grafana.
