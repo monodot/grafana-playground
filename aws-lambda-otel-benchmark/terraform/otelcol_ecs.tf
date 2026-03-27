@@ -73,6 +73,14 @@ resource "aws_security_group" "ecs_collector_task" {
   }
 
   ingress {
+    description = "NLB health check (NLB has no SG; traffic comes from VPC CIDR)"
+    from_port   = 4318
+    to_port     = 4318
+    protocol    = "tcp"
+    cidr_blocks = [aws_vpc.this.cidr_block]
+  }
+
+  ingress {
     description     = "OTLP gRPC from config_5 Lambda"
     from_port       = 4317
     to_port         = 4317
