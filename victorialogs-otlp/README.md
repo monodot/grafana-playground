@@ -20,7 +20,9 @@ Then open Grafana and try querying the _victoria-logs_ datasource:
 
 Then you can access the VictoriaLogs UI at <http://localhost:9428/select/vmui/>.
 
-To query VictoriaLogs metrics, check Drilldown Metrics in Grafana:
+### Monitoring
+
+To query VictoriaLogs metrics, check Metrics Drilldown in Grafana:
 
 - `vl_rows_ingested_total` - gives the number of log entries that were successfully ingested.
 - `vl_bytes_ingested_total` - gives an estimated size of the ingested log entries, as JSON.
