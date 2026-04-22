@@ -27,6 +27,8 @@ services:
     image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.150.0
     command:
       - logs
+      - --batch-size
+      - 3
       - --body
       - "The medium is the message"
       - --otlp-http
@@ -45,3 +47,17 @@ services:
       - favourite.sandwiches=["peanut-butter-jelly-time","sourdough-crustacean"]
     environment:
       - OTLP_EXPORTER_OTLP_ENDPOINT=victoria-logs:9428
+
+  jsonline-inserter:
+    image: docker.io/curlimages/curl:latest
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        while true; do
+          echo '{ "log": { "level": "info", "message": "hello world" }, "date": "0", "stream": "stream1" }
+        { "log": { "level": "error", "message": "oh no!" }, "date": "0", "stream": "stream1" }
+        { "log": { "level": "info", "message": "hello world" }, "date": "0", "stream": "stream2" }
+        ' | curl -s -X POST -H 'Content-Type: application/stream+json' --data-binary @- \
+            'http://victoria-logs:9428/insert/jsonline?_stream_fields=stream&_time_field=date&_msg_field=log.message'
+          sleep 1
+        done
