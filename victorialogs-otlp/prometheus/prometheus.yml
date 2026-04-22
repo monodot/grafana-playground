@@ -1,0 +1,6 @@
+scrape_configs:
+  - job_name: victoria-logs
+    scrape_interval: 15s  # Just make scrapes more frequent for testing purposes
+    static_configs:
+      - targets:
+          - victoria-logs:9428

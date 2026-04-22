@@ -1,0 +1,47 @@
+services:
+  victoria-logs:
+    image: docker.io/victoriametrics/victoria-logs:v1.50.0
+    command: -storageDataPath=victoria-logs-data
+    ports:
+      - "9428:9428"
+
+  grafana:
+    image: docker.io/grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_PLUGINS_PREINSTALL_SYNC=victoriametrics-logs-datasource
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:z
+
+  prometheus:
+    image: docker.io/prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:z
+
+  telemetrygen:
+    image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.150.0
+    command:
+      - logs
+      - --body
+      - "The medium is the message"
+      - --otlp-http
+      - --otlp-insecure
+      - --otlp-endpoint
+      - victoria-logs:9428
+      - --otlp-http-url-path
+      - /insert/opentelemetry/v1/logs
+      - --duration
+      - inf
+      - --otlp-attributes
+      - my.custom.attribute="value1"
+      - --otlp-attributes
+      - eggs.available=true
+      - --otlp-attributes
+      - favourite.sandwiches=["peanut-butter-jelly-time","sourdough-crustacean"]
+    environment:
+      - OTLP_EXPORTER_OTLP_ENDPOINT=victoria-logs:9428
