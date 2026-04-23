@@ -3,6 +3,12 @@ services:
     build: ./ingest-service
     ports:
       - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4318
       - OTEL_TRACES_EXPORTER=none # disable traces for this demo
@@ -37,3 +43,6 @@ services:
       - ./loadtest/script.js:/script.js:z
     command: run /script.js
     restart: always
+    depends_on:
+      ingest-service:
+        condition: service_healthy

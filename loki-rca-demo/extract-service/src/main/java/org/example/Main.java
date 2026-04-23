@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Logger;
 
 public class Main {
@@ -32,6 +33,13 @@ public class Main {
             String body;
             try (InputStream requestBody = exchange.getRequestBody()) {
                 body = new String(requestBody.readAllBytes(), StandardCharsets.UTF_8);
+            }
+
+            try {
+                long delay = ThreadLocalRandom.current().nextLong(30, 501);
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
 
             byte[] response = "OK".getBytes(StandardCharsets.UTF_8);

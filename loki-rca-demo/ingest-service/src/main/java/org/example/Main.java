@@ -28,6 +28,14 @@ public class Main {
         HttpClient httpClient = HttpClient.newHttpClient();
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
 
+        server.createContext("/health", (HttpExchange exchange) -> {
+            byte[] body = "OK".getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(200, body.length);
+            try (OutputStream out = exchange.getResponseBody()) {
+                out.write(body);
+            }
+        });
+
         server.createContext("/ingest", (HttpExchange exchange) -> {
             long start = System.currentTimeMillis();
 
