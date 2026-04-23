@@ -1,4 +1,14 @@
 services:
+  ingest-service:
+    build: ./ingest-service
+    ports:
+      - "8080:8080"
+
+  extract-service:
+    build: ./extract-service
+    ports:
+      - "8081:8080"
+
   otel-lgtm:
     image: docker.io/grafana/otel-lgtm:latest
     ports:
