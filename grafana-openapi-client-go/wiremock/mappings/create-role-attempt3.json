@@ -1,0 +1,18 @@
+{
+  "scenarioName": "create-role-403",
+  "requiredScenarioState": "attempt-3",
+  "newScenarioState": "will-succeed",
+  "request": {
+    "method": "POST",
+    "urlPath": "/api/access-control/roles"
+  },
+  "response": {
+    "status": 403,
+    "jsonBody": {
+      "message": "Permission denied: access-control.roles.write"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

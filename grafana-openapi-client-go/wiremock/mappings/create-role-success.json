@@ -1,0 +1,26 @@
+{
+  "scenarioName": "create-role-403",
+  "requiredScenarioState": "will-succeed",
+  "request": {
+    "method": "POST",
+    "urlPath": "/api/access-control/roles"
+  },
+  "response": {
+    "status": 201,
+    "jsonBody": {
+      "uid": "custom-role-abc123",
+      "name": "custom:test:write-dashboards",
+      "displayName": "Custom Write Dashboards Role",
+      "description": "Allows writing dashboards",
+      "version": 1,
+      "created": "2026-01-15T10:00:00Z",
+      "updated": "2026-01-15T10:00:00Z",
+      "global": false,
+      "delegatable": false,
+      "permissions": []
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

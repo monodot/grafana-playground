@@ -1,0 +1,34 @@
+services:
+  wiremock:
+    image: docker.io/wiremock/wiremock:latest
+    volumes:
+      - ./wiremock/mappings:/home/wiremock/mappings:Z
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO /dev/null http://localhost:8080/__admin/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  runner-main:
+    build: ./runner
+    depends_on:
+      wiremock:
+        condition: service_healthy
+    environment:
+      MOCK_HOST: wiremock:8080
+    restart: "no"
+
+  runner-pr:
+    build:
+      context: ./runner
+      args:
+        LIBRARY_VERSION: v0.0.0-20260316103516-47b9e4e1534a  # PR 137 version
+    depends_on:
+      wiremock:
+        condition: service_healthy
+      runner-main:
+        condition: service_completed_successfully
+    environment:
+      MOCK_HOST: wiremock:8080
+    restart: "no"
