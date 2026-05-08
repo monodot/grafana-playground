@@ -1,0 +1,21 @@
+ebpf:
+  context_propagation: all
+  buffer_sizes:
+    http: 8192
+  payload_extraction:
+    http:
+      enrichment:
+        enabled: true
+        rules:
+          - action: include
+            type: body
+            scope: request  # captures the request body
+            match:
+              url_path_patterns: ["/customers"]  # capture only for POST /customers requests
+              methods: [POST]
+
+discovery:
+  exclude_otel_instrumented_services: true
+  instrument:
+    - open_ports: 3001,8080  # just instrument our two Node processes
+      exe_path: /usr/local/bin/node

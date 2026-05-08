@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  alloy:
+    image: docker.io/grafana/alloy:latest
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:z # Bind mount the local config file
+
+  server:
+    build: ./server
+    stop_grace_period: 0s
+
+  client:
+    build: ./client
+    depends_on:
+      - server
+    environment:
+      SERVER_URL: http://server:8080
+    stop_grace_period: 0s
+
+  beyla:
+    image: docker.io/grafana/beyla:3.14.0
+    pid: host
+    privileged: true
+    environment:
+      BEYLA_CONFIG_PATH: /config/beyla-config.yaml
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://alloy:4317" # Send to Alloy to transform first
+    volumes:
+      - ./beyla:/config:z
+    stop_grace_period: 0s
+
+  otel-lgtm:
+    image: docker.io/grafana/otel-lgtm:latest
+    ports:
+      - "3000:3000"
+    stop_grace_period: 0s
