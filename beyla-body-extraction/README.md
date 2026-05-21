@@ -1,5 +1,7 @@
 # Beyla: HTTP body attribute extraction
 
+![Diagram](./diagram.jpg)
+
 Shows how to use Beyla and Alloy to extract attributes from HTTP bodies, using payload extraction and enrichment, and OTTL.
 
 - Simulates a stock trading API where the server's per-trade latency varies by `accountType` (`retail` is slow, `pro` is medium, `highfreq` is fast)
