@@ -40,8 +40,9 @@ otelcol.processor.transform "drop_unneeded_resource_attributes" {
 	trace_statements {
 		context    = "span"
 		statements = [
-		    `set(span.attributes["customer.state"], ParseJSON(span.attributes["http.request.body.content"])["state"]) where span.attributes["http.request.body.content"] != nil and resource.attributes["service.name"] == "node"`,
-		    `set(span.attributes["customer.country"], ParseJSON(span.attributes["http.request.body.content"])["country"]) where span.attributes["http.request.body.content"] != nil and resource.attributes["service.name"] == "node"`,
+		    `set(span.attributes["trade.account_type"], ParseJSON(span.attributes["http.request.body.content"])["accountType"]) where span.attributes["http.request.body.content"] != nil and resource.attributes["service.name"] == "node"`,
+		    `set(span.attributes["trade.symbol"], ParseJSON(span.attributes["http.request.body.content"])["symbol"]) where span.attributes["http.request.body.content"] != nil and resource.attributes["service.name"] == "node"`,
+		    `set(span.attributes["trade.side"], ParseJSON(span.attributes["http.request.body.content"])["side"]) where span.attributes["http.request.body.content"] != nil and resource.attributes["service.name"] == "node"`,
 		]
 	}
 

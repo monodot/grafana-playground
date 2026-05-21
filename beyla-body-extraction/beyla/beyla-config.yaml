@@ -11,7 +11,7 @@ ebpf:
             type: body
             scope: request  # captures the request body
             match:
-              url_path_patterns: ["/customers"]  # capture only for POST /customers requests
+              url_path_patterns: ["/orders"]
               methods: [POST]
 
 discovery:

@@ -2,23 +2,39 @@ import { Hono } from 'hono'
 import { serve } from '@hono/node-server'
 
 const app = new Hono()
-const customers = new Map()
+const orders = new Map()
 let nextId = 1
 
-app.get('/customers', (c) => c.json([...customers.values()]))
+// Per-tier latency bands. Retail goes through the public gateway and queues;
+// pro has direct API access; highfreq is on the co-located fast path.
+const latencyByAccountType = {
+  highfreq: [5, 15],
+  pro:      [60, 100],
+  retail:   [250, 450],
+}
 
-app.get('/customers/:id', (c) => c.json(customers.get(Number(c.req.param('id')))))
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-app.post('/customers', async (c) => {
+const simulateExecution = async (accountType) => {
+  const [min, max] = latencyByAccountType[accountType] ?? [50, 100]
+  await sleep(Math.floor(Math.random() * (max - min + 1)) + min)
+}
+
+app.get('/orders', (c) => c.json([...orders.values()]))
+
+app.get('/orders/:id', (c) => c.json(orders.get(Number(c.req.param('id')))))
+
+app.post('/orders', async (c) => {
   const body = await c.req.json()
+  await simulateExecution(body.accountType)
   const id = nextId++
-  const customer = { id, ...body }
-  customers.set(id, customer)
-  return c.json(customer, 201)
+  const order = { id, status: 'filled', ...body }
+  orders.set(id, order)
+  return c.json(order, 201)
 })
 
-app.delete('/customers/:id', (c) => {
-  customers.delete(Number(c.req.param('id')))
+app.delete('/orders/:id', (c) => {
+  orders.delete(Number(c.req.param('id')))
   return c.body(null, 204)
 })
 
