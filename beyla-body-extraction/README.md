@@ -25,9 +25,13 @@ sudo podman-compose up -d --build
 
 Wait 30 seconds for the services to start and begin shipping traces.
 
-Then visit Traces Drilldown and find a `POST /orders` trace to see that the attributes were extracted. Group or filter by `trade.account_type` to see the per-tier latency split:
+Then visit Traces Drilldown and find a `POST /orders` trace to see that the attributes were extracted. 
 
-![Screenshot of the trace in Traces Drilldown](screenshot.webp)
+![Screenshot of the trace in Traces Drilldown](screenshot.jpg)
+
+Group or filter by `trade.account_type` to see the per-tier latency split:
+
+![Latency by account type in Drilldown](./latency_graph.jpg)
 
 Grab the Beyla logs if you need them for debugging:
 
