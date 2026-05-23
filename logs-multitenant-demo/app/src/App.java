@@ -1,3 +1,5 @@
+import com.sun.net.httpserver.HttpServer;
+import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -22,7 +24,7 @@ public class App {
     private static final List<String> RESOLUTIONS = List.of("480p", "720p", "1080p", "1440p", "4k");
     private static final List<String> CODECS = List.of("h264", "h265", "vp9", "av1");
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws Exception {
         String tenantId = envOrDefault("TENANT_ID", "tenant-default");
         long minIdleMs = parseLong("MIN_INTERVAL_MS", 2000);
         long maxIdleMs = parseLong("MAX_INTERVAL_MS", 6000);
@@ -30,7 +32,16 @@ public class App {
         long maxProcMs = parseLong("MAX_PROCESSING_MS", 8000);
         int failOneIn = (int) parseLong("BASELINE_FAILURE_RATE_DENOM", 20);
         int brokenFailOneIn = (int) parseLong("BROKEN_FAILURE_RATE_DENOM", 2);
+        int healthPort = (int) parseLong("HEALTH_PORT", 8080);
         Path breakFlag = Path.of(envOrDefault("BREAK_FLAG_FILE", "/break/" + tenantId));
+
+        HttpServer health = HttpServer.create(new InetSocketAddress(healthPort), 0);
+        health.createContext("/health", exchange -> {
+            exchange.sendResponseHeaders(200, -1);
+            exchange.close();
+        });
+        health.start();
+        log(tenantId, "INFO", "health endpoint listening", "port=" + healthPort);
 
         log(tenantId, "INFO", "video processor starting", null);
 

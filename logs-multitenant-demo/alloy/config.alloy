@@ -42,6 +42,25 @@ discovery.relabel "tenants" {
   }
 }
 
+// Discover all tenants so we can scrape them for an 'up' metric
+discovery.relabel "tenant_health" {
+  targets = discovery.relabel.tenants.output
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    regex         = "(.+)"
+    target_label  = "__address__"
+    replacement   = "$1:8080"
+  }
+}
+
+prometheus.scrape "tenant_health" {
+  targets         = discovery.relabel.tenant_health.output
+  forward_to      = [prometheus.relabel.videoapp.receiver]
+  metrics_path    = "/health"
+  scrape_interval = "15s"
+}
+
 loki.source.docker "tenants" {
   host       = "unix:///var/run/docker.sock"
   targets    = discovery.relabel.tenants.output
@@ -105,7 +124,7 @@ prometheus.relabel "videoapp" {
 
   rule {
     source_labels = ["__name__"]
-    regex         = "loki_process_custom_videoapp_jobs(_failed)?_total"
+    regex         = "loki_process_custom_videoapp_jobs(_failed)?_total|up"
     action        = "keep"
   }
 

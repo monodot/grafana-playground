@@ -53,6 +53,7 @@ Requires:
     ```
     rate(videoapp_jobs_total[1m])           # request rate per tenant
     rate(videoapp_jobs_failed_total[1m])    # error rate per tenant
+    up{job="videoapp"}                       # 1 per healthy tenant, 0 if /health is unreachable
     ```
 
 ## Simulating a broken tenant
@@ -81,12 +82,14 @@ No restart needed! The app will just pick up the file the next time it simulates
 
 ## How metrics are derived
 
-Alloy runs two `stage.metrics` blocks against the log stream, one per counter:
+The two RED counter metrics come from the log stream itself: Alloy runs a `stage.metrics` block for each counter:
 
-- `videoapp_jobs_total` - generated from "processing started" lines
-- `videoapp_jobs_failed_total` - generated from "processing failed" lines
+- `videoapp_jobs_total` — generated from "processing started" lines
+- `videoapp_jobs_failed_total` — generated from "processing failed" lines
 
-Both counters have the same labels — `job`, `namespace`, `instance`, `cluster`, `region`. Those labels match the conventions used by the rules in Knowledge Graph, so KG can consume them easily with no further relabelling.
+We also need an `up` metric. This can't realistically be derived from logs (a silent tenant could mean it's either crashed OR just idle), so the sample app exposes a small `/health` endpoint, and Alloy scrapes it via `prometheus.scrape`. Prometheus's built-in `up` metric is 1 on a successful scrape, 0 on failure.
+
+All three metrics have the same labels - `job`, `namespace`, `instance`, `cluster`, `region` - all applied via a single `prometheus.relabel` block. Those labels match the conventions used by the rules in Knowledge Graph, so KG can consume them easily with no further relabelling.
 
 See `alloy/config.alloy` for the full pipeline.
 
