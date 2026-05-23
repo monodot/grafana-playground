@@ -1,0 +1,163 @@
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+// Add some rules to set env, namespace, and service labels for the tenants.
+discovery.relabel "tenants" {
+  targets = discovery.docker.containers.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    regex         = "tenant-.*"
+    action        = "keep"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    regex         = "tenant-(.+)"
+    target_label  = "service_namespace"
+    replacement   = "$1"
+  }
+
+  rule {
+    target_label = "deployment_environment"
+    replacement  = "videoapp-prod"
+  }
+
+  rule {
+    target_label = "service_name"
+    replacement  = "videoapp"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_id"]
+    regex         = "(.{12}).*"
+    target_label  = "service_instance_id"
+    replacement   = "$1"
+  }
+}
+
+loki.source.docker "tenants" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.tenants.output
+  forward_to = [loki.process.tenants.receiver]
+}
+
+loki.process "tenants" {
+  // Emit real Prometheus counters from the log stream. Knowledge Graph's RED
+  // mapping expects ever-increasing counters to derive request and error rates.
+  stage.match {
+    selector = `{service_name="videoapp"} |= "processing started"`
+
+    stage.metrics {
+      metric.counter {
+        name        = "videoapp_jobs_total"
+        description = "Total video processing jobs attempted"
+        action      = "inc"
+        match_all   = true
+      }
+    }
+  }
+
+  stage.match {
+    selector = `{service_name="videoapp"} |= "processing failed"`
+
+    stage.metrics {
+      metric.counter {
+        name        = "videoapp_jobs_failed_total"
+        description = "Total failed video processing jobs"
+        action      = "inc"
+        match_all   = true
+      }
+    }
+  }
+
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = env("GRAFANA_CLOUD_LOGS_URL")
+
+    basic_auth {
+      username = env("GRAFANA_CLOUD_LOGS_ID")
+      password = env("GRAFANA_CLOUD_ACCESS_POLICY_TOKEN")
+    }
+  }
+}
+
+prometheus.scrape "self" {
+  targets         = [{ __address__ = "localhost:12345" }]
+  forward_to      = [prometheus.relabel.videoapp.receiver]
+  scrape_interval = "15s"
+}
+
+// Change the OTel-style stream labels from Loki's stage.metrics stage, into
+// the ones used by the Grafana Cloud Loki recording rule for request-rate.
+// This will allow Knowledge Graph to calculate error rate / request rate.
+prometheus.relabel "videoapp" {
+  forward_to = [prometheus.remote_write.grafanacloud.receiver]
+
+  rule {
+    source_labels = ["__name__"]
+    regex         = "loki_process_custom_videoapp_jobs(_failed)?_total"
+    action        = "keep"
+  }
+
+  // Alloy auto-prefixes stage.metrics counters with `loki_process_custom_` on
+  // its /metrics endpoint and there's no way to disable it, so strip it here
+  // before forwarding to Grafana Cloud.
+  rule {
+    source_labels = ["__name__"]
+    regex         = "loki_process_custom_(.+)"
+    target_label  = "__name__"
+    replacement   = "$1"
+  }
+
+  rule {
+    source_labels = ["service_name"]
+    target_label  = "job"
+  }
+
+  rule {
+    source_labels = ["service_namespace"]
+    target_label  = "namespace"
+  }
+
+  rule {
+    source_labels = ["service_name", "service_instance_id"]
+    separator     = "-"
+    target_label  = "instance"
+  }
+
+  rule {
+    source_labels = ["deployment_environment"]
+    target_label  = "cluster"
+  }
+
+  rule {
+    target_label = "region"
+    replacement  = "uk-yorks-0"
+  }
+
+  rule {
+    regex  = "service_name|service_namespace|service_instance_id|deployment_environment|level|exported_job|exported_instance|component_id|component_path"
+    action = "labeldrop"
+  }
+}
+
+prometheus.remote_write "grafanacloud" {
+  endpoint {
+    url = env("GRAFANA_CLOUD_PROM_URL")
+
+    basic_auth {
+      username = env("GRAFANA_CLOUD_PROM_ID")
+      password = env("GRAFANA_CLOUD_ACCESS_POLICY_TOKEN")
+    }
+  }
+}

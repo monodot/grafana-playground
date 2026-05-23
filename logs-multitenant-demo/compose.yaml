@@ -1,0 +1,118 @@
+services:
+  tenant-acme:
+    build: ./app
+    image: video-processor:latest
+    environment:
+      - TENANT_ID=acme
+      - MIN_INTERVAL_MS=200
+      - MAX_INTERVAL_MS=600
+      - MIN_PROCESSING_MS=50
+      - MAX_PROCESSING_MS=600
+    volumes:
+      - ./break:/break:z
+
+  tenant-bedrock:
+    build: ./app
+    image: video-processor:latest
+    environment:
+      - TENANT_ID=bedrock
+      - MIN_INTERVAL_MS=100
+      - MAX_INTERVAL_MS=400
+      - MIN_PROCESSING_MS=100
+      - MAX_PROCESSING_MS=1000
+    volumes:
+      - ./break:/break:z
+
+  tenant-cyberdyne:
+    build: ./app
+    image: video-processor:latest
+    environment:
+      - TENANT_ID=cyberdyne
+      - MIN_INTERVAL_MS=300
+      - MAX_INTERVAL_MS=800
+      - MIN_PROCESSING_MS=50
+      - MAX_PROCESSING_MS=400
+    volumes:
+      - ./break:/break:z
+
+  tenant-duff:
+    build: ./app
+    image: video-processor:latest
+    environment:
+      - TENANT_ID=duff
+      - MIN_INTERVAL_MS=150
+      - MAX_INTERVAL_MS=500
+      - MIN_PROCESSING_MS=80
+      - MAX_PROCESSING_MS=700
+    volumes:
+      - ./break:/break:z
+
+  tenant-encom:
+    build: ./app
+    image: video-processor:latest
+    environment:
+      - TENANT_ID=encom
+      - MIN_INTERVAL_MS=250
+      - MAX_INTERVAL_MS=700
+      - MIN_PROCESSING_MS=100
+      - MAX_PROCESSING_MS=800
+    volumes:
+      - ./break:/break:z
+
+  tenant-fyre:
+    build: ./app
+    image: video-processor:latest
+    environment:
+      - TENANT_ID=fyre
+      - MIN_INTERVAL_MS=100
+      - MAX_INTERVAL_MS=300
+      - MIN_PROCESSING_MS=50
+      - MAX_PROCESSING_MS=500
+    volumes:
+      - ./break:/break:z
+
+  tenant-gekko:
+    build: ./app
+    image: video-processor:latest
+    environment:
+      - TENANT_ID=gekko
+      - MIN_INTERVAL_MS=400
+      - MAX_INTERVAL_MS=1000
+      - MIN_PROCESSING_MS=200
+      - MAX_PROCESSING_MS=1200
+    volumes:
+      - ./break:/break:z
+
+  tenant-hooli:
+    build: ./app
+    image: video-processor:latest
+    environment:
+      - TENANT_ID=hooli
+      - MIN_INTERVAL_MS=200
+      - MAX_INTERVAL_MS=600
+      - MIN_PROCESSING_MS=80
+      - MAX_PROCESSING_MS=600
+    volumes:
+      - ./break:/break:z
+
+  alloy:
+    image: docker.io/grafana/alloy:latest
+    user: root  # allows access to docker socket, for consuming logs from the apps
+    security_opt:
+      - label=disable
+    environment:
+      - GRAFANA_CLOUD_ACCESS_POLICY_TOKEN=${GRAFANA_CLOUD_ACCESS_POLICY_TOKEN}
+      - GRAFANA_CLOUD_LOGS_ID=${GRAFANA_CLOUD_LOGS_ID}
+      - GRAFANA_CLOUD_LOGS_URL=${GRAFANA_CLOUD_LOGS_URL}
+      - GRAFANA_CLOUD_PROM_ID=${GRAFANA_CLOUD_PROM_ID}
+      - GRAFANA_CLOUD_PROM_URL=${GRAFANA_CLOUD_PROM_URL}
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:z
+      - ${XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
+    ports:
+      - "12345:12345"
