@@ -1,0 +1,110 @@
+services:
+  # Observability stack: Grafana, Loki, Tempo, Mimir/Prometheus, Pyroscope, OTLP receiver
+  otel-lgtm:
+    image: docker.io/grafana/otel-lgtm:latest
+    ports:
+      - "3000:3000"   # Grafana
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    volumes:
+      - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro,z
+      - ./extra-dashboards.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/extra-dashboards.yaml:ro,z
+
+  oracle-db:
+    image: container-registry.oracle.com/database/free:latest-lite
+    environment:
+      - ORACLE_PWD=DemoAdminPw1
+    healthcheck:
+      test: ["CMD", "/opt/oracle/checkDBStatus.sh"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 60s
+
+  # This container creates the database schema via sqlplus and exits.
+  oracle-init:
+    image: container-registry.oracle.com/database/free:latest-lite
+    depends_on:
+      oracle-db:
+        condition: service_healthy
+    restart: "no"
+    volumes:
+      - ./oracle/setup:/setup:ro,z
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - sqlplus -s sys/DemoAdminPw1@//oracle-db:1521/FREE as sysdba @/setup/01-create-schema.sql
+
+  # Legacy app: WildFly 26.1 on Java 8, instrumented only by the OTel Java agent.
+  # To see it as an UNINSTRUMENTED service, remove the -javaagent flag from JAVA_OPTS
+  # below and run `podman compose up -d legacy-wildfly` again.
+  legacy-wildfly:
+    build: legacy-app
+    depends_on:
+      oracle-db:
+        condition: service_healthy
+      otel-lgtm:
+        condition: service_started
+    environment:
+      # Setting JAVA_OPTS replaces WildFly's defaults, so basic JVM settings are included here
+      - JAVA_OPTS=-Xms128m -Xmx512m -Djava.net.preferIPv4Stack=true -javaagent:/otel/opentelemetry-javaagent.jar
+      - OTEL_SERVICE_NAME=legacy-wildfly
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-lgtm:4318
+      - OTEL_RESOURCE_ATTRIBUTES=service.namespace=orders,deployment.environment=demo,service.version=1.0.0
+      - OTEL_METRIC_EXPORT_INTERVAL=5000
+      # "Request attributes": capture these headers onto server spans
+      - OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_REQUEST_HEADERS=x-customer-id,x-user-id,authorization
+      - DB_URL=jdbc:oracle:thin:@//oracle-db:1521/FREEPDB1
+      - DB_USER=orders
+      - DB_PASSWORD=ordersdemo1
+
+  gateway-api:
+    build: gateway-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - legacy-wildfly
+      - otel-lgtm
+    environment:
+      # Two agents: OTel instrumentation + Pyroscope continuous profiling.
+      # The pyroscope-otel extension links spans to profiles.
+      - JAVA_TOOL_OPTIONS=-javaagent:/otel/opentelemetry-javaagent.jar -javaagent:/otel/pyroscope.jar
+      - OTEL_JAVAAGENT_EXTENSIONS=/otel/pyroscope-otel.jar
+      - OTEL_SERVICE_NAME=gateway-api
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-lgtm:4318
+      - OTEL_RESOURCE_ATTRIBUTES=service.namespace=orders,deployment.environment=demo,service.version=1.0.0
+      - OTEL_METRIC_EXPORT_INTERVAL=5000
+      - OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_REQUEST_HEADERS=x-customer-id,x-user-id,authorization
+      - PYROSCOPE_SERVER_ADDRESS=http://otel-lgtm:4040
+      - PYROSCOPE_APPLICATION_NAME=gateway-api
+      - LEGACY_URL=http://legacy-wildfly:8080/legacy-app
+
+  batch-job:
+    build: batch-job
+    depends_on:
+      oracle-db:
+        condition: service_healthy
+      gateway-api:
+        condition: service_started
+    environment:
+      - JAVA_TOOL_OPTIONS=-javaagent:/otel/opentelemetry-javaagent.jar
+      - OTEL_SERVICE_NAME=batch-job
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-lgtm:4318
+      - OTEL_RESOURCE_ATTRIBUTES=service.namespace=orders,deployment.environment=demo,service.version=1.0.0
+      - OTEL_METRIC_EXPORT_INTERVAL=5000
+      # A custom span entry point: start a trace whenever this method runs (cool)
+      - OTEL_INSTRUMENTATION_METHODS_INCLUDE=com.example.batch.NightlyExportJob[runExport]
+      # or: com.example.batch.NightlyExportJob[runExport,process]
+      - DB_URL=jdbc:oracle:thin:@//oracle-db:1521/FREEPDB1
+      - DB_USER=orders
+      - DB_PASSWORD=ordersdemo1
+      - GATEWAY_URL=http://gateway-api:8080
+
+  loadgen:
+    image: docker.io/curlimages/curl:latest
+    depends_on:
+      - gateway-api
+    volumes:
+      - ./loadgen/loadgen.sh:/loadgen.sh:ro,z
+    entrypoint: ["/bin/sh", "/loadgen.sh"]
+    environment:
+      - GATEWAY_URL=http://gateway-api:8080
