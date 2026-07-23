@@ -2,23 +2,11 @@
 
 Demonstrates distributed tracing across a Spring Boot microservice, a scheduled batch job, and a legacy WildFly (Java 8) application writing to Oracle. All instrumented with the OpenTelemetry Java agent and visualised in Grafana.
 
-![Demo architecture](./diagram.webp)
-
 **NOTE:** This demo was generated with AI assistance. Please verify before running in your own environment.
 
 ## What's in the demo
 
-```
-[loadgen] --------> [gateway-api] --------> [legacy-wildfly] --JDBC--> [oracle-db]
- curl loop           Spring Boot             WildFly 26.1                Oracle Free
- + headers           Java 17                 Java 8                      (latest-lite)
-                        ^                                                    ^
-[batch-job] ------------+------------------------JDBC-----------------------+
- Spring Boot, Java 17: reads pending rows from Oracle,
- posts each to the gateway, marks them exported
-
-all apps --OTLP--> [otel-lgtm]  (Grafana :3000)
-```
+![Demo architecture](./diagram.webp)
 
 - **gateway-api** — Spring Boot 3 (Java 17). Receives orders and forwards them to the legacy app. Runs the OTel Java agent plus the Pyroscope agent for continuous profiling.
 - **legacy-wildfly** — a servlet WAR on WildFly 26.1 (Java 8), standing in for a legacy app whose code you don't own. The OTel Java agent is attached via `JAVA_OPTS` with zero code changes. INSERTs orders into Oracle over JDBC.
