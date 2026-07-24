@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway-api
+  template:
+    metadata:
+      labels:
+        app: gateway-api
+    spec:
+      containers:
+        - name: gateway-api
+          image: localhost/java-wildfly-spring-otel_gateway-api:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            # Two agents: OTel instrumentation + Pyroscope continuous profiling.
+            # The pyroscope-otel extension links spans to profiles.
+            - name: JAVA_TOOL_OPTIONS
+              value: -javaagent:/otel/opentelemetry-javaagent.jar -javaagent:/otel/pyroscope.jar
+            - name: OTEL_JAVAAGENT_EXTENSIONS
+              value: /otel/pyroscope-otel.jar
+            - name: OTEL_SERVICE_NAME
+              value: gateway-api
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-cloud
+                  key: otlp-endpoint
+            - name: OTEL_EXPORTER_OTLP_HEADERS
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-cloud
+                  key: otlp-headers
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: http/protobuf
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.namespace=orders,deployment.environment=demo-k8s,service.version=1.0.0,service.instance.id=$(POD_NAME)
+            - name: OTEL_METRIC_EXPORT_INTERVAL
+              value: "5000"
+            - name: OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_REQUEST_HEADERS
+              value: x-customer-id,x-user-id,authorization
+            - name: PYROSCOPE_APPLICATION_NAME
+              value: gateway-api
+            - name: PYROSCOPE_SERVER_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-cloud
+                  key: pyroscope-url
+            - name: PYROSCOPE_BASIC_AUTH_USER
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-cloud
+                  key: pyroscope-user
+            - name: PYROSCOPE_BASIC_AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-cloud
+                  key: pyroscope-password
+            - name: LEGACY_URL
+              value: http://legacy-wildfly:8080/legacy-app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-api
+spec:
+  selector:
+    app: gateway-api
+  ports:
+    - port: 8080
+      targetPort: 8080

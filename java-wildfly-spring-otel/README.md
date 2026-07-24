@@ -121,3 +121,7 @@ New traces now end at the gateway's outgoing HTTP client span: the WildFly hop a
 ```bash
 podman compose down -v
 ```
+
+## Kubernetes/Grafana Cloud variant
+
+There is also a Kubernetes version of this demo, which deploys the same applications to a local k3s cluster and sends all telemetry directly to Grafana Cloud instead of a local otel-lgtm container. See [k8s/README.md](k8s/README.md).

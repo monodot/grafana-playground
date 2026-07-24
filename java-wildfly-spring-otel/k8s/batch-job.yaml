@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: batch-job
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: batch-job
+  template:
+    metadata:
+      labels:
+        app: batch-job
+    spec:
+      containers:
+        - name: batch-job
+          image: localhost/java-wildfly-spring-otel_batch-job:latest
+          imagePullPolicy: Never
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: JAVA_TOOL_OPTIONS
+              value: -javaagent:/otel/opentelemetry-javaagent.jar
+            - name: OTEL_SERVICE_NAME
+              value: batch-job
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-cloud
+                  key: otlp-endpoint
+            - name: OTEL_EXPORTER_OTLP_HEADERS
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-cloud
+                  key: otlp-headers
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: http/protobuf
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.namespace=orders,deployment.environment=demo-k8s,service.version=1.0.0,service.instance.id=$(POD_NAME)
+            - name: OTEL_METRIC_EXPORT_INTERVAL
+              value: "5000"
+            # A custom span entry point: start a trace whenever this method runs
+            - name: OTEL_INSTRUMENTATION_METHODS_INCLUDE
+              value: com.example.batch.NightlyExportJob[runExport]
+            - name: DB_URL
+              value: jdbc:oracle:thin:@//oracle-db:1521/FREEPDB1
+            - name: DB_USER
+              value: orders
+            - name: DB_PASSWORD
+              value: ordersdemo1
+            - name: GATEWAY_URL
+              value: http://gateway-api:8080

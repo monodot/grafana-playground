@@ -1,0 +1,27 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Kubernetes variant of this demo. See k8s/README.md.
+# This file lives at the demo root (not in k8s/) so the ConfigMap generators can
+# reuse the SQL and loadgen script that the compose variant also uses.
+namespace: orders-demo
+
+resources:
+  - k8s/namespace.yaml
+  - k8s/oracle.yaml
+  - k8s/oracle-init-job.yaml
+  - k8s/legacy-wildfly.yaml
+  - k8s/gateway-api.yaml
+  - k8s/batch-job.yaml
+  - k8s/loadgen.yaml
+
+configMapGenerator:
+  - name: oracle-schema
+    files:
+      - oracle/setup/01-create-schema.sql
+  - name: loadgen-script
+    files:
+      - loadgen/loadgen.sh
+
+generatorOptions:
+  disableNameSuffixHash: true

@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: oracle-init
+spec:
+  # The job retries until the database is reachable. sqlplus -L exits non-zero
+  # while Oracle is still starting; once connected, re-running the schema SQL is
+  # harmless (CREATE statements error but do not fail the script).
+  backoffLimit: 30
+  template:
+    metadata:
+      labels:
+        app: oracle-init
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: sqlplus
+          image: container-registry.oracle.com/database/free:latest-lite
+          command:
+            - /bin/bash
+            - -c
+            - sqlplus -s -L sys/DemoAdminPw1@//oracle-db:1521/FREE as sysdba @/setup/01-create-schema.sql
+          volumeMounts:
+            - name: schema
+              mountPath: /setup
+      volumes:
+        - name: schema
+          configMap:
+            name: oracle-schema
