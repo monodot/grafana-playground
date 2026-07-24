@@ -5,6 +5,7 @@
 # requests produce error traces.
 
 GATEWAY_URL="${GATEWAY_URL:-http://gateway-api:8080}"
+TOMCAT_URL="${TOMCAT_URL:-http://legacy-tomcat:8080}"
 
 i=0
 while true; do
@@ -32,6 +33,18 @@ while true; do
       -H "X-User-Id: doris.demo" \
       "$GATEWAY_URL/orders/summary"
   fi
+
+  # The Tomcat legacy app: 'emea' and 'apac' are registered regions, everything
+  # else fails with a nested routing exception mapped to a 500.
+  case $((i % 3)) in
+    0) region="emea" ;;
+    1) region="apac" ;;
+    2) region="latam" ;;
+  esac
+  curl -s -o /dev/null -w "GET /accounts ($region) -> %{http_code}\n" \
+    -H "X-User-Id: doris.demo" \
+    -H "Authorization: Bearer demo-token-not-a-real-secret" \
+    "$TOMCAT_URL/legacy-tomcat/api/customers/$region/accounts"
 
   sleep 3
 done

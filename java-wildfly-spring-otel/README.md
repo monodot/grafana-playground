@@ -10,6 +10,7 @@ Demonstrates distributed tracing across a Spring Boot microservice, a scheduled 
 
 - **gateway-api** — Spring Boot 3 (Java 17). Receives orders and forwards them to the legacy app. Runs the OTel Java agent plus the Pyroscope agent for continuous profiling.
 - **legacy-wildfly** — a servlet WAR on WildFly 26.1 (Java 8), standing in for a legacy app whose code you don't own. The OTel Java agent is attached via `JAVA_OPTS` with zero code changes. INSERTs orders into Oracle over JDBC.
+- **legacy-tomcat** — a JAX-RS (Jersey) WAR on Tomcat 9 (Java 8), with a deep servlet-filter chain like a real legacy app. One endpoint works for registered customer regions and fails for the rest with a nested routing exception, handled by a JAX-RS `ExceptionMapper` (500). Demonstrates how rich exception capture is with zero code changes.
 - **batch-job** — Spring Boot 3 (Java 17), no web server. Every 60 seconds it SELECTs pending rows from Oracle, POSTs each to the gateway, and UPDATEs them to `EXPORTED`. The trace root is defined purely by agent configuration.
 - **oracle-db** — Oracle Database Free (`latest-lite`). A one-shot `oracle-init` container creates the schema and seeds the batch job's work queue. (The init container exists because the `lite` image variant, unlike the full image, does not run scripts placed in `/opt/oracle/scripts/setup`.)
 - **loadgen** — a curl loop sending orders with `X-Customer-Id`, `X-User-Id` and `Authorization` headers. Customer IDs ending in 7 trigger a simulated fraud-check failure, so ~10% of requests produce error traces.
@@ -89,6 +90,39 @@ In **Explore** → **Tempo**, query:
 ```
 
 Open one of the failing `gateway-api` traces: the span carries an exception event with the full stack trace of the simulated fraud-check failure (`IllegalStateException`).
+
+### 8b. Exception richness on a Tomcat + Java 8 app
+
+`legacy-tomcat` mimics a real legacy failure mode: `GET /legacy-tomcat/api/customers/{region}/accounts` works for the registered regions (`emea`, `apac`) but fails for any other, throwing `PlatformFaultException` caused by `DirectoryLookupException` caused by `RegionNotRegisteredException` from deep inside a service class. A JAX-RS `ExceptionMapper` converts it to a 500. The loadgen requests `latam` regularly, so these traces flow continuously. Try it yourself:
+
+```bash
+curl -i http://localhost:8081/legacy-tomcat/api/customers/latam/accounts
+```
+
+What the agent captures, with zero code changes:
+
+- The **server span** is marked as an error via the 500 status, and carries the captured request headers and the renamed worker thread (`thread.name` includes the request path — a common legacy-app trick that survives into the trace).
+- The **JAX-RS span** (`CustomerAccountResource.findAccounts`) carries an `exception` **span event** with `exception.type`, `exception.message`, and the full stack trace **including both nested causes** — the same text you'd find in the application log, but attached to the exact request that failed.
+- Because the `ExceptionMapper` *handles* the exception, it never escapes to Tomcat: the exception event lives on the span where it was thrown, not on the server span. This distinction matters when comparing against log-based debugging.
+- The mapper's JUL log line (with the stack trace) is captured by the agent and shipped with the **trace ID attached**, so the log entry and the trace link to each other in Grafana.
+
+Find these traces with TraceQL:
+
+```
+{ event.exception.type =~ ".*PlatformFaultException" }
+```
+
+or from the log side: open the log line in Loki and click through to the trace.
+
+Two configuration details make this work, and both are easy to miss:
+
+1. **Framework-internal spans are off by default in agent 2.x.** Without the following setting, you only get the server span with a 500 status — the resource-method span, and with it the handled exception, never appears:
+
+   ```yaml
+   OTEL_INSTRUMENTATION_COMMON_EXPERIMENTAL_CONTROLLER_TELEMETRY_ENABLED: true
+   ```
+
+2. **Tempo truncates span attribute values at 2048 bytes by default** (`distributor.max_span_attr_byte`), which silently cuts long stack traces — exactly the nested `Caused by` sections you care about. This demo mounts a Tempo config override (`otel-lgtm/tempo-config.yaml`) that raises the limit to 32 KB. Check the same limit on any other Tempo you send these traces to.
 
 ### 9. Service overview dashboard and backtracing
 

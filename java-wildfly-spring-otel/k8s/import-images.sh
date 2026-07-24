@@ -9,7 +9,7 @@ demo_dir=$(cd "$(dirname "$0")/.." && pwd)
 echo "Building images with podman compose..."
 (cd "$demo_dir" && podman compose build)
 
-for img in gateway-api batch-job legacy-wildfly; do
+for img in gateway-api batch-job legacy-wildfly legacy-tomcat; do
   echo "Importing localhost/java-wildfly-spring-otel_${img}:latest into k3s..."
   podman save "localhost/java-wildfly-spring-otel_${img}:latest" | sudo k3s ctr images import -
 done

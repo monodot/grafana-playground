@@ -9,6 +9,9 @@ services:
     volumes:
       - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro,z
       - ./extra-dashboards.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/extra-dashboards.yaml:ro,z
+      # Raises Tempo's span-attribute size limit so long exception stack traces
+      # (nested causes) are not truncated at the default 2048 bytes
+      - ./otel-lgtm/tempo-config.yaml:/otel-lgtm/tempo-config.yaml:ro,z
 
   oracle-db:
     image: container-registry.oracle.com/database/free:latest-lite
@@ -56,6 +59,29 @@ services:
       - DB_URL=jdbc:oracle:thin:@//oracle-db:1521/FREEPDB1
       - DB_USER=orders
       - DB_PASSWORD=ordersdemo1
+
+  # Legacy app #2: a JAX-RS (Jersey) WAR on Tomcat 9 with Java 8, instrumented only
+  # by the OTel Java agent. Demonstrates exception richness: unregistered customer
+  # regions fail with a nested exception chain, handled by a JAX-RS ExceptionMapper (500).
+  legacy-tomcat:
+    build: legacy-tomcat
+    ports:
+      - "8081:8080"
+    depends_on:
+      - otel-lgtm
+    environment:
+      # Tomcat's catalina.sh appends JAVA_OPTS to its own defaults (unlike WildFly)
+      - JAVA_OPTS=-javaagent:/otel/opentelemetry-javaagent.jar
+      - OTEL_SERVICE_NAME=legacy-tomcat
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-lgtm:4318
+      - OTEL_RESOURCE_ATTRIBUTES=service.namespace=orders,deployment.environment=demo,service.version=1.0.0
+      - OTEL_METRIC_EXPORT_INTERVAL=5000
+      - OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_REQUEST_HEADERS=x-customer-id,x-user-id,authorization
+      # Agent 2.x disables framework-internal spans (JAX-RS resource methods, Spring
+      # controllers) by default. Enabling them is what makes HANDLED exceptions
+      # visible: the exception is recorded on the resource-method span even though
+      # the ExceptionMapper turns it into a 500 before Tomcat ever sees it.
+      - OTEL_INSTRUMENTATION_COMMON_EXPERIMENTAL_CONTROLLER_TELEMETRY_ENABLED=true
 
   gateway-api:
     build: gateway-api

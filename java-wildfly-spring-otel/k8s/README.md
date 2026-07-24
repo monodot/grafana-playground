@@ -70,7 +70,7 @@ sudo k3s kubectl -n orders-demo logs deploy/batch-job | grep Exporting
 
 Then in your Grafana Cloud stack:
 
-- **Traces**: query TraceQL `{ span.db.system = "oracle" }` or `{ status = error }`. Traces span batch-job → gateway-api → legacy-wildfly → Oracle, with the captured `http.request.header.x-customer-id` attributes.
+- **Traces**: query TraceQL `{ span.db.system = "oracle" }` or `{ status = error }`. Traces span batch-job → gateway-api → legacy-wildfly → Oracle, with the captured `http.request.header.x-customer-id` attributes. The `legacy-tomcat` error traces carry the nested routing exception as a span event: `{ event.exception.type =~ ".*PlatformFaultException" }`.
 - **Profiles**: the `gateway-api` service shows CPU flame graphs, and its spans link to profiles.
 - **Node metrics**: not collected by this demo. If the cluster runs Grafana's Kubernetes Monitoring Helm chart (as the development machine for this demo does), node-level CPU and memory are already in your stack, and that is the recommended way to add them.
 
