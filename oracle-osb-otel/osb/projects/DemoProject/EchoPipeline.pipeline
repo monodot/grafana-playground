@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Pipeline between EchoProxy and EchoBackend. Its only job is to make OSB's
+  pipeline engine execute, so the route runs through MessageProcessor and
+  RouteNode rather than the proxy shortcutting straight to the business
+  service. That gives OTEL_INSTRUMENTATION_METHODS_INCLUDE something to hook.
+
+  Note the binding type is "Native REST" here, capitalised, from the pipeline
+  config namespace. Proxy and business services use "native REST" from the
+  services bindings namespace. The two schemas define separate enumerations.
+-->
+<con:pipelineEntry xmlns:con="http://www.bea.com/wli/sb/pipeline/config">
+    <con:coreEntry>
+        <con:description>Routes requests from EchoProxy to EchoBackend via the pipeline engine.</con:description>
+        <con:binding type="Native REST" xsi:type="con:NativeRestBindingType" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+    </con:coreEntry>
+    <con:router>
+        <con:flow>
+            <con:route-node name="RouteToEchoBackend">
+                <con:actions>
+                    <rt:route xmlns:rt="http://www.bea.com/wli/sb/stages/routing/config">
+                        <rt:service ref="DemoProject/EchoBackend" xsi:type="ref:BusinessServiceRef" xmlns:ref="http://www.bea.com/wli/sb/reference" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                    </rt:route>
+                </con:actions>
+            </con:route-node>
+        </con:flow>
+    </con:router>
+</con:pipelineEntry>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Proxy service. This is the inbound half of the demo: it listens on
+  /demo/echo on the managed server and wires straight through to the
+  EchoBackend business service.
+
+  The ser:invoke element is what connects the services. Its xsi:type decides
+  what the proxy calls. It now points at the EchoPipeline resource with
+  pip:PipelineRef, so OSB's pipeline engine runs on every request. The
+  previous form routed directly to the business service with
+  ref:BusinessServiceRef, which skips the pipeline engine entirely.
+-->
+<ser:proxyServiceEntry xmlns:ser="http://www.bea.com/wli/sb/services">
+    <ser:coreEntry>
+        <ser:description>Accepts HTTP requests and routes them to EchoBackend.</ser:description>
+        <ser:binding type="native REST" xsi:type="con:NativeRestBindingType" xmlns:con="http://www.bea.com/wli/sb/services/bindings/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+        <oper:operations enabled="true" xmlns:oper="http://xmlns.oracle.com/servicebus/proxy/operations"/>
+        <ser:ws-policy>
+            <ser:binding-mode>no-policies</ser:binding-mode>
+        </ser:ws-policy>
+        <ser:invoke ref="DemoProject/EchoPipeline" xsi:type="pip:PipelineRef" xmlns:pip="http://www.bea.com/wli/sb/pipeline/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+        <ser:xqConfiguration>
+            <ser:snippetVersion>1.0</ser:snippetVersion>
+        </ser:xqConfiguration>
+    </ser:coreEntry>
+    <ser:endpointConfig>
+        <tran:provider-id xmlns:tran="http://www.bea.com/wli/sb/transports">http</tran:provider-id>
+        <tran:inbound xmlns:tran="http://www.bea.com/wli/sb/transports">true</tran:inbound>
+        <tran:URI xmlns:tran="http://www.bea.com/wli/sb/transports">
+            <env:value xmlns:env="http://www.bea.com/wli/config/env">/demo/echo</env:value>
+        </tran:URI>
+        <tran:inbound-properties xmlns:tran="http://www.bea.com/wli/sb/transports"/>
+        <tran:provider-specific xsi:type="http:HttpEndPointConfiguration" xmlns:http="http://www.bea.com/wli/sb/transports/http" xmlns:tran="http://www.bea.com/wli/sb/transports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <http:inbound-properties/>
+            <http:dispatch-policy>SBDefaultRequestWorkManager</http:dispatch-policy>
+            <http:compression>
+                <http:compression-support>false</http:compression-support>
+            </http:compression>
+        </tran:provider-specific>
+    </ser:endpointConfig>
+</ser:proxyServiceEntry>

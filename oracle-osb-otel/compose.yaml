@@ -1,0 +1,101 @@
+services:
+  soadb:
+    image: container-registry.oracle.com/database/enterprise:19.3.0.0
+    container_name: soadb
+    environment:
+      ORACLE_SID: soadb
+      ORACLE_PDB: soapdb
+      ORACLE_PWD: Oradoc_db1
+      ENABLE_ARCHIVELOG: "true"
+    ports: ["1521:1521"]
+    # The :z label matters here. Without it, Podman gives this volume SELinux
+    # MCS categories private to one container. Recreating soadb then produces a
+    # container with different categories, which cannot read its own spfile, and
+    # the database fails to start with ORA-01078.
+    volumes: ["soadb_vol:/opt/oracle/oradata:z"]
+
+  soaas:
+    image: container-registry.oracle.com/middleware/soasuite:14.1.2.0-jdk17-ol9-241205
+    container_name: soaas
+    depends_on:
+      soadb:
+        condition: service_healthy
+    environment:
+      CONNECTION_STRING: soadb:1521/soapdb
+      RCUPREFIX: OSB1
+      DB_PASSWORD: Oradoc_db1
+      DB_SCHEMA_PASSWORD: Oradoc_db1
+      ADMIN_PASSWORD: welcome1
+      DOMAIN_NAME: soainfra
+      DOMAIN_TYPE: osb
+      ADMIN_HOST: soaas
+      ADMIN_PORT: "7001"
+      PERSISTENCE_STORE: jdbc
+    ports: ["7001:7001"]
+    volumes: ["soadomain_vol:/u01/oracle/user_projects:z"]
+    healthcheck:
+      # Uses built-in health check in the image
+      interval: 30s
+      timeout: 10s
+      retries: 60
+      start_period: 300s
+
+  osbms1:
+    image: container-registry.oracle.com/middleware/soasuite:14.1.2.0-jdk17-ol9-241205
+    container_name: osbms1
+    command: ["/u01/oracle/container-scripts/startMS.sh"]
+    depends_on:
+      soaas:
+        condition: service_healthy
+    environment:
+      MANAGED_SERVER: osb_server1
+      DOMAIN_NAME: soainfra
+      ADMIN_HOST: soaas
+      ADMIN_PORT: "7001"
+      ADMIN_PASSWORD: welcome1
+      MANAGED_SERVER_CONTAINER: "true"
+      MANAGEDSERVER_PORT: "8002"
+      # setDomainEnv.sh appends to whatever JAVA_OPTIONS it inherits, so setting
+      # it here puts the agent on the managed server's JVM command line.
+      JAVA_OPTIONS: "-javaagent:/u01/otel/opentelemetry-javaagent.jar"
+      OTEL_SERVICE_NAME: osb-server1
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://lgtm:4317
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: otlp
+      OTEL_LOGS_EXPORTER: otlp
+      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=demo,service.namespace=osb"
+      OTEL_INSTRUMENTATION_COMMON_EXPERIMENTAL_CONTROLLER_TELEMETRY_ENABLED: "true"
+      # Adds spans for OSB's own pipeline engine. The agent has no OSB-specific
+      # instrumentation, so these methods are named explicitly. Classes are
+      # separated by semicolons, methods by commas inside the brackets.
+      OTEL_INSTRUMENTATION_METHODS_INCLUDE: "com.bea.wli.sb.pipeline.MessageProcessor[processRequest,processResponse,finishProcessing];com.bea.wli.sb.pipeline.components.PipelineStage[processMessage];com.bea.wli.sb.pipeline.components.RouteNode[doRequest,doResponse];com.bea.wli.sb.pipeline.components.PipelineNode[doRequest,doResponse]"
+    ports: ["8002:8002"]
+    volumes:
+      - "soadomain_vol:/u01/oracle/user_projects:z"
+      - "./osb:/u01/osb-demo:ro,z"
+      - "./otel:/u01/otel:ro,z"
+
+  # Backend that the EchoBackend business service calls. The code is in
+  # echo-service/server.py and uses only the Python standard library.
+  echo:
+    image: docker.io/library/python:3.13-slim
+    container_name: echo
+    command: ["python", "/app/server.py"]
+    volumes:
+      - "./echo-service:/app:ro,z"
+    ports: ["8080:8080"]
+
+  # Grafana, Loki, Tempo and Mimir in one container, with an OTLP endpoint.
+  # The managed server sends its telemetry here.
+  lgtm:
+    image: docker.io/grafana/otel-lgtm:latest
+    container_name: lgtm
+    ports:
+      - "3000:3000"   # Grafana
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+
+volumes:
+  soadb_vol:
+  soadomain_vol:

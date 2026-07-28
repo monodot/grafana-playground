@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Business service. This is the outbound half of the demo: OSB calls the echo
+  container over HTTP. The URI uses the container name "echo", which resolves on
+  the compose network.
+-->
+<biz:businessServiceEntry xmlns:biz="http://xmlns.oracle.com/servicebus/business/config">
+    <biz:coreEntry>
+        <biz:description>Calls the echo backend over HTTP.</biz:description>
+        <biz:binding type="native REST" xsi:type="con:NativeRestBindingType" xmlns:con="http://www.bea.com/wli/sb/services/bindings/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+        <biz:ws-policy>
+            <ser:binding-mode xmlns:ser="http://www.bea.com/wli/sb/services">no-policies</ser:binding-mode>
+        </biz:ws-policy>
+        <biz:xqConfiguration>
+            <ser:snippetVersion xmlns:ser="http://www.bea.com/wli/sb/services">1.0</ser:snippetVersion>
+        </biz:xqConfiguration>
+    </biz:coreEntry>
+    <biz:endpointConfig>
+        <tran:provider-id xmlns:tran="http://www.bea.com/wli/sb/transports">http</tran:provider-id>
+        <tran:inbound xmlns:tran="http://www.bea.com/wli/sb/transports">false</tran:inbound>
+        <tran:URI xmlns:tran="http://www.bea.com/wli/sb/transports">
+            <env:value xmlns:env="http://www.bea.com/wli/config/env">http://echo:8080/backend</env:value>
+        </tran:URI>
+        <!-- load-balancing-algorithm and retry-count are both required here, even
+             with a single endpoint URI. Omitting either fails import validation. -->
+        <tran:outbound-properties xmlns:tran="http://www.bea.com/wli/sb/transports">
+            <tran:load-balancing-algorithm>round-robin</tran:load-balancing-algorithm>
+            <tran:retry-count>0</tran:retry-count>
+        </tran:outbound-properties>
+        <tran:provider-specific xsi:type="http:HttpEndPointConfiguration" xmlns:http="http://www.bea.com/wli/sb/transports/http" xmlns:tran="http://www.bea.com/wli/sb/transports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <!-- request-method goes inside outbound-properties. As a sibling of it
+                 the endpoint fails validation, because dispatch-policy,
+                 request-encoding and response-encoding are expected next. -->
+            <http:outbound-properties>
+                <http:request-method>POST</http:request-method>
+            </http:outbound-properties>
+        </tran:provider-specific>
+    </biz:endpointConfig>
+</biz:businessServiceEntry>

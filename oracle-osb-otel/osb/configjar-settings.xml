@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Input for the configjar tool, which packages the project sources under
+  projects/ into an OSB config jar (sbconfig.jar).
+
+  configjar recognises .proxy and .pipeline on its own, but it does not know
+  about .biz, so the extension is mapped to BusinessService below. Paths are
+  the ones seen inside the osbms1 container, where deploy.sh runs the tool.
+-->
+<configjarSettings xmlns="http://www.bea.com/alsb/tools/configjar/config">
+    <source>
+        <project dir="/u01/osb-demo/projects/DemoProject"/>
+        <extensionMapping>
+            <mapping type="BusinessService" extensions="biz"/>
+        </extensionMapping>
+    </source>
+    <configjar jar="/tmp/osb-demo/sbconfig.jar">
+        <projectLevel includeSystem="false">
+            <project>DemoProject</project>
+        </projectLevel>
+    </configjar>
+</configjarSettings>
