@@ -1,0 +1,29 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: java-instrumentation
+  namespace: demo-app
+spec:
+  exporter:
+    endpoint: http://otel-lgtm.observability.svc.cluster.local:4317
+  propagators:
+    - tracecontext
+    - baggage
+  sampler:
+    type: parentbased_always_on
+  java:
+    env:
+      # Adds an extra INTERNAL span for the Spring MVC controller method that
+      # handles each request, underneath the usual server span.
+      - name: OTEL_INSTRUMENTATION_COMMON_EXPERIMENTAL_CONTROLLER_TELEMETRY_ENABLED
+        value: "true"
+      - name: OTEL_EXPORTER_OTLP_PROTOCOL
+        value: grpc
+      - name: OTEL_METRICS_EXPORTER
+        value: otlp
+      - name: OTEL_LOGS_EXPORTER
+        value: otlp
+      # Nothing reads this. It only proves that anything you put under
+      # spec.java.env lands on the app container, not just OTEL_* settings.
+      - name: DORIS_WAS_HERE
+        value: "hello-from-the-instrumentation-cr"

@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loadgen-script
+  namespace: demo-app
+data:
+  script.js: |
+    import http from 'k6/http';
+    import { sleep } from 'k6';
+
+    export const options = {
+      vus: 1,
+      duration: '24h',
+    };
+
+    export default function () {
+      const id = Math.floor(Math.random() * 1000);
+      http.get(`http://order-api:8080/orders/${id}`);
+      http.get(`http://order-api:8080/orders/${id}/invoice`);
+      sleep(1);
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadgen
+  namespace: demo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loadgen
+  template:
+    metadata:
+      labels:
+        app: loadgen
+    spec:
+      containers:
+        - name: k6
+          image: docker.io/grafana/k6:latest
+          args:
+            - run
+            - /scripts/script.js
+          volumeMounts:
+            - name: loadgen-script
+              mountPath: /scripts
+      volumes:
+        - name: loadgen-script
+          configMap:
+            name: loadgen-script
