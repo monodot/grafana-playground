@@ -17,6 +17,9 @@ data:
       const id = Math.floor(Math.random() * 1000);
       http.get(`http://order-api:8080/orders/${id}`);
       http.get(`http://order-api:8080/orders/${id}/invoice`);
+      // order-api-plain only exists if you applied 50-compare.yaml. k6 logs a
+      // failed request if it isn't there, which is harmless.
+      http.get(`http://order-api-plain:8080/orders/${id}/invoice`);
       sleep(1);
     }
 ---

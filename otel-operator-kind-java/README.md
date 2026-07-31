@@ -155,6 +155,72 @@ Open a trace for `GET /orders/{id}/invoice`. Because controller telemetry is swi
 
 Without `OTEL_INSTRUMENTATION_COMMON_EXPERIMENTAL_CONTROLLER_TELEMETRY_ENABLED`, only the server span appears.
 
+## Searching for traces with and without the controller span
+
+`manifests/50-compare.yaml` runs a second copy of the app, called `order-api-plain`, against a second `Instrumentation` resource that has controller telemetry switched off. With both running, Tempo always holds traces of each kind, so you can search for them side by side.
+
+The deployment picks its `Instrumentation` resource by name:
+
+```yaml
+annotations:
+  instrumentation.opentelemetry.io/inject-java: demo-app/java-instrumentation-no-controller
+```
+
+### Traces that have the controller span
+
+Match on the span name. This returns the trace because one of its spans matches:
+
+```traceql
+{ name =~ "OrderController.*" }
+```
+
+You can also match on the instrumentation scope that creates the span, which is more precise than a name pattern:
+
+```traceql
+{ instrumentation:name = "io.opentelemetry.spring-webmvc-6.0" }
+```
+
+Or count the spans per trace. Each request produces two spans when controller telemetry is on:
+
+```traceql
+{ resource.service.name =~ "order-api.*" } | count() > 1
+```
+
+### Traces that do not have the controller span
+
+Counting is the way to do this:
+
+```traceql
+{ resource.service.name =~ "order-api.*" } | count() = 1
+```
+
+Read this as "traces with exactly one matching span", so it depends on the app producing one span per request when the setting is off. It is the right query for this demo, but if you add a database call or an outgoing HTTP request, each request will produce more spans and you will need to raise the number.
+
+To confirm which service a result came from, add the service name to the query:
+
+```traceql
+{ resource.service.name = "order-api" } | count() = 1
+{ resource.service.name = "order-api-plain" } | count() = 1
+```
+
+The first returns nothing and the second returns every trace.
+
+### Why you cannot use the not-child operator
+
+The obvious query is TraceQL's negated structural operator, "server spans with no controller-span child":
+
+```traceql
+{ resource.service.name =~ "order-api.*" && kind = server } !> { name =~ "OrderController.*" }
+```
+
+This returns nothing, even for traces that genuinely have no controller span. The negated structural operators only produce results when the right-hand side matches at least one span in the trace, so they cannot express "this span is absent altogether". You can see the behaviour for yourself with a right-hand side that matches nothing anywhere:
+
+```traceql
+{ kind = server } !> { name = "totally-nonexistent-span" }
+```
+
+Every trace satisfies that condition, but the query still returns nothing. Use `count()` instead.
+
 ### Compare with the setting turned off
 
 Set the variable to `false` and restart the app:

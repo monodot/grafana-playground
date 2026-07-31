@@ -1,0 +1,71 @@
+# A second copy of the same app, wired to an Instrumentation resource that has
+# controller telemetry switched off. Running both at once means Tempo always
+# holds traces with and without the controller span, so you can compare them
+# without editing anything.
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: java-instrumentation-no-controller
+  namespace: demo-app
+spec:
+  exporter:
+    endpoint: http://otel-lgtm.observability.svc.cluster.local:4317
+  propagators:
+    - tracecontext
+    - baggage
+  sampler:
+    type: parentbased_always_on
+  java:
+    env:
+      - name: OTEL_INSTRUMENTATION_COMMON_EXPERIMENTAL_CONTROLLER_TELEMETRY_ENABLED
+        value: "false"
+      - name: OTEL_EXPORTER_OTLP_PROTOCOL
+        value: grpc
+      - name: OTEL_METRICS_EXPORTER
+        value: otlp
+      - name: OTEL_LOGS_EXPORTER
+        value: otlp
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-api-plain
+  namespace: demo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-api-plain
+  template:
+    metadata:
+      labels:
+        app: order-api-plain
+      annotations:
+        # The annotation value names which Instrumentation resource to use.
+        instrumentation.opentelemetry.io/inject-java: demo-app/java-instrumentation-no-controller
+    spec:
+      containers:
+        - name: order-api
+          image: localhost/order-api:1.0.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: order-api-plain
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-api-plain
+  namespace: demo-app
+spec:
+  selector:
+    app: order-api-plain
+  ports:
+    - port: 8080
+      targetPort: 8080
