@@ -36,10 +36,10 @@ aws logs tail /otel/test-logs --since 5m --format short --region us-east-1
 This produces log lines like this which shows how logs differ between the CloudWatch and OTLP exporters:
 
 ```text
-# via Cloudwatch exporter
+# via OTLP endpoint
 2026-08-18T18:04:54 {"resource":{"attributes":{"key1":"value1","service.name":"telemetrygen"},"schemaUrl":"https://opentelemetry.io/schemas/1.40.0"},"scope":{},"timeUnixNano":1787076294698458273,"observedTimeUnixNano":0,"severityNumber":9,"severityText":"Info","body":"the message","attributes":{"app":"server"},"traceId":"","spanId":""}
 
-# via OTLP endpoint
+# via Cloudwatch exporter
 2026-08-18T18:04:54 {"body":"the message","severity_number":9,"severity_text":"Info","attributes":{"app":"server"},"resource":{"key1":"value1","service.name":"telemetrygen"}}
 ```
 
