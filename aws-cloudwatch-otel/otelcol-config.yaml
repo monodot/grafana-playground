@@ -8,6 +8,10 @@ extensions:
   sigv4auth:
     region: us-east-1
     service: logs
+  basicauth/grafana_cloud:
+    client_auth:
+      username: "${env:GRAFANA_CLOUD_OTLP_USERNAME}"
+      password: "${env:GRAFANA_CLOUD_ACCESS_POLICY_TOKEN}"
 
 processors:
   batch:
@@ -19,13 +23,7 @@ exporters:
     use_internal_logger: false
     output_paths: [stdout]
 
-  # Uncomment this to use the cloudwatch exporter
-  awscloudwatchlogs:
-    region: us-east-1
-    log_group_name: /otel/test-logs
-    log_stream_name: telemetrygen-stream
-
-  # Use CloudWatch's native OTLP endpoint
+  # CloudWatch's native OTLP endpoint.
   otlphttp/cloudwatch:
     logs_endpoint: https://logs.us-east-1.amazonaws.com/v1/logs
     compression: gzip
@@ -35,8 +33,14 @@ exporters:
     auth:
       authenticator: sigv4auth
 
+  # Grafana Cloud's OTLP endpoint. It appends /v1/logs to the base URL.
+  otlphttp/grafana_cloud:
+    endpoint: "${env:GRAFANA_CLOUD_OTLP_ENDPOINT}"
+    auth:
+      authenticator: basicauth/grafana_cloud
+
 service:
-  extensions: [sigv4auth]   # required for Cloudwatch OTLP HTTP
+  extensions: [sigv4auth, basicauth/grafana_cloud]
   telemetry:
     logs:
       level: debug
@@ -47,4 +51,4 @@ service:
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [debug, otlphttp/cloudwatch, awscloudwatchlogs]
+      exporters: [debug, otlphttp/cloudwatch, otlphttp/grafana_cloud]

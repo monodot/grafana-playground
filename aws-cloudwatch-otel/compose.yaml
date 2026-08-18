@@ -8,6 +8,9 @@ services:
       - AWS_SECRET_ACCESS_KEY
       - AWS_SESSION_TOKEN
       - AWS_REGION=us-east-1
+      - GRAFANA_CLOUD_OTLP_ENDPOINT
+      - GRAFANA_CLOUD_OTLP_USERNAME
+      - GRAFANA_CLOUD_ACCESS_POLICY_TOKEN
 
   telemetrygen-logs:
     image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:latest
