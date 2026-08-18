@@ -1,0 +1,82 @@
+services:
+  edge-alloy:
+    image: grafana/alloy:latest
+    hostname: edge-alloy
+    command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
+    volumes:
+      # `Z` relabels this bind mount for Podman on SELinux hosts.
+      - ./alloy/edge.alloy:/etc/alloy/config.alloy:ro,Z
+      - ./certs:/certs:ro,Z
+    ports:
+      - "4317:4317" # OTLP/gRPC from local applications; deliberately unauthenticated
+      - "4318:4318" # OTLP/HTTP from local applications; deliberately unauthenticated
+      - "12345:12345" # Alloy UI and metrics
+
+  central-alloy:
+    image: grafana/alloy:latest
+    command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
+    volumes:
+      # `Z` relabels this bind mount for Podman on SELinux hosts.
+      - ./alloy/central.alloy:/etc/alloy/config.alloy:ro,Z
+      - ./certs:/certs:ro,Z
+    depends_on:
+      otel-lgtm:
+        condition: service_started
+    ports:
+#      - "14317:4317" # mTLS OTLP/gRPC; mapped separately to make the boundary obvious
+      - "12346:12345" # Alloy UI and metrics
+
+  # This edge presents a valid client certificate from a CA that central does
+  # not trust. Its telemetry must therefore be rejected at the mTLS boundary.
+  unauthorized-edge-alloy:
+    image: grafana/alloy:latest
+    command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
+    volumes:
+      - ./alloy/unauthorized-edge.alloy:/etc/alloy/config.alloy:ro,Z
+      - ./certs:/certs:ro,Z
+    depends_on:
+      central-alloy:
+        condition: service_started
+    ports:
+      - "12347:12345" # Alloy UI and metrics
+
+  otel-lgtm:
+    image: grafana/otel-lgtm:latest
+    ports:
+      - "3000:3000" # Grafana
+
+  # telemetrygen has one subcommand per signal, so these containers
+  # collectively generate traces, metrics, and logs.
+  telemetrygen-traces:
+    image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:latest
+    command: ["traces", "--otlp-endpoint=edge-alloy:4317", "--otlp-insecure", "--duration=inf", "--rate=1", "--service=telemetrygen"]
+    restart: unless-stopped
+    depends_on:
+      edge-alloy:
+        condition: service_started
+
+  telemetrygen-metrics:
+    image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:latest
+    command: ["metrics", "--otlp-endpoint=edge-alloy:4317", "--otlp-insecure", "--duration=inf", "--rate=1", "--service=telemetrygen"]
+    restart: unless-stopped
+    depends_on:
+      edge-alloy:
+        condition: service_started
+
+  telemetrygen-logs:
+    image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:latest
+    command: ["logs", "--otlp-endpoint=edge-alloy:4317", "--otlp-insecure", "--duration=inf", "--rate=1", "--service=telemetrygen"]
+    restart: unless-stopped
+    depends_on:
+      edge-alloy:
+        condition: service_started
+
+  # Generates traces through the unauthorized edge. The exporter continues
+  # retrying, making the central mTLS rejection visible in its logs.
+  telemetrygen-unauthorized:
+    image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:latest
+    command: ["traces", "--otlp-endpoint=unauthorized-edge-alloy:4317", "--otlp-insecure", "--duration=inf", "--rate=1", "--service=unauthorized-telemetrygen"]
+    restart: unless-stopped
+    depends_on:
+      unauthorized-edge-alloy:
+        condition: service_started

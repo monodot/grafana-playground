@@ -1,0 +1,38 @@
+// The central receiver requires every OTLP/gRPC client to present a certificate
+// signed by /certs/ca.crt. A client without one cannot complete the TLS handshake.
+otelcol.receiver.otlp "central" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+
+    tls {
+      cert_file      = "/certs/central-server.crt"
+      key_file       = "/certs/central-server.key"
+      client_ca_file = "/certs/ca.crt"
+    }
+  }
+
+  output {
+    metrics = [otelcol.processor.batch.central.input]
+    logs    = [otelcol.processor.batch.central.input]
+    traces  = [otelcol.processor.batch.central.input]
+  }
+}
+
+otelcol.processor.batch "central" {
+  output {
+    metrics = [otelcol.exporter.otlp.otel_lgtm.input]
+    logs    = [otelcol.exporter.otlp.otel_lgtm.input]
+    traces  = [otelcol.exporter.otlp.otel_lgtm.input]
+  }
+}
+
+otelcol.exporter.otlp "otel_lgtm" {
+  client {
+    endpoint = "otel-lgtm:4317"
+
+    // otel-lgtm's demo OTLP endpoint is plaintext inside this Compose network.
+    tls {
+      insecure = true
+    }
+  }
+}

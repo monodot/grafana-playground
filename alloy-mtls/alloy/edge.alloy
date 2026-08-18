@@ -1,0 +1,55 @@
+// The edge listens without authentication so local workloads can submit OTLP.
+// Authentication is enforced on the outgoing hop to central-alloy.
+otelcol.receiver.otlp "edge" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    metrics = [otelcol.processor.attributes.edge_hostname.input]
+    logs    = [otelcol.processor.attributes.edge_hostname.input]
+    traces  = [otelcol.processor.attributes.edge_hostname.input]
+  }
+}
+
+// Identify the collector that accepted the telemetry, without overwriting an
+// application's own host.name resource attribute.
+otelcol.processor.attributes "edge_hostname" {
+  action {
+    key    = "collector.hostname"
+    value  = sys.env("HOSTNAME")
+    action = "upsert"
+  }
+
+  output {
+    metrics = [otelcol.processor.batch.edge.input]
+    logs    = [otelcol.processor.batch.edge.input]
+    traces  = [otelcol.processor.batch.edge.input]
+  }
+}
+
+otelcol.processor.batch "edge" {
+  output {
+    metrics = [otelcol.exporter.otlp.central.input]
+    logs    = [otelcol.exporter.otlp.central.input]
+    traces  = [otelcol.exporter.otlp.central.input]
+  }
+}
+
+otelcol.exporter.otlp "central" {
+  client {
+    endpoint = "central-alloy:4317"
+
+    tls {
+      // Verify central's server identity, then present the edge identity.
+      ca_file   = "/certs/ca.crt"
+      cert_file = "/certs/edge-client.crt"
+      key_file  = "/certs/edge-client.key"
+      server_name = "central-alloy"
+    }
+  }
+}
