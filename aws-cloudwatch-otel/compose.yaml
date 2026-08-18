@@ -1,0 +1,26 @@
+services:
+  otelcol:
+    image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.149.0
+    volumes:
+      - ./otelcol-config.yaml:/etc/otelcol-contrib/config.yaml:z
+    environment:
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+      - AWS_REGION=us-east-1
+
+  telemetrygen-logs:
+    image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:latest
+    command:
+      - logs
+      - --otlp-endpoint=otelcol:4317
+      - --otlp-insecure
+      - --rate=1
+      - --duration=inf
+      - --batch=false
+      - --service=telemetrygen
+      - --otlp-attributes=key1="value1"
+    restart: unless-stopped
+    depends_on:
+      otelcol:
+        condition: service_started

@@ -1,0 +1,50 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+extensions:
+  sigv4auth:
+    region: us-east-1
+    service: logs
+
+processors:
+  batch:
+    timeout: 5s
+
+exporters:
+  debug:
+    verbosity: detailed
+    use_internal_logger: false
+    output_paths: [stdout]
+
+  # Uncomment this to use the cloudwatch exporter
+  awscloudwatchlogs:
+    region: us-east-1
+    log_group_name: /otel/test-logs
+    log_stream_name: telemetrygen-stream
+
+  # Use CloudWatch's native OTLP endpoint
+  otlphttp/cloudwatch:
+    logs_endpoint: https://logs.us-east-1.amazonaws.com/v1/logs
+    compression: gzip
+    headers:
+      x-aws-log-group: /otel/test-logs
+      x-aws-log-stream: telemetrygen-stream-otlp  # this log stream needs to exist first
+    auth:
+      authenticator: sigv4auth
+
+service:
+  extensions: [sigv4auth]   # required for Cloudwatch OTLP HTTP
+  telemetry:
+    logs:
+      level: debug
+      development: true
+      sampling:
+        enabled: false
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug, otlphttp/cloudwatch, awscloudwatchlogs]
