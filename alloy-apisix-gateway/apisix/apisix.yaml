@@ -1,0 +1,63 @@
+# APISIX reads this file in standalone mode. Keep #END as the final line: it
+# prevents APISIX from loading a partially-written configuration.
+consumers:
+  - username: telemetrygen
+    plugins:
+      key-auth:
+        key: demo-key
+      # This quota is attached to the consumer, so it is shared across all
+      # OTLP routes instead of being counted separately per signal route.
+      limit-count:
+        count: 30
+        time_window: 60
+        rejected_code: 429
+        key_type: var
+        key: consumer_name
+        policy: local
+
+services:
+  - id: otlp-grpc
+    plugins:
+      key-auth:
+        header: apikey
+        hide_credentials: true
+    upstream:
+      type: roundrobin
+      scheme: grpc
+      nodes:
+        "alloy:4317": 1
+
+  - id: otlp-http
+    plugins:
+      key-auth:
+        header: apikey
+        hide_credentials: true
+    upstream:
+      type: roundrobin
+      scheme: http
+      nodes:
+        "alloy:4318": 1
+
+routes:
+  # OTLP/gRPC method paths. Listing them explicitly prevents unrelated gRPC
+  # services from being accepted by the public listener.
+  - id: otlp-grpc-traces
+    uri: /opentelemetry.proto.collector.trace.v1.TraceService/Export
+    methods: [POST]
+    service_id: otlp-grpc
+
+  - id: otlp-grpc-metrics
+    uri: /opentelemetry.proto.collector.metrics.v1.MetricsService/Export
+    methods: [POST]
+    service_id: otlp-grpc
+
+  - id: otlp-grpc-logs
+    uri: /opentelemetry.proto.collector.logs.v1.LogsService/Export
+    methods: [POST]
+    service_id: otlp-grpc
+
+  - id: otlp-http
+    uri: /v1/*
+    methods: [POST]
+    service_id: otlp-http
+#END

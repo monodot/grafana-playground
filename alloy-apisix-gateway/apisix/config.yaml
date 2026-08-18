@@ -1,0 +1,10 @@
+# Standalone, file-driven APISIX data plane. No etcd or Admin API is started.
+apisix:
+  node_listen: 9080
+  enable_http2: true
+  enable_admin: false
+
+deployment:
+  role: data_plane
+  role_data_plane:
+    config_provider: yaml

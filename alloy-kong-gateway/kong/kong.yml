@@ -1,0 +1,44 @@
+_format_version: "3.0"
+_transform: true
+
+# A demo consumer and credential. Replace this with an identity provider or a
+# secret manager in a real deployment.
+consumers:
+  - username: telemetrygen
+    keyauth_credentials:
+      - key: demo-key
+
+services:
+  - name: otlp-grpc
+    url: grpc://alloy:4317
+    routes:
+      - name: otlp-grpc
+        protocols: [grpc]
+        paths: [/]
+        strip_path: false
+    plugins:
+      - name: key-auth
+        config:
+          key_names: [apikey]
+      - name: rate-limiting
+        config:
+          minute: 30
+          limit_by: consumer
+          policy: local
+
+  - name: otlp-http
+    url: http://alloy:4318
+    routes:
+      - name: otlp-http
+        protocols: [http]
+        paths: [/v1]
+        strip_path: false
+    plugins:
+      - name: key-auth
+        config:
+          key_names: [apikey]
+      - name: rate-limiting
+        config:
+          minute: 30
+          limit_by: consumer
+          policy: local

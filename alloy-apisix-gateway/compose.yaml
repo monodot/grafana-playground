@@ -1,0 +1,55 @@
+services:
+  otel-lgtm:
+    image: grafana/otel-lgtm:latest
+    ports:
+      - "3000:3000"
+    # OTLP is intentionally only exposed on the Compose network. Alloy is its
+    # sole ingress point in this demo.
+
+  alloy:
+    image: grafana/alloy:latest
+    command: run /etc/alloy/config.alloy --server.http.listen-addr=0.0.0.0:12345
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro,Z
+    depends_on:
+      - otel-lgtm
+    # Do not publish the OTLP ports: traffic reaches these receivers through
+    # APISIX only.
+
+  apisix:
+    image: docker.io/apache/apisix:3.11.0-debian
+    volumes:
+      - ./apisix/config.yaml:/usr/local/apisix/conf/config.yaml:ro,Z
+      - ./apisix/apisix.yaml:/usr/local/apisix/conf/apisix.yaml:ro,Z
+    ports:
+      - "8000:9080"
+    depends_on:
+      - alloy
+
+  telemetrygen:
+    image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:latest
+    command:
+      - traces
+      - --otlp-endpoint=apisix:9080
+      - --otlp-insecure
+      - '--otlp-header=apikey="demo-key"'
+      - --service=telemetrygen-through-apisix
+      - --duration=inf
+      - --rate=1
+    depends_on:
+      - apisix
+    restart: on-failure
+
+  telemetrygen-unauthorised:
+    image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:latest
+    command:
+      - traces
+      - --otlp-endpoint=apisix:9080
+      - --otlp-insecure
+      - '--otlp-header=apikey="wrong-key"'
+      - --service=telemetrygen-through-apisix
+      - --duration=inf
+      - --rate=1
+    depends_on:
+      - apisix
+    restart: on-failure

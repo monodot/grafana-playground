@@ -1,0 +1,46 @@
+services:
+  otel-lgtm:
+    image: grafana/otel-lgtm:latest
+    ports:
+      - "3000:3000"
+    # OTLP is intentionally only exposed on the Compose network. Alloy is its
+    # sole ingress point in this demo.
+
+  alloy:
+    image: grafana/alloy:latest
+    command: run /etc/alloy/config.alloy --server.http.listen-addr=0.0.0.0:12345
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro,Z
+    depends_on:
+      - otel-lgtm
+    # Do not publish the OTLP ports: traffic reaches these receivers through
+    # Kong only.
+
+  kong:
+    image: docker.io/library/kong:3.8
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+      KONG_PROXY_LISTEN: "0.0.0.0:8000 http2"
+      KONG_ADMIN_LISTEN: "off"
+      KONG_LOG_LEVEL: notice
+    volumes:
+      - ./kong/kong.yml:/kong/declarative/kong.yml:ro,Z
+    ports:
+      - "8000:8000"
+    depends_on:
+      - alloy
+
+  telemetrygen:
+    image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:latest
+    command:
+      - traces
+      - --otlp-endpoint=kong:8000
+      - --otlp-insecure
+      - '--otlp-header=apikey="demo-key"'
+      - --service=telemetrygen-through-kong
+      - --duration=inf
+      - --rate=1
+    depends_on:
+      - kong
+    restart: on-failure

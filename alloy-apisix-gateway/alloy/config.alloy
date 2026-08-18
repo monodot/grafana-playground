@@ -1,0 +1,37 @@
+// APISIX is the public OTLP entry point. These listeners are kept private to
+// the Compose network; APISIX authenticates and rate-limits traffic before it
+// reaches Alloy.
+otelcol.receiver.otlp "gateway" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    metrics = [otelcol.processor.batch.gateway.input]
+    logs    = [otelcol.processor.batch.gateway.input]
+    traces  = [otelcol.processor.batch.gateway.input]
+  }
+}
+
+otelcol.processor.batch "gateway" {
+  output {
+    metrics = [otelcol.exporter.otlp.otel_lgtm.input]
+    logs    = [otelcol.exporter.otlp.otel_lgtm.input]
+    traces  = [otelcol.exporter.otlp.otel_lgtm.input]
+  }
+}
+
+otelcol.exporter.otlp "otel_lgtm" {
+  client {
+    endpoint = "otel-lgtm:4317"
+
+    // otel-lgtm receives OTLP plaintext on the private Compose network.
+    tls {
+      insecure = true
+    }
+  }
+}
