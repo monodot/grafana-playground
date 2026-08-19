@@ -1,0 +1,55 @@
+# Stands in for the customer's current observability backend.
+# The two OTel Collectors already send their telemetry here, and must keep doing so.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: existing-backend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: existing-backend
+  namespace: existing-backend
+  labels:
+    app: existing-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: existing-backend
+  template:
+    metadata:
+      labels:
+        app: existing-backend
+    spec:
+      containers:
+        - name: otel-lgtm
+          image: docker.io/grafana/otel-lgtm:latest
+          ports:
+            - name: grafana
+              containerPort: 3000
+            - name: otlp-grpc
+              containerPort: 4317
+            - name: otlp-http
+              containerPort: 4318
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: existing-backend
+  namespace: existing-backend
+spec:
+  type: NodePort
+  selector:
+    app: existing-backend
+  ports:
+    - name: grafana
+      port: 3000
+      targetPort: 3000
+      nodePort: 30000
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318

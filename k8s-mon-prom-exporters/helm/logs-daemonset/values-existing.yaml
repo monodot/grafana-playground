@@ -1,0 +1,20 @@
+# The current state of the OTel Collector DaemonSet, before adding anything
+# for Grafana Cloud. It collects Pod logs and sends them to the existing backend.
+image:
+  repository: 'otel/opentelemetry-collector-contrib'
+  tag: latest
+mode: daemonset
+
+presets:
+  logsCollection:
+    enabled: true
+
+config:
+  exporters:
+    otlphttp/existingBackend:
+      endpoint: http://existing-backend.existing-backend.svc.cluster.local:4318
+
+  service:
+    pipelines:
+      logs:
+        exporters: [otlphttp/existingBackend]

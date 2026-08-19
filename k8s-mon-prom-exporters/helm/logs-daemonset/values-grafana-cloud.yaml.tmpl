@@ -1,0 +1,55 @@
+# Adds Grafana Cloud to the existing OTel Collector DaemonSet. The
+# otlphttp/existingBackend exporter is already in values-existing.yaml - it's
+# repeated here because a `helm upgrade -f` replaces the release's values, it
+# doesn't merge them with the previous file.
+#
+# Render this template with envsubst before using it - see the README.
+image:
+  repository: 'otel/opentelemetry-collector-contrib'
+  tag: latest
+mode: daemonset
+
+presets:
+  logsCollection:
+    enabled: true
+
+config:
+  extensions:
+    basicauth/grafanaCloudOTLPEndpoint:
+      client_auth:
+        username: '${GRAFANA_CLOUD_OTLP_USERNAME}'
+        password: '${GRAFANA_CLOUD_ACCESS_POLICY_TOKEN}'
+
+  exporters:
+    # Already sending here before adding Grafana Cloud - unchanged.
+    otlphttp/existingBackend:
+      endpoint: http://existing-backend.existing-backend.svc.cluster.local:4318
+
+    # Added for Grafana Cloud
+    otlphttp/grafanaCloudOTLPEndpoint:
+      endpoint: '${GRAFANA_CLOUD_OTLP_ENDPOINT}'
+      auth:
+        authenticator: basicauth/grafanaCloudOTLPEndpoint
+
+  processors:
+    resource/clusterName:
+      attributes:
+        - action: insert
+          key: k8s.cluster.name
+          value: '${GRAFANA_CLOUD_CLUSTER_NAME}'
+
+  service:
+    extensions:
+      - health_check
+      - basicauth/grafanaCloudOTLPEndpoint
+    pipelines:
+      logs:
+        processors:
+          - resource/clusterName
+          - memory_limiter
+          - batch
+        # otlphttp/existingBackend is unchanged - Grafana Cloud is added
+        # alongside it in the same pipeline, not in a new one.
+        exporters:
+          - otlphttp/existingBackend
+          - otlphttp/grafanaCloudOTLPEndpoint

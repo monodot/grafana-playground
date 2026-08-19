@@ -1,0 +1,222 @@
+# Adds Grafana Cloud Kubernetes Monitoring to the existing central OTel
+# Collector Deployment. The "opentelemetry-collector" scrape job and the
+# otlphttp/existingBackend exporter are already in values-existing.yaml -
+# they're repeated here because a `helm upgrade -f` replaces the release's
+# values, it doesn't merge them with the previous file.
+#
+# Render this template with envsubst before using it - see the README.
+image:
+  repository: 'otel/opentelemetry-collector-contrib'
+  tag: latest
+mode: deployment
+
+presets:
+  kubernetesEvents:
+    enabled: true
+
+config:
+  extensions:
+    basicauth/grafanaCloudMetrics:
+      client_auth:
+        username: '${GRAFANA_CLOUD_PROMETHEUS_USERNAME}'
+        password: '${GRAFANA_CLOUD_PROMETHEUS_TOKEN}'
+    basicauth/grafanaCloudOTLPEndpoint:
+      client_auth:
+        username: '${GRAFANA_CLOUD_OTLP_USERNAME}'
+        password: '${GRAFANA_CLOUD_ACCESS_POLICY_TOKEN}'
+
+  receivers:
+    prometheus:
+      config:
+        scrape_configs:
+          # Already scraped before adding Grafana Cloud
+          - job_name: opentelemetry-collector
+            scrape_interval: 10s
+            static_configs:
+              - targets:
+                  - ${env:MY_POD_IP}:8888
+
+          # Added for Grafana Cloud Kubernetes Monitoring
+          - job_name: integrations/kubernetes/cadvisor
+            bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+            scheme: https
+            tls_config:
+              ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+              insecure_skip_verify: true
+              server_name: kubernetes
+            kubernetes_sd_configs:
+              - role: node
+            relabel_configs:
+              - target_label: __address__
+                replacement: kubernetes.default.svc.cluster.local:443
+              - source_labels: [__meta_kubernetes_node_name]
+                regex: (.+)
+                replacement: /api/v1/nodes/$${1}/proxy/metrics/cadvisor
+                target_label: __metrics_path__
+            metric_relabel_configs:
+              - source_labels: [__name__]
+                action: keep
+                regex: container_cpu_cfs_periods_total|container_cpu_cfs_throttled_periods_total|container_cpu_usage_seconds_total|container_fs_reads_bytes_total|container_fs_reads_total|container_fs_writes_bytes_total|container_fs_writes_total|container_memory_cache|container_memory_rss|container_memory_swap|container_memory_working_set_bytes|container_network_receive_bytes_total|container_network_receive_packets_dropped_total|container_network_receive_packets_total|container_network_transmit_bytes_total|container_network_transmit_packets_dropped_total|container_network_transmit_packets_total|machine_memory_bytes
+
+          - job_name: integrations/kubernetes/kubelet
+            scheme: https
+            bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+            tls_config:
+              ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+              insecure_skip_verify: true
+              server_name: kubernetes
+            kubernetes_sd_configs:
+              - role: node
+            relabel_configs:
+              - target_label: __address__
+                replacement: kubernetes.default.svc.cluster.local:443
+              - source_labels: [__meta_kubernetes_node_name]
+                regex: (.+)
+                replacement: /api/v1/nodes/$${1}/proxy/metrics
+                target_label: __metrics_path__
+            metric_relabel_configs:
+              - source_labels: [__name__]
+                action: keep
+                regex: go_goroutines|kubelet_certificate_manager_client_expiration_renew_errors|kubelet_certificate_manager_client_ttl_seconds|kubelet_certificate_manager_server_ttl_seconds|kubelet_cgroup_manager_duration_seconds_bucket|kubelet_cgroup_manager_duration_seconds_count|kubelet_node_config_error|kubelet_node_name|kubelet_pleg_relist_duration_seconds_bucket|kubelet_pleg_relist_duration_seconds_count|kubelet_pleg_relist_interval_seconds_bucket|kubelet_pod_start_duration_seconds_bucket|kubelet_pod_start_duration_seconds_count|kubelet_pod_worker_duration_seconds_bucket|kubelet_pod_worker_duration_seconds_count|kubelet_running_container_count|kubelet_running_containers|kubelet_running_pod_count|kubelet_running_pods|kubelet_runtime_operations_errors_total|kubelet_runtime_operations_total|kubelet_server_expiration_renew_errors|kubelet_volume_stats_available_bytes|kubelet_volume_stats_capacity_bytes|kubelet_volume_stats_inodes|kubelet_volume_stats_inodes_free|kubelet_volume_stats_inodes_used|kubelet_volume_stats_used_bytes|kubernetes_build_info|namespace_workload_pod|process_cpu_seconds_total|process_resident_memory_bytes|rest_client_requests_total|storage_operation_duration_seconds_count|storage_operation_errors_total|volume_manager_total_volumes
+
+          - job_name: integrations/kubernetes/kube-state-metrics
+            kubernetes_sd_configs:
+              - role: pod
+            relabel_configs:
+              - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+                action: keep
+                regex: kube-state-metrics
+            metric_relabel_configs:
+              - source_labels: [__name__]
+                action: keep
+                regex: kube_configmap_info|kube_configmap_metadata_resource_version|kube_daemonset.*|kube_deployment_metadata_generation|kube_deployment_spec_replicas|kube_deployment_status_condition|kube_deployment_status_observed_generation|kube_deployment_status_replicas_available|kube_deployment_status_replicas_updated|kube_horizontalpodautoscaler_spec_max_replicas|kube_horizontalpodautoscaler_spec_min_replicas|kube_horizontalpodautoscaler_status_current_replicas|kube_horizontalpodautoscaler_status_desired_replicas|kube_job.*|kube_namespace_status_phase|kube_node.*|kube_persistentvolume_status_phase|kube_persistentvolumeclaim_access_mode|kube_persistentvolumeclaim_info|kube_persistentvolumeclaim_labels|kube_persistentvolumeclaim_resource_requests_storage_bytes|kube_persistentvolumeclaim_status_phase|kube_pod_container_info|kube_pod_container_resource_limits|kube_pod_container_resource_requests|kube_pod_container_status_last_terminated_reason|kube_pod_container_status_restarts_total|kube_pod_container_status_waiting_reason|kube_pod_info|kube_pod_owner|kube_pod_spec_volumes_persistentvolumeclaims_info|kube_pod_start_time|kube_pod_status_phase|kube_pod_status_reason|kube_replicaset.*|kube_resourcequota|kube_secret_metadata_resource_version|kube_statefulset.*
+
+          - job_name: integrations/node_exporter
+            kubernetes_sd_configs:
+              - role: pod
+            relabel_configs:
+              - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+                action: keep
+                regex: prometheus-node-exporter.*
+              - source_labels: [__meta_kubernetes_pod_node_name]
+                target_label: instance
+              - source_labels: [__meta_kubernetes_namespace]
+                target_label: namespace
+            metric_relabel_configs:
+              - source_labels: [__name__]
+                action: keep
+                regex: node_cpu.*|node_exporter_build_info|node_filesystem.*|node_memory.*|node_network_receive_bytes_total|node_network_receive_drop_total|node_network_transmit_bytes_total|node_network_transmit_drop_total|process_cpu_seconds_total|process_resident_memory_bytes
+
+  exporters:
+    # Already sending here before adding Grafana Cloud - this exporter and the
+    # cluster's other backends must keep receiving data unchanged.
+    otlphttp/existingBackend:
+      endpoint: http://existing-backend.existing-backend.svc.cluster.local:4318
+
+    # Added for Grafana Cloud
+    prometheusremotewrite/grafanaCloudMetrics:
+      endpoint: '${GRAFANA_CLOUD_PROMETHEUS_URL}'
+      external_labels:
+        cluster: '${GRAFANA_CLOUD_CLUSTER_NAME}'
+        k8s.cluster.name: '${GRAFANA_CLOUD_CLUSTER_NAME}'
+      auth:
+        authenticator: basicauth/grafanaCloudMetrics
+    otlphttp/grafanaCloudOTLPEndpoint:
+      endpoint: '${GRAFANA_CLOUD_OTLP_ENDPOINT}'
+      auth:
+        authenticator: basicauth/grafanaCloudOTLPEndpoint
+
+  processors:
+    resource/k8sEvents:
+      attributes:
+        - action: insert
+          key: k8s.cluster.name
+          value: '${GRAFANA_CLOUD_CLUSTER_NAME}'
+        - action: upsert
+          key: service.name
+          value: integrations/kubernetes/eventhandler
+
+  service:
+    extensions:
+      - health_check
+      - basicauth/grafanaCloudMetrics
+      - basicauth/grafanaCloudOTLPEndpoint
+    pipelines:
+      metrics:
+        receivers: [prometheus]
+        processors: [batch]
+        # otlphttp/existingBackend is unchanged - Grafana Cloud is added
+        # alongside it in the same pipeline, not in a new one.
+        exporters: [otlphttp/existingBackend, prometheusremotewrite/grafanaCloudMetrics]
+      logs:
+        processors:
+          - resource/k8sEvents
+          - memory_limiter
+          - batch
+        exporters:
+          - otlphttp/grafanaCloudOTLPEndpoint
+
+clusterRole:
+  create: true
+  rules:
+    - apiGroups:
+        - ''
+      resources:
+        - nodes
+        - nodes/proxy
+        - services
+        - endpoints
+        - pods
+        - events
+        - namespaces
+        - namespaces/status
+        - pods/status
+        - replicationcontrollers
+        - replicationcontrollers/status
+        - resourcequotas
+      verbs:
+        - get
+        - list
+        - watch
+    - nonResourceURLs:
+        - /metrics
+      verbs:
+        - get
+    - apiGroups:
+        - apps
+      resources:
+        - daemonsets
+        - deployments
+        - replicasets
+        - statefulsets
+      verbs:
+        - get
+        - list
+        - watch
+    - apiGroups:
+        - extensions
+      resources:
+        - daemonsets
+        - deployments
+        - replicasets
+      verbs:
+        - get
+        - list
+        - watch
+    - apiGroups:
+        - batch
+      resources:
+        - jobs
+        - cronjobs
+      verbs:
+        - get
+        - list
+        - watch
+    - apiGroups:
+        - autoscaling
+      resources:
+        - horizontalpodautoscalers
+      verbs:
+        - get
+        - list
+        - watch

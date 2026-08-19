@@ -1,0 +1,29 @@
+# The current state of the central OTel Collector Deployment, before adding
+# anything for Grafana Cloud. It only scrapes itself and sends everything to
+# the existing backend.
+image:
+  repository: 'otel/opentelemetry-collector-contrib'
+  tag: latest
+mode: deployment
+
+config:
+  receivers:
+    prometheus:
+      config:
+        scrape_configs:
+          - job_name: opentelemetry-collector
+            scrape_interval: 10s
+            static_configs:
+              - targets:
+                  - ${env:MY_POD_IP}:8888
+
+  exporters:
+    otlphttp/existingBackend:
+      endpoint: http://existing-backend.existing-backend.svc.cluster.local:4318
+
+  service:
+    pipelines:
+      metrics:
+        receivers: [prometheus]
+        processors: [batch]
+        exporters: [otlphttp/existingBackend]

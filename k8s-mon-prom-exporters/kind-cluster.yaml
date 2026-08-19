@@ -1,0 +1,10 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: prom-exporter-demo
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      # Grafana on the "existing backend", exposed by its NodePort Service
+      - containerPort: 30000
+        hostPort: 3000
+        protocol: TCP
