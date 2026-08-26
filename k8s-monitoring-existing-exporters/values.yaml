@@ -31,6 +31,7 @@ clusterMetrics:
   collector: alloy-metrics
   kube-state-metrics:
     discoveryType: endpoints
+    # Discover our existing kube-state-metrics deployment, by namespace and labels
     namespace: monitoring
     labelMatchers:
       app.kubernetes.io/name: kube-state-metrics
@@ -43,6 +44,7 @@ hostMetrics:
   linuxHosts:
     enabled: true
     source: node-exporter
+    # Discover our existing node-exporter deployment, by namespace and labels
     namespace: monitoring
     labelMatchers:
       app.kubernetes.io/name: prometheus-node-exporter
@@ -59,6 +61,7 @@ collectors:
   alloy-logs:
     presets: [daemonset, filesystem-log-reader]
 
+# Tell the chart to NOT deploy its own KSM or node-exporter
 telemetryServices:
   kube-state-metrics:
     deploy: false
