@@ -1,0 +1,66 @@
+cluster:
+  name: existing-exporters-demo
+
+destinations:
+  metrics-service:
+    type: prometheus
+    urlFrom: convert.nonsensitive(remote.kubernetes.secret.metrics_service.data["url"])
+    auth:
+      type: basic
+      usernameKey: username
+      passwordKey: password
+    secret:
+      create: false
+      name: grafana-cloud-metrics
+      namespace: monitoring
+  logs-service:
+    type: loki
+    urlFrom: convert.nonsensitive(remote.kubernetes.secret.logs_service.data["url"])
+    auth:
+      type: basic
+      usernameKey: username
+      passwordKey: password
+    secret:
+      create: false
+      name: grafana-cloud-logs
+      namespace: monitoring
+
+clusterMetrics:
+  enabled: true
+  destinations: [metrics-service]
+  collector: alloy-metrics
+  kube-state-metrics:
+    discoveryType: endpoints
+    namespace: monitoring
+    labelMatchers:
+      app.kubernetes.io/name: kube-state-metrics
+      app.kubernetes.io/instance: ksm
+
+hostMetrics:
+  enabled: true
+  destinations: [metrics-service]
+  collector: alloy-metrics
+  linuxHosts:
+    enabled: true
+    source: node-exporter
+    namespace: monitoring
+    labelMatchers:
+      app.kubernetes.io/name: prometheus-node-exporter
+      app.kubernetes.io/instance: nodeexporter
+
+podLogsViaLoki:
+  enabled: true
+  destinations: [logs-service]
+  collector: alloy-logs
+
+collectors:
+  alloy-metrics:
+    presets: [clustered, statefulset]
+  alloy-logs:
+    presets: [daemonset, filesystem-log-reader]
+
+telemetryServices:
+  kube-state-metrics:
+    deploy: false
+  node-exporter:
+    deploy: false
