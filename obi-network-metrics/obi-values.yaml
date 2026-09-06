@@ -1,0 +1,48 @@
+# Helm values for OpenTelemetry eBPF Instrumentation (OBI).
+# OBI runs once per node and reports only network metrics for this demo.
+fullnameOverride: obi
+preset: network
+
+# Disable trace propagation because we're not interested in it (TODO confirm whether we can just remove this altogether)
+contextPropagation:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    memory: 256Mi
+
+config:
+  data:
+    metrics:
+      features:
+        - network
+        - network_inter_zone
+    network:
+      enable: true
+      # Compatible with the Kind default CNI and with Cilium-based EKS clusters.
+      source: socket_filter
+      # Aggregate by workload rather than individual pod/IP, keeping the cost
+      # investigation legible and metric cardinality bounded.
+      allowed_attributes:
+        - k8s.src.owner.name
+        - k8s.src.owner.type
+        - k8s.src.namespace
+        - k8s.dst.owner.name
+        - k8s.dst.owner.type
+        - k8s.dst.namespace
+        - src.zone
+        - dst.zone
+    attributes:
+      kubernetes:
+        enable: true
+    otel_metrics_export:
+      endpoint: http://grafana-otel-lgtm.obi-network-metrics.svc.cluster.local:4318
+    otel_traces_export:
+      endpoint: http://grafana-otel-lgtm.obi-network-metrics.svc.cluster.local:4318
+
+env:
+  # Kind does not have cloud-provider metadata from which OBI can infer this.
+  OTEL_EBPF_KUBE_CLUSTER_NAME: obi-network-metrics-demo
