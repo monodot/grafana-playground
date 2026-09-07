@@ -1,0 +1,20 @@
+# Apply this file after obi-values.yaml to send OBI metrics directly to
+# Grafana Cloud instead of the in-cluster Grafana OpenTelemetry LGTM service.
+config:
+  data:
+    # Remove the endpoints supplied by the base values file. Explicit OTLP
+    # exporter endpoints take precedence over the Grafana Cloud configuration.
+    otel_metrics_export: null
+    otel_traces_export: null
+
+# Read the Grafana Cloud connection details from a Kubernetes Secret. Create
+# this Secret as described in README.md; do not commit an access policy token.
+envValueFrom:
+  OTEL_EXPORTER_OTLP_ENDPOINT:
+    secretKeyRef:
+      name: grafana-cloud-otlp
+      key: endpoint
+  OTEL_EXPORTER_OTLP_HEADERS:
+    secretKeyRef:
+      name: grafana-cloud-otlp
+      key: headers

@@ -1,0 +1,21 @@
+# $schema: https://raw.githubusercontent.com/eksctl-io/eksctl/main/pkg/apis/eksctl.io/v1alpha5/assets/schema.json
+# nonk8s
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: obi-network-metrics-demo
+  region: us-east-1
+
+availabilityZones:
+  - us-east-1a
+  - us-east-1b
+  - us-east-1d
+
+managedNodeGroups:
+  - name: demo
+    instanceType: t3.large
+    desiredCapacity: 3
+    minSize: 3
+    maxSize: 3
+    volumeSize: 30

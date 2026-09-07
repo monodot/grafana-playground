@@ -30,14 +30,13 @@ kind: Service
 metadata:
   name: grafana-otel-lgtm
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: grafana-otel-lgtm
   ports:
     - name: grafana
       port: 3000
       targetPort: 3000
-      nodePort: 30000
     - name: otlp-grpc
       port: 4317
       targetPort: 4317

@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-otel-lgtm
+spec:
+  type: NodePort
+  ports:
+    - name: grafana
+      nodePort: 30000
